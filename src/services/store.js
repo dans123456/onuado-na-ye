@@ -1247,7 +1247,9 @@ const INITIAL_CONTRIBUTIONS = [
   }
 ];
 
-// Helper functions for LocalStorage persistence
+import { supabase } from './supabaseClient';
+
+// Helper functions for LocalStorage persistence & Supabase sync
 const getStoredMembers = () => {
   const saved = localStorage.getItem('ony_members');
   return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
@@ -1262,6 +1264,34 @@ export const getMembers = () => getStoredMembers();
 
 export const getContributions = () => getStoredContributions();
 
+export const fetchMembersFromSupabase = async () => {
+  try {
+    const { data, error } = await supabase.from('members').select('*');
+    if (error) throw error;
+    if (data && data.length > 0) {
+      saveMembers(data);
+      return data;
+    }
+  } catch (err) {
+    console.warn("Using local cache fallback for members:", err.message);
+  }
+  return getStoredMembers();
+};
+
+export const fetchContributionsFromSupabase = async () => {
+  try {
+    const { data, error } = await supabase.from('contributions').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    if (data && data.length > 0) {
+      saveContributions(data);
+      return data;
+    }
+  } catch (err) {
+    console.warn("Using local cache fallback for contributions:", err.message);
+  }
+  return getStoredContributions();
+};
+
 export const saveMembers = (members) => {
   localStorage.setItem('ony_members', JSON.stringify(members));
 };
@@ -1272,8 +1302,18 @@ export const saveContributions = (contributions) => {
 
 export const updateMemberProfile = (memberId, updatedFields) => {
   const members = getStoredMembers();
-  const updated = members.map(m => m.id === memberId ? { ...m, ...updatedFields } : m);
+  const targetMember = members.find(m => m.id === memberId || m.excel_member_id === memberId);
+  
+  const updated = members.map(m => (m.id === memberId || m.excel_member_id === memberId) ? { ...m, ...updatedFields } : m);
   saveMembers(updated);
+
+  // Sync to Supabase in background
+  if (targetMember && targetMember.excel_member_id) {
+    supabase.from('members').update(updatedFields).eq('excel_member_id', targetMember.excel_member_id).then(({ error }) => {
+      if (error) console.error("Supabase profile update error:", error);
+    });
+  }
+
   return updated;
 };
 
@@ -1286,6 +1326,21 @@ export const addContribution = (newEntry) => {
   };
   const updated = [entryWithId, ...contributions];
   saveContributions(updated);
+
+  // Sync to Supabase in background
+  supabase.from('contributions').insert([{
+    receipt_id: newEntry.receipt_id || `REC-${Date.now()}`,
+    member_id: newEntry.member_id,
+    contribution_type: newEntry.contribution_type || 'Monthly Dues',
+    amount: newEntry.amount,
+    payment_date: newEntry.payment_date || new Date().toISOString().split('T')[0],
+    payment_method: newEntry.payment_method || 'MTN Mobile Money',
+    reference_note: newEntry.reference_note || '',
+    received_by: newEntry.received_by_name || 'Executive Board'
+  }]).then(({ error }) => {
+    if (error) console.error("Supabase contribution insert error:", error);
+  });
+
   return updated;
 };
 
@@ -1300,3 +1355,4 @@ export const bulkAddContributions = (newEntries) => {
   saveContributions(updated);
   return updated;
 };
+
