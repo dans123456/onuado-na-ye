@@ -102,31 +102,33 @@ ALTER TABLE public.dues_matrix ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.executive_accounts ENABLE ROW LEVEL SECURITY;
 
 -- 1. MEMBERS TABLE POLICIES
--- Allow any authenticated user to view member list summary
+DROP POLICY IF EXISTS "Allow public read of active member basic profile" ON public.members;
 CREATE POLICY "Allow public read of active member basic profile" 
 ON public.members FOR SELECT 
 USING (true);
 
--- Allow admins to insert or update member profiles
+DROP POLICY IF EXISTS "Allow admins full control of members" ON public.members;
 CREATE POLICY "Allow admins full control of members" 
 ON public.members FOR ALL 
 USING (role = 'admin');
 
 -- 2. CONTRIBUTIONS TABLE POLICIES
--- Members can view their own contributions only
+DROP POLICY IF EXISTS "Members view own contributions" ON public.contributions;
 CREATE POLICY "Members view own contributions" 
 ON public.contributions FOR SELECT 
 USING (member_id IN (SELECT id FROM public.members WHERE phone_number = current_setting('request.jwt.claims', true)::json->>'phone_number'));
 
--- Admins can view and insert all contributions
+DROP POLICY IF EXISTS "Admins full control of contributions" ON public.contributions;
 CREATE POLICY "Admins full control of contributions" 
 ON public.contributions FOR ALL 
 USING (EXISTS (SELECT 1 FROM public.members WHERE phone_number = current_setting('request.jwt.claims', true)::json->>'phone_number' AND role = 'admin'));
 
 -- 3. EXECUTIVE ACCOUNTS TABLE POLICIES (STRICT ADMIN ONLY)
+DROP POLICY IF EXISTS "Executive accounts restricted to admins only" ON public.executive_accounts;
 CREATE POLICY "Executive accounts restricted to admins only" 
 ON public.executive_accounts FOR ALL 
 USING (EXISTS (SELECT 1 FROM public.members WHERE phone_number = current_setting('request.jwt.claims', true)::json->>'phone_number' AND role = 'admin'));
+
 
 
 -- Create helper indexing for fast searches
