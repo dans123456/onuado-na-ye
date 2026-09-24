@@ -77,6 +77,7 @@ export default function App() {
               members={members}
               setMembers={setMembers}
               contributions={contributions}
+              setActivePage={setActivePage}
             />
           ) : (
             <LoginPage 
@@ -94,6 +95,7 @@ export default function App() {
               members={members}
               contributions={contributions}
               setContributions={setContributions}
+              setActivePage={setActivePage}
             />
           ) : (
             <div style={{ textAlign: 'center', padding: '5rem 1.5rem' }}>

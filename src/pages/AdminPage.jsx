@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { addContribution, bulkAddContributions } from '../services/store';
 
-export default function AdminPage({ currentUser, members, contributions, setContributions }) {
+export default function AdminPage({ currentUser, members, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'manual', 'roster'
   const [showAllBranches, setShowAllBranches] = useState(false);
 
@@ -140,16 +140,28 @@ export default function AdminPage({ currentUser, members, contributions, setCont
     <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
       
       {/* Header */}
-      <div style={{ marginBottom: '2rem' }}>
-        <div className="badge badge-admin" style={{ marginBottom: '0.5rem', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(5, 150, 105, 0.2))', border: '1px solid rgba(217, 119, 6, 0.4)', color: '#d97706', padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
-          <Shield size={15} /> Executive Command & Financial Control Center
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
+        <div>
+          <div className="badge badge-admin" style={{ marginBottom: '0.5rem', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(5, 150, 105, 0.2))', border: '1px solid rgba(217, 119, 6, 0.4)', color: '#d97706', padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+            <Shield size={15} /> Executive Command & Financial Control Center
+          </div>
+          <h1 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.4rem' }}>
+            Fellowship Executive Console
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.98rem' }}>
+            Logged in as <strong>{currentUser?.full_name || 'Executive Officer'}</strong> ({currentUser?.position || 'Executive'}). Manage member records, bulk-sync MoMo statements, and issue payment receipts.
+          </p>
         </div>
-        <h1 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.4rem' }}>
-          Fellowship Executive Console
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.98rem' }}>
-          Logged in as <strong>{currentUser?.full_name || 'Executive Officer'}</strong> ({currentUser?.position || 'Executive'}). Manage member records, bulk-sync MoMo statements, and issue payment receipts.
-        </p>
+
+        {setActivePage && (
+          <button 
+            onClick={() => setActivePage('dashboard')}
+            className="btn btn-primary btn-full-mobile"
+            style={{ padding: '0.65rem 1.25rem', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
+          >
+            <User size={18} /> My Personal Member Portal
+          </button>
+        )}
       </div>
 
       {/* Executive Quick Metrics */}

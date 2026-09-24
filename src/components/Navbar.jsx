@@ -147,8 +147,30 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
 
           {/* User Auth Controls */}
           {currentUser ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
-              <div style={{ width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg, #059669, #d97706)', color: '#fff', fontSize: '0.85rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '2px solid #059669' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+              
+              {/* Executive Quick Portal Switcher Button for Mobile & Desktop */}
+              {currentUser.role === 'admin' && (
+                <button 
+                  onClick={() => handleNav(activePage === 'admin' ? 'dashboard' : 'admin')}
+                  className="btn btn-secondary nav-admin-switch-btn"
+                  title={activePage === 'admin' ? "Switch to My Member Portal" : "Switch to Executive Admin Console"}
+                  style={{ padding: '0.45rem 0.75rem', fontSize: '0.8rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap', border: activePage === 'admin' ? '1px solid rgba(5, 150, 105, 0.4)' : '1px solid rgba(217, 119, 6, 0.4)' }}
+                >
+                  {activePage === 'admin' ? (
+                    <> <User size={15} color="#059669" /> <span className="admin-switch-text" style={{ color: '#059669' }}>My Member Portal</span> </>
+                  ) : (
+                    <> <Shield size={15} color="#d97706" /> <span className="admin-switch-text" style={{ color: '#d97706' }}>Executive Console</span> </>
+                  )}
+                </button>
+              )}
+
+              {/* Avatar Pill Button (Click to go to My Member Portal) */}
+              <div 
+                onClick={() => handleNav('dashboard')}
+                title="Go to My Personal Member Portal"
+                style={{ width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg, #059669, #d97706)', color: '#fff', fontSize: '0.85rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '2px solid #059669', cursor: 'pointer', flexShrink: 0 }}
+              >
                 {currentUser.profile_picture ? (
                   <img src={currentUser.profile_picture} alt={currentUser.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
@@ -156,13 +178,15 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 )}
                 <span style={{ position: 'absolute', bottom: '2px', right: '2px', width: '10px', height: '10px', borderRadius: '50%', background: currentUser.status === 'ACTIVE' ? '#10b981' : '#f59e0b', border: '2px solid #fff' }}></span>
               </div>
-              <div style={{ textAlign: 'left', display: 'none' }} className="user-text">
+
+              <div style={{ textAlign: 'left', display: 'none', cursor: 'pointer' }} onClick={() => handleNav('dashboard')} className="user-text">
                 <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.2 }}>{currentUser.full_name}</div>
                 <div style={{ fontSize: '0.7rem', color: currentUser.role === 'admin' ? '#d97706' : 'var(--text-muted)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                   {currentUser.role === 'admin' ? '⭐ Executive Officer' : `✓ ${currentUser.status || 'ACTIVE'}`}
                 </div>
               </div>
-              <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '0.45rem 0.75rem', fontSize: '0.82rem' }}>
+
+              <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '0.45rem 0.65rem', fontSize: '0.82rem' }}>
                 <LogOut size={15} /> <span className="logout-text">Logout</span>
               </button>
             </div>
@@ -291,6 +315,8 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
         @media (max-width: 580px) {
           .signin-text { display: none !important; }
           .nav-signin-btn { padding: 0.45rem 0.65rem !important; }
+          .admin-switch-text { display: none !important; }
+          .nav-admin-switch-btn { padding: 0.45rem 0.6rem !important; }
         }
         @media (max-width: 480px) {
           .brand-subtitle { display: none !important; }

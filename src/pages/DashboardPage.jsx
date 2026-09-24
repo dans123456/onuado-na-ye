@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign } from 'lucide-react';
+import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield } from 'lucide-react';
 import { updateMemberProfile } from '../services/store';
 
-export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions }) {
+export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('record'); // 'record', 'dues_matrix', 'levies_matrix', 'history'
   const [isEditing, setIsEditing] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -78,6 +78,22 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   return (
     <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
       
+      {/* Executive Quick Switch Banner for Admins */}
+      {currentUser.role === 'admin' && setActivePage && (
+        <div style={{ marginBottom: '1.5rem', padding: '1rem 1.25rem', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.12), rgba(5, 150, 105, 0.12))', border: '1px solid rgba(217, 119, 6, 0.3)', borderRadius: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.85rem' }}>
+          <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Shield size={18} color="#d97706" /> You are logged in as an <strong>Executive Officer</strong> ({currentUser.full_name})
+          </div>
+          <button 
+            onClick={() => setActivePage('admin')}
+            className="btn btn-accent btn-full-mobile"
+            style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', fontWeight: 700 }}
+          >
+            <Shield size={16} /> Open Executive Admin Console &rarr;
+          </button>
+        </div>
+      )}
+
       {/* Top Welcome & Navigation Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
         <div>
