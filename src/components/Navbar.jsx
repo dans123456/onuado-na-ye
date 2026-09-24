@@ -39,10 +39,9 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
       </div>
 
       <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        
-        {/* Brand / Logo */}
+           {/* Brand / Logo */}
         <div 
-          onClick={() => handleNav('home')} 
+          onClick={() => handleNav(currentUser ? 'dashboard' : 'home')} 
           style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', flexShrink: 0 }}
         >
           <img 
@@ -61,63 +60,66 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
               ONUADO NA YE
             </div>
             <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              FELLOWSHIP PORTAL
+              {currentUser ? 'MEMBER PORTAL' : 'FELLOWSHIP PORTAL'}
             </div>
           </div>
         </div>
 
         {/* Desktop Navigation Links */}
         <div style={{ display: 'none', gap: '1.25rem', alignItems: 'center', flexShrink: 0 }} className="desktop-links">
-          <button 
-            onClick={() => handleNav('home')}
-            className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
-          >
-            Home
-          </button>
-          <button 
-            onClick={() => handleNav('about')}
-            className={`nav-link ${activePage === 'about' ? 'active' : ''}`}
-          >
-            About Us
-          </button>
-          <button 
-            onClick={() => handleNav('contact')}
-            className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}
-          >
-            Contact & MoMo
-          </button>
-          
-          {currentUser && (
-            <button 
-              onClick={() => handleNav('dashboard')}
-              className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-            >
-              <User size={16} /> My Member Portal
-            </button>
-          )}
+          {!currentUser ? (
+            <>
+              <button 
+                onClick={() => handleNav('home')}
+                className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
+              >
+                Home
+              </button>
+              <button 
+                onClick={() => handleNav('about')}
+                className={`nav-link ${activePage === 'about' ? 'active' : ''}`}
+              >
+                About Us
+              </button>
+              <button 
+                onClick={() => handleNav('contact')}
+                className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}
+              >
+                Contact Us
+              </button>
+            </>
+          ) : (
+            <>
+              <button 
+                onClick={() => handleNav('dashboard')}
+                className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              >
+                <User size={16} /> My Member Portal
+              </button>
 
-          {currentUser?.role === 'admin' && (
-            <button 
-              onClick={() => handleNav('admin')}
-              style={{ 
-                background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(5, 150, 105, 0.15))', 
-                border: '1px solid rgba(217, 119, 6, 0.4)', 
-                color: '#d97706', 
-                padding: '0.45rem 0.85rem', 
-                borderRadius: '8px', 
-                fontWeight: 700, 
-                cursor: 'pointer', 
-                fontSize: '0.82rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.35rem',
-                whiteSpace: 'nowrap',
-                marginRight: '0.5rem'
-              }}
-            >
-              <Shield size={15} color="#d97706" /> Executive Console
-            </button>
+              {currentUser.role === 'admin' && (
+                <button 
+                  onClick={() => handleNav('admin')}
+                  style={{ 
+                    background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(5, 150, 105, 0.15))', 
+                    border: '1px solid rgba(217, 119, 6, 0.4)', 
+                    color: '#d97706', 
+                    padding: '0.45rem 0.85rem', 
+                    borderRadius: '8px', 
+                    fontWeight: 700, 
+                    cursor: 'pointer', 
+                    fontSize: '0.82rem', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.35rem',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <Shield size={15} color="#d97706" /> Executive Console
+                </button>
+              )}
+            </>
           )}
         </div>
 
@@ -164,7 +166,6 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 <LogOut size={15} /> <span className="logout-text">Logout</span>
               </button>
             </div>
-
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button onClick={() => handleNav('login')} className="btn btn-primary" style={{ padding: '0.55rem 1.25rem', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}>
@@ -187,10 +188,16 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
         <div style={{ padding: '1.25rem 1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.85rem', background: isDarkMode ? '#0f172a' : '#ffffff' }}>
-          <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>Home</button>
-          <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>About Us</button>
-          <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>Contact & MoMo Details</button>
-          {currentUser ? (
+          {!currentUser ? (
+            <>
+              <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>Home</button>
+              <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>About Us</button>
+              <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>Contact Us</button>
+              <button onClick={() => handleNav('login')} className="btn btn-primary" style={{ justifyContent: 'flex-start' }}>
+                <User size={16} /> Member Sign In
+              </button>
+            </>
+          ) : (
             <>
               <button onClick={() => handleNav('dashboard')} className="btn btn-primary" style={{ justifyContent: 'flex-start' }}>
                 <User size={16} /> My Member Portal
@@ -200,14 +207,14 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                   <Shield size={16} /> Executive Admin Console
                 </button>
               )}
+              <button onClick={() => setShowMoMoModal(true)} className="btn btn-secondary" style={{ justifyContent: 'flex-start' }}>
+                <Wallet size={16} /> Pay Dues MoMo
+              </button>
             </>
-          ) : (
-            <button onClick={() => handleNav('login')} className="btn btn-primary" style={{ justifyContent: 'flex-start' }}>
-              <User size={16} /> Member Sign In
-            </button>
           )}
         </div>
       )}
+
 
       {/* MoMo Quick Pay Modal */}
       {showMoMoModal && (
