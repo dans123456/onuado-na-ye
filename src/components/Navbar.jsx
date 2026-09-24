@@ -168,8 +168,8 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <button onClick={() => handleNav('login')} className="btn btn-primary" style={{ padding: '0.55rem 1.25rem', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}>
-                <User size={16} /> Member Sign In
+              <button onClick={() => handleNav('login')} className="btn btn-primary nav-signin-btn" style={{ padding: '0.55rem 1.1rem', fontSize: '0.88rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)', whiteSpace: 'nowrap' }}>
+                <User size={16} /> <span className="signin-text">Member Sign In</span>
               </button>
             </div>
           )}
@@ -287,6 +287,10 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
         @media (max-width: 640px) {
           .momo-desktop-btn { display: none !important; }
           .top-ticker-subtitle { display: none !important; }
+        }
+        @media (max-width: 580px) {
+          .signin-text { display: none !important; }
+          .nav-signin-btn { padding: 0.45rem 0.65rem !important; }
         }
         @media (max-width: 480px) {
           .brand-subtitle { display: none !important; }

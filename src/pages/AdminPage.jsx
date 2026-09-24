@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Database, Search, ArrowRight } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { addContribution, bulkAddContributions } from '../services/store';
-import { SQL_SCHEMA_SCRIPT } from '../services/supabase';
 
 export default function AdminPage({ currentUser, members, contributions, setContributions }) {
-  const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'manual', 'roster', 'sql'
+  const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'manual', 'roster'
+  const [showAllBranches, setShowAllBranches] = useState(false);
 
   // Uploader State
   const [dragActive, setDragActive] = useState(false);
@@ -181,13 +181,23 @@ export default function AdminPage({ currentUser, members, contributions, setCont
         </div>
       </div>
 
-      {/* 📊 REGIONAL BRANCH DUES & SHARES PERFORMANCE METERS */}
-      <div className="glass-card" style={{ padding: '1.75rem', borderRadius: '18px', marginBottom: '2.5rem' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '1.25rem', color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <RefreshCw size={20} color="#059669" /> Regional Branch Dues Collection & Shares Performance
-        </h3>
+      {/* 📊 REGIONAL BRANCH DUES & SHARES PERFORMANCE METERS (COMPACT COLLAPSIBLE) */}
+      <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderRadius: '16px', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+            <RefreshCw size={18} color="#059669" /> Regional Branch Dues & Shares Summary
+          </h3>
+          <button 
+            type="button"
+            onClick={() => setShowAllBranches(!showAllBranches)}
+            className="btn btn-secondary"
+            style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', fontWeight: 700 }}
+          >
+            {showAllBranches ? 'Show Top 4 Branches' : `View All ${Object.keys(members.reduce((acc, m) => { acc[m.branch || 'Takoradi'] = true; return acc; }, {})).length} Branches`}
+          </button>
+        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
           {Object.entries(
             members.reduce((acc, m) => {
               const b = m.branch || 'Takoradi';
@@ -198,26 +208,26 @@ export default function AdminPage({ currentUser, members, contributions, setCont
               acc[b].shares += (parseFloat(m.shares_holding) || 0);
               return acc;
             }, {})
-          ).map(([branchName, stats]) => {
+          ).slice(0, showAllBranches ? undefined : 4).map(([branchName, stats]) => {
             const percentage = Math.min(100, Math.round((stats.duesPaid / (stats.duesRequired || 1)) * 100));
             return (
-              <div key={branchName} style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                  <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>📍 {branchName} Branch</span>
-                  <span className="badge badge-dues">{stats.count} Members</span>
+              <div key={branchName} style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-main)' }}>📍 {branchName}</span>
+                  <span className="badge badge-dues" style={{ fontSize: '0.68rem' }}>{stats.count} Members</span>
                 </div>
 
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                  Dues Collected: <strong>GH₵ {stats.duesPaid.toLocaleString()}</strong> / GH₵ {stats.duesRequired.toLocaleString()}
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                  Dues: <strong>GH₵ {stats.duesPaid.toLocaleString()}</strong> / GH₵ {stats.duesRequired.toLocaleString()}
                 </div>
 
                 {/* Visual Progress Bar Meter */}
-                <div style={{ height: '8px', background: 'var(--border-color)', borderRadius: '4px', overflow: 'hidden', marginBottom: '0.5rem' }}>
-                  <div style={{ width: `${percentage}%`, height: '100%', background: percentage > 80 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #f59e0b, #d97706)', borderRadius: '4px', transition: 'width 0.4s ease' }}></div>
+                <div style={{ height: '6px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden', marginBottom: '0.4rem' }}>
+                  <div style={{ width: `${percentage}%`, height: '100%', background: percentage > 80 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #f59e0b, #d97706)', borderRadius: '3px' }}></div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700 }}>
-                  <span style={{ color: percentage > 80 ? '#059669' : '#d97706' }}>{percentage}% Collection Rate</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 700 }}>
+                  <span style={{ color: percentage > 80 ? '#059669' : '#d97706' }}>{percentage}% Rate</span>
                   <span style={{ color: '#3b82f6' }}>Shares: GH₵ {Math.round(stats.shares).toLocaleString()}</span>
                 </div>
               </div>
@@ -227,34 +237,27 @@ export default function AdminPage({ currentUser, members, contributions, setCont
       </div>
 
       {/* Admin Tabs */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
         <button 
           onClick={() => setActiveTab('uploader')} 
           className={`btn ${activeTab === 'uploader' ? 'btn-accent' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
+          style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
         >
-          <FileSpreadsheet size={18} /> Excel / MoMo Statement Uploader
+          <FileSpreadsheet size={16} /> Excel / MoMo Statement Uploader
         </button>
         <button 
           onClick={() => setActiveTab('manual')} 
           className={`btn ${activeTab === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
+          style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
         >
-          <PlusCircle size={18} /> Log Payment Receipt
+          <PlusCircle size={16} /> Log Payment Receipt
         </button>
         <button 
           onClick={() => setActiveTab('roster')} 
           className={`btn ${activeTab === 'roster' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
+          style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
         >
-          <Users size={18} /> Member Roster ({members.length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('sql')} 
-          className={`btn ${activeTab === 'sql' ? 'btn-secondary' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
-        >
-          <Database size={18} /> Supabase SQL Exporter
+          <Users size={16} /> Member Roster ({members.length})
         </button>
       </div>
 
@@ -565,30 +568,6 @@ export default function AdminPage({ currentUser, members, contributions, setCont
               </tbody>
             </table>
           </div>
-        </div>
-      )}
-
-      {/* TAB 4: SQL DATABASE SCHEMA */}
-      {activeTab === 'sql' && (
-        <div className="glass-card" style={{ padding: '2.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <div>
-              <h2 style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Database size={22} color="#059669" /> Supabase PostgreSQL Migration Script
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                Copy and paste this script directly into your Supabase SQL Editor to initialize production database tables!
-              </p>
-            </div>
-
-            <button onClick={copySql} className="btn btn-primary" style={{ padding: '0.6rem 1.1rem' }}>
-              {copiedSql ? <CheckCircle2 size={16} /> : <Copy size={16} />} {copiedSql ? 'Copied to Clipboard!' : 'Copy SQL Code'}
-            </button>
-          </div>
-
-          <pre style={{ background: '#0b131f', color: '#10b981', padding: '1.5rem', borderRadius: '0.75rem', overflowX: 'auto', fontSize: '0.88rem', lineHeight: 1.5, fontFamily: 'monospace', border: '1px solid var(--border-color)' }}>
-            {SQL_SCHEMA_SCRIPT}
-          </pre>
         </div>
       )}
 
