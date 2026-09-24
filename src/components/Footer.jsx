@@ -9,13 +9,12 @@ export default function Footer({ setActivePage }) {
         {/* Col 1: Brand & Mission */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #059669, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-              <HeartHandshake size={20} />
-            </div>
+            <img src="/logo.png" alt="Logo" style={{ width: '38px', height: '38px', objectFit: 'contain', borderRadius: '8px' }} />
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '1.2rem', color: 'var(--primary-600)' }}>
               ONUADO NA YE
             </span>
           </div>
+
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.6 }}>
             A close-knit fellowship of 24 members bound by mutual support, spiritual fellowship, financial accountability, and brotherly love.
           </p>

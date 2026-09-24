@@ -9,7 +9,8 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
     phone_number: currentUser?.phone_number || '',
     momo_number: currentUser?.momo_number || '',
     home_address: currentUser?.home_address || '',
-    emergency_contact: currentUser?.emergency_contact || ''
+    emergency_contact: currentUser?.emergency_contact || '',
+    profile_picture: currentUser?.profile_picture || ''
   });
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
@@ -30,6 +31,17 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const balanceOwed = currentUser?.balance_owed !== undefined ? currentUser.balance_owed : Math.max(0, duesFeeRequired - duesPaid);
   const netPayoutValue = Math.max(0, sharesHolding - balanceOwed);
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileForm(prev => ({ ...prev, profile_picture: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleProfileSave = (e) => {
     e.preventDefault();
     const updatedMembersList = updateMemberProfile(currentUser.id, profileForm);
@@ -39,6 +51,12 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
   };
+
+  const getInitials = (name) => {
+    if (!name) return 'MB';
+    return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  };
+
 
   const exportCSV = () => {
     const headers = ["ID,Date,Type,Amount (GHS),Payment Method,Reference Note,Received By\n"];
@@ -93,19 +111,31 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', alignItems: 'center' }}>
           
-          {/* Member Name & Title */}
-          <div>
-            <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.8, fontWeight: 700 }}>
-              {currentUser.title || 'Elder'} — {currentUser.position || 'Fellowship Member'}
+          {/* Member Photo Avatar & Name Details */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <div style={{ width: '75px', height: '75px', borderRadius: '50%', border: '3px solid #fef08a', overflow: 'hidden', background: '#3b0764', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', fontWeight: 900, color: '#fef08a', boxShadow: '0 4px 14px rgba(0,0,0,0.4)' }}>
+                {currentUser.profile_picture ? (
+                  <img src={currentUser.profile_picture} alt={currentUser.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  getInitials(currentUser.full_name)
+                )}
+              </div>
             </div>
-            <div style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-heading)', marginTop: '0.2rem', letterSpacing: '-0.02em', color: '#fef08a' }}>
-              {currentUser.full_name}
-            </div>
-            <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, background: currentUser.status === 'ACTIVE' ? '#10b981' : '#f59e0b', color: '#fff' }}>
-                STATUS: {currentUser.status || 'ACTIVE'}
-              </span>
-              <span style={{ fontSize: '0.8rem', opacity: 0.85 }}>📅 Joined: {currentUser.date_joined || 'January 2023'}</span>
+
+            <div>
+              <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.85, fontWeight: 700 }}>
+                {currentUser.title || 'Elder'} — {currentUser.position || 'Fellowship Member'}
+              </div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-heading)', marginTop: '0.1rem', letterSpacing: '-0.02em', color: '#fef08a' }}>
+                {currentUser.full_name}
+              </div>
+              <div style={{ marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <span style={{ padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, background: currentUser.status === 'ACTIVE' ? '#10b981' : '#f59e0b', color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+                  FELLOWSHIP STATUS: {currentUser.status || 'ACTIVE'}
+                </span>
+                <span style={{ fontSize: '0.8rem', opacity: 0.9, fontWeight: 600 }}>📅 Joined: {currentUser.date_joined || 'January 2023'}</span>
+              </div>
             </div>
           </div>
 
@@ -274,6 +304,25 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               </div>
             ) : (
               <form onSubmit={handleProfileSave} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Profile Photo (Upload File or Image Link)</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="form-input"
+                    style={{ padding: '0.4rem', fontSize: '0.85rem' }}
+                  />
+                  <input 
+                    type="text" 
+                    className="form-input"
+                    placeholder="Or paste photo image URL"
+                    value={profileForm.profile_picture}
+                    onChange={(e) => setProfileForm({ ...profileForm, profile_picture: e.target.value })}
+                    style={{ marginTop: '0.35rem' }}
+                  />
+                </div>
+
                 <div>
                   <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Primary Phone Number</label>
                   <input 

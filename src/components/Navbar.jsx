@@ -43,35 +43,31 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
         {/* Brand / Logo */}
         <div 
           onClick={() => handleNav('home')} 
-          style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', flexShrink: 0 }}
         >
-          <div style={{ 
-            width: '44px', 
-            height: '44px', 
-            borderRadius: '14px', 
-            background: 'linear-gradient(135deg, #059669, #064e3b, #d97706)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            color: '#fff', 
-            fontWeight: 'bold', 
-            fontSize: '1.25rem',
-            boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)'
-          }}>
-            <HeartHandshake size={26} />
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="Onuado Na Ye Fellowship Logo" 
+            style={{ 
+              width: '46px', 
+              height: '46px', 
+              objectFit: 'contain', 
+              borderRadius: '10px',
+              filter: 'drop-shadow(0 2px 6px rgba(5, 150, 105, 0.3))'
+            }} 
+          />
           <div>
-            <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '1.3rem', lineHeight: 1.1, background: 'linear-gradient(135deg, #059669, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
+            <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '1.25rem', lineHeight: 1.1, background: 'linear-gradient(135deg, #059669, #064e3b, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
               ONUADO NA YE
             </div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               FELLOWSHIP PORTAL
             </div>
           </div>
         </div>
 
         {/* Desktop Navigation Links */}
-        <div style={{ display: 'none', gap: '1.75rem', alignItems: 'center' }} className="desktop-links">
+        <div style={{ display: 'none', gap: '1.25rem', alignItems: 'center', flexShrink: 0 }} className="desktop-links">
           <button 
             onClick={() => handleNav('home')}
             className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
@@ -108,15 +104,16 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(5, 150, 105, 0.15))', 
                 border: '1px solid rgba(217, 119, 6, 0.4)', 
                 color: '#d97706', 
-                padding: '0.45rem 0.9rem', 
+                padding: '0.45rem 0.85rem', 
                 borderRadius: '8px', 
                 fontWeight: 700, 
                 cursor: 'pointer', 
-                fontSize: '0.85rem', 
+                fontSize: '0.82rem', 
                 display: 'flex', 
                 alignItems: 'center', 
-                gap: '0.4rem',
-                transition: 'all 0.2s ease'
+                gap: '0.35rem',
+                whiteSpace: 'nowrap',
+                marginRight: '0.5rem'
               }}
             >
               <Shield size={15} color="#d97706" /> Executive Console
@@ -125,13 +122,13 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
         </div>
 
         {/* Right Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
           
           {/* Quick MoMo Pay Trigger Button */}
           <button 
             onClick={() => setShowMoMoModal(true)}
             className="btn btn-accent"
-            style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+            style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}
           >
             <Wallet size={15} /> <span>Pay Dues MoMo</span>
           </button>
@@ -141,28 +138,33 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             onClick={() => setIsDarkMode(!isDarkMode)}
             title="Toggle color theme"
             className="btn btn-secondary"
-            style={{ padding: '0.5rem', borderRadius: '50%', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ padding: '0.5rem', borderRadius: '50%', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
           >
             {isDarkMode ? <Sun size={18} color="#f59e0b" /> : <Moon size={18} color="#047857" />}
           </button>
 
           {/* User Auth Controls */}
           {currentUser ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #059669, #d97706)', color: '#fff', fontSize: '0.85rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                {getInitials(currentUser.full_name)}
-                <span style={{ position: 'absolute', bottom: 0, right: 0, width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', border: '2px solid #fff' }}></span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
+              <div style={{ width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg, #059669, #d97706)', color: '#fff', fontSize: '0.85rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '2px solid #059669' }}>
+                {currentUser.profile_picture ? (
+                  <img src={currentUser.profile_picture} alt={currentUser.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  getInitials(currentUser.full_name)
+                )}
+                <span style={{ position: 'absolute', bottom: '2px', right: '2px', width: '10px', height: '10px', borderRadius: '50%', background: currentUser.status === 'ACTIVE' ? '#10b981' : '#f59e0b', border: '2px solid #fff' }}></span>
               </div>
-              <div style={{ textAlign: 'right', display: 'none' }} className="user-text">
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>{currentUser.full_name}</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                  {currentUser.role === 'admin' ? '⭐ Executive Officer' : 'Active Member'}
+              <div style={{ textAlign: 'left', display: 'none' }} className="user-text">
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.2 }}>{currentUser.full_name}</div>
+                <div style={{ fontSize: '0.7rem', color: currentUser.role === 'admin' ? '#d97706' : 'var(--text-muted)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                  {currentUser.role === 'admin' ? '⭐ Executive Officer' : `✓ ${currentUser.status || 'ACTIVE'}`}
                 </div>
               </div>
-              <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.85rem' }}>
+              <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '0.45rem 0.75rem', fontSize: '0.82rem' }}>
                 <LogOut size={15} /> <span className="logout-text">Logout</span>
               </button>
             </div>
+
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <button onClick={() => handleNav('login')} className="btn btn-primary" style={{ padding: '0.55rem 1.25rem', fontSize: '0.9rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}>

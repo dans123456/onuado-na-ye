@@ -53,9 +53,12 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
         
         {/* Portal Branding */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: 'linear-gradient(135deg, #059669, #064e3b, #d97706)', margin: '0 auto 1rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 8px 20px rgba(5, 150, 105, 0.3)' }}>
-            <Building2 size={30} />
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="Onuado Na Ye Logo" 
+            style={{ width: '64px', height: '64px', objectFit: 'contain', margin: '0 auto 1rem auto', filter: 'drop-shadow(0 4px 12px rgba(5, 150, 105, 0.4))' }} 
+          />
+
           <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.4rem', background: 'linear-gradient(135deg, #059669, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             Onuado Na Ye Fellowship
           </h1>
