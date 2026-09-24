@@ -254,36 +254,51 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--primary-500);
 }
 
+/* Prevent horizontal scrolling on mobile screens */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 /* Mobile & Tablet Responsive Media Queries */
 @media (max-width: 768px) {
   h1 {
-    font-size: 2rem !important;
+    font-size: 1.65rem !important;
   }
   h2 {
-    font-size: 1.4rem !important;
+    font-size: 1.25rem !important;
   }
   .glass-card {
-    padding: 1.25rem !important;
+    padding: 1.15rem !important;
+    border-radius: 14px !important;
   }
-  .btn {
-    width: 100%;
-    justify-content: center;
+  .btn-full-mobile {
+    width: 100% !important;
+    justify-content: center !important;
   }
   .table-container {
+    width: 100%;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    margin-top: 1rem;
+    margin-top: 0.75rem;
   }
   .data-table th, .data-table td {
-    padding: 0.6rem 0.75rem;
-    font-size: 0.82rem;
+    padding: 0.55rem 0.65rem !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap;
   }
 }
 
 @media (max-width: 480px) {
   h1 {
-    font-size: 1.65rem !important;
+    font-size: 1.45rem !important;
   }
   .badge {
-    font-size: 0.7rem !important;
+    font-size: 0.68rem !important;
+    padding: 0.2rem 0.5rem !important;
+  }
+  .table-container {
+    border-radius: 8px !important;
   }
 }
+

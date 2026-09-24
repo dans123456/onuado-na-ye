@@ -56,10 +56,10 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             }} 
           />
           <div>
-            <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '1.25rem', lineHeight: 1.1, background: 'linear-gradient(135deg, #059669, #064e3b, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
+            <div className="brand-title" style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '1.25rem', lineHeight: 1.1, background: 'linear-gradient(135deg, #059669, #064e3b, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
               ONUADO NA YE
             </div>
-            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <div className="brand-subtitle" style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               {currentUser ? 'MEMBER PORTAL' : 'FELLOWSHIP PORTAL'}
             </div>
           </div>
@@ -276,13 +276,18 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           border-bottom-color: var(--primary-600);
           font-weight: 700;
         }
-        @media (min-width: 768px) {
+        @media (min-width: 900px) {
           .desktop-links { display: flex !important; }
           .user-text { display: block !important; }
         }
-        @media (max-width: 767px) {
+        @media (max-width: 899px) {
           .mobile-toggle { display: inline-flex !important; }
           .logout-text { display: none; }
+        }
+        @media (max-width: 500px) {
+          .momo-btn-text { display: none; }
+          .brand-subtitle { display: none; }
+          .brand-title { font-size: 1.05rem !important; }
         }
       `}</style>
     </nav>
