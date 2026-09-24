@@ -30,12 +30,12 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
   return (
     <nav className="glass-card" style={{ borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none', position: 'sticky', top: 0, zIndex: 100, backdropFilter: 'blur(16px)', background: isDarkMode ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.92)', borderBottom: '1px solid var(--border-color)' }}>
       {/* Top Banner Announcement Ticker */}
-      <div style={{ background: 'linear-gradient(90deg, #064e3b, #059669, #d97706)', color: '#ffffff', fontSize: '0.78rem', padding: '0.35rem 1rem', textAlign: 'center', fontWeight: 600, letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+      <div style={{ background: 'linear-gradient(90deg, #064e3b, #059669, #d97706)', color: '#ffffff', fontSize: '0.78rem', padding: '0.35rem 1rem', textAlign: 'center', fontWeight: 600, letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'nowrap', overflow: 'hidden' }}>
         <span>✨ Welcome to <strong>Onuado Na Ye Fellowship</strong></span>
-        <span style={{ opacity: 0.7 }}>•</span>
-        <span><em>"Brotherly Love & Solidarity in Action"</em></span>
-        <span style={{ opacity: 0.7 }}>•</span>
-        <span style={{ background: 'rgba(255,255,255,0.2)', padding: '0.1rem 0.5rem', borderRadius: '4px', fontSize: '0.72rem' }}>10+ Branches Nationwide</span>
+        <span className="top-ticker-subtitle" style={{ opacity: 0.7 }}>•</span>
+        <span className="top-ticker-subtitle"><em>"Brotherly Love & Solidarity in Action"</em></span>
+        <span className="top-ticker-subtitle" style={{ opacity: 0.7 }}>•</span>
+        <span className="top-ticker-subtitle" style={{ background: 'rgba(255,255,255,0.2)', padding: '0.1rem 0.5rem', borderRadius: '4px', fontSize: '0.72rem' }}>10+ Branches</span>
       </div>
 
       <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -129,7 +129,7 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           {/* Quick MoMo Pay Trigger Button */}
           <button 
             onClick={() => setShowMoMoModal(true)}
-            className="btn btn-accent"
+            className="btn btn-accent momo-desktop-btn"
             style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}
           >
             <Wallet size={15} /> <span>Pay Dues MoMo</span>
@@ -284,9 +284,12 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           .mobile-toggle { display: inline-flex !important; }
           .logout-text { display: none; }
         }
-        @media (max-width: 500px) {
-          .momo-btn-text { display: none; }
-          .brand-subtitle { display: none; }
+        @media (max-width: 640px) {
+          .momo-desktop-btn { display: none !important; }
+          .top-ticker-subtitle { display: none !important; }
+        }
+        @media (max-width: 480px) {
+          .brand-subtitle { display: none !important; }
           .brand-title { font-size: 1.05rem !important; }
         }
       `}</style>
