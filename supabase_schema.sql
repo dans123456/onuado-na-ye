@@ -35,10 +35,13 @@ CREATE TABLE IF NOT EXISTS public.members (
     shares_holding NUMERIC(12,2) DEFAULT 0.00,
     balance_owed NUMERIC(12,2) DEFAULT 0.00,
     role VARCHAR(20) DEFAULT 'member' CHECK (role IN ('member', 'admin')),
-    status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'INACTIVE', 'PENDING')),
+    status VARCHAR(50) DEFAULT 'ACTIVE',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+ALTER TABLE public.members DROP CONSTRAINT IF EXISTS members_status_check;
+
 
 -- 2. CONTRIBUTIONS TRANSACTION LEDGER
 CREATE TABLE IF NOT EXISTS public.contributions (
@@ -102,32 +105,25 @@ ALTER TABLE public.dues_matrix ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.executive_accounts ENABLE ROW LEVEL SECURITY;
 
 -- 1. MEMBERS TABLE POLICIES
-DROP POLICY IF EXISTS "Allow public read of active member basic profile" ON public.members;
-CREATE POLICY "Allow public read of active member basic profile" 
-ON public.members FOR SELECT 
-USING (true);
-
-DROP POLICY IF EXISTS "Allow admins full control of members" ON public.members;
-CREATE POLICY "Allow admins full control of members" 
+DROP POLICY IF EXISTS "Allow public full control of members" ON public.members;
+CREATE POLICY "Allow public full control of members" 
 ON public.members FOR ALL 
-USING (role = 'admin');
+USING (true)
+WITH CHECK (true);
 
 -- 2. CONTRIBUTIONS TABLE POLICIES
-DROP POLICY IF EXISTS "Members view own contributions" ON public.contributions;
-CREATE POLICY "Members view own contributions" 
-ON public.contributions FOR SELECT 
-USING (member_id IN (SELECT id FROM public.members WHERE phone_number = current_setting('request.jwt.claims', true)::json->>'phone_number'));
-
-DROP POLICY IF EXISTS "Admins full control of contributions" ON public.contributions;
-CREATE POLICY "Admins full control of contributions" 
+DROP POLICY IF EXISTS "Allow public full control of contributions" ON public.contributions;
+CREATE POLICY "Allow public full control of contributions" 
 ON public.contributions FOR ALL 
-USING (EXISTS (SELECT 1 FROM public.members WHERE phone_number = current_setting('request.jwt.claims', true)::json->>'phone_number' AND role = 'admin'));
+USING (true)
+WITH CHECK (true);
 
 -- 3. EXECUTIVE ACCOUNTS TABLE POLICIES (STRICT ADMIN ONLY)
 DROP POLICY IF EXISTS "Executive accounts restricted to admins only" ON public.executive_accounts;
 CREATE POLICY "Executive accounts restricted to admins only" 
 ON public.executive_accounts FOR ALL 
 USING (EXISTS (SELECT 1 FROM public.members WHERE phone_number = current_setting('request.jwt.claims', true)::json->>'phone_number' AND role = 'admin'));
+
 
 
 
