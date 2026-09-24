@@ -253,3 +253,37 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-500);
 }
+
+/* Mobile & Tablet Responsive Media Queries */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem !important;
+  }
+  h2 {
+    font-size: 1.4rem !important;
+  }
+  .glass-card {
+    padding: 1.25rem !important;
+  }
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .table-container {
+    -webkit-overflow-scrolling: touch;
+    margin-top: 1rem;
+  }
+  .data-table th, .data-table td {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.65rem !important;
+  }
+  .badge {
+    font-size: 0.7rem !important;
+  }
+}

@@ -100,7 +100,7 @@ export default function App() {
               <h2>Access Restricted</h2>
               <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>You must log in as an Executive Administrator to view the Admin Console.</p>
               <button onClick={() => setActivePage('login')} className="btn btn-primary">
-                Log In as Admin (Kwesi Mensah or Abena Osei)
+                Log In as Executive Admin (Alex Ackah, Osei Kwame, etc.)
               </button>
             </div>
           )

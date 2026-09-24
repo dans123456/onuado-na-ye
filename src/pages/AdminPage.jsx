@@ -137,17 +137,48 @@ export default function AdminPage({ currentUser, members, contributions, setCont
   );
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
+    <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
       
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
-        <div className="badge badge-admin" style={{ marginBottom: '0.5rem' }}>
-          <Shield size={14} /> Executive Admin Console
+        <div className="badge badge-admin" style={{ marginBottom: '0.5rem', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(5, 150, 105, 0.2))', border: '1px solid rgba(217, 119, 6, 0.4)', color: '#d97706', padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+          <Shield size={15} /> Executive Command & Financial Control Center
         </div>
-        <h1 style={{ fontSize: '2.2rem' }}>Fellowship Administration & Excel Bulk Hub</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-          Manage payments, bulk-sync Excel/MoMo ledgers, add manual cash entries, and view the 24 member roster.
+        <h1 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.4rem' }}>
+          Fellowship Executive Console
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.98rem' }}>
+          Logged in as <strong>{currentUser?.full_name || 'Executive Officer'}</strong> ({currentUser?.position || 'Executive'}). Manage member records, bulk-sync MoMo statements, and issue payment receipts.
         </p>
+      </div>
+
+      {/* Executive Quick Metrics */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+        <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderLeft: '4px solid #059669' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Total Dues & Welfare Ledgers</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#059669', margin: '0.2rem 0' }}>
+            GH₵ {contributions.reduce((acc, c) => acc + (parseFloat(c.amount) || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>From {contributions.length} recorded payments</div>
+        </div>
+
+        <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderLeft: '4px solid #d97706' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Total Fellowship Roster</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#d97706', margin: '0.2rem 0' }}>
+            {members.length} Members
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            {members.filter(m => m.status === 'ACTIVE').length} Active • {members.filter(m => m.status === 'PROBATION').length} Probation
+          </div>
+        </div>
+
+        <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderLeft: '4px solid #3b82f6' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Regional Branches</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#3b82f6', margin: '0.2rem 0' }}>
+            {new Set(members.map(m => m.branch)).size} Regions
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Accra, Kumasi, Takoradi, Kasoa, Mampong, Aburi...</div>
+        </div>
       </div>
 
       {/* Admin Tabs */}
@@ -155,30 +186,30 @@ export default function AdminPage({ currentUser, members, contributions, setCont
         <button 
           onClick={() => setActiveTab('uploader')} 
           className={`btn ${activeTab === 'uploader' ? 'btn-accent' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem' }}
+          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
-          <FileSpreadsheet size={18} /> Excel / MoMo File Uploader
+          <FileSpreadsheet size={18} /> Excel / MoMo Statement Uploader
         </button>
         <button 
           onClick={() => setActiveTab('manual')} 
           className={`btn ${activeTab === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem' }}
+          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
-          <PlusCircle size={18} /> Manual Entry Form
+          <PlusCircle size={18} /> Log Payment Receipt
         </button>
         <button 
           onClick={() => setActiveTab('roster')} 
           className={`btn ${activeTab === 'roster' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem' }}
+          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
-          <Users size={18} /> 24-Member Roster
+          <Users size={18} /> Member Roster ({members.length})
         </button>
         <button 
           onClick={() => setActiveTab('sql')} 
           className={`btn ${activeTab === 'sql' ? 'btn-secondary' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem' }}
+          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
-          <Database size={18} /> Database SQL Schema
+          <Database size={18} /> Supabase SQL Exporter
         </button>
       </div>
 

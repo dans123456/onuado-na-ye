@@ -57,10 +57,19 @@ export default function Footer({ setActivePage }) {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '2rem auto 0 auto', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <div style={{ maxWidth: '1240px', margin: '2rem auto 0 auto', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>&copy; {new Date().getFullYear()} Onuado Na Ye Fellowship. All rights reserved.</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-          <ShieldCheck size={14} color="#10b981" /> Transparent & Accountable Fellowship Portal
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <button 
+            onClick={() => setActivePage('login')} 
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+          >
+            <ShieldCheck size={14} color="#d97706" /> Executive Officer Portal
+          </button>
+          <span>•</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <ShieldCheck size={14} color="#10b981" /> 100% Financial Accountability
+          </span>
         </div>
       </div>
     </footer>
