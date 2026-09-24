@@ -721,38 +721,9 @@ const INITIAL_MEMBERS = [
     "balance_owed": 0,
     "role": "admin",
     "status": "ACTIVE"
-  },
-  {
-    "id": "m-025",
-    "excel_member_id": "ONY-025",
-    "full_name": "24",
-    "title": "24",
-    "position": "24",
-    "date_joined": "January 1900",
-    "phone_number": "24",
-    "momo_number": "24",
-    "home_address": "16, 20",
-    "branch": "24",
-    "email": "@onuadonaye.org",
-    "ghana_card": "20",
-    "occupation": "22",
-    "emergency_contact": "20 (Spouse) - 18",
-    "father_state": "Alive",
-    "mother_state": "Alive",
-    "reg_fees": 4800,
-    "dues_paid": 65550,
-    "levy_paid": 18100,
-    "total_payments": 88450,
-    "dues_fee_required": 85200,
-    "shares_dividends": 1308,
-    "shares_value": 66164.35999999999,
-    "treasurer_bill": 10502.699226995881,
-    "shares_holding": 76667.05922699587,
-    "balance_owed": 19650,
-    "role": "member",
-    "status": "24"
   }
 ];
+
 
 const INITIAL_CONTRIBUTIONS = [
   {
@@ -1224,28 +1195,9 @@ const INITIAL_CONTRIBUTIONS = [
     "reference_note": "Levy & Welfare Cumulative Ledger (ONY-024)",
     "received_by_name": "Osei Kwame (Treasurer)",
     "payment_date": "2026-02-10"
-  },
-  {
-    "id": 1048,
-    "member_id": "m-025",
-    "amount": 65550,
-    "contribution_type": "Monthly Dues",
-    "payment_method": "Mobile Money",
-    "reference_note": "Annual Dues Cumulative Ledger (ONY-025)",
-    "received_by_name": "Osei Kwame (Treasurer)",
-    "payment_date": "2026-01-15"
-  },
-  {
-    "id": 1049,
-    "member_id": "m-025",
-    "amount": 18100,
-    "contribution_type": "Welfare Fund",
-    "payment_method": "Mobile Money",
-    "reference_note": "Levy & Welfare Cumulative Ledger (ONY-025)",
-    "received_by_name": "Osei Kwame (Treasurer)",
-    "payment_date": "2026-02-10"
   }
 ];
+
 
 import { supabase } from './supabaseClient';
 
