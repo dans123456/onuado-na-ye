@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { User, Lock, Phone, Shield, ArrowRight, CheckCircle2, ChevronDown, KeyRound, Sparkles, Building2 } from 'lucide-react';
+import { User, Lock, Phone, Shield, ArrowRight, CheckCircle2, ChevronDown, KeyRound, Sparkles, Building2, Eye, EyeOff, HelpCircle, X } from 'lucide-react';
 
 export default function LoginPage({ members, setCurrentUser, setActivePage }) {
   const [authMode, setAuthMode] = useState('member'); // 'member' or 'executive'
   const [phoneOrEmail, setPhoneOrEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const [error, setError] = useState('');
   
   // Dev Helper Drawer State
@@ -167,18 +169,31 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                 <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>Security Password / PIN</label>
-                <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700 }}>🔑 Default: Last 4 digits of phone number</span>
+                <button 
+                  type="button" 
+                  onClick={() => setShowForgotModal(true)}
+                  style={{ background: 'none', border: 'none', color: '#059669', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                >
+                  <HelpCircle size={13} /> Forgot PIN?
+                </button>
               </div>
               <div style={{ position: 'relative' }}>
                 <input 
-                  type="password" 
-                  placeholder="Enter 4-digit PIN (e.g. last 4 digits of phone)"
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="Enter 4-digit PIN (Default: last 4 digits of phone)"
                   className="form-input" 
-                  style={{ paddingLeft: '2.5rem', borderRadius: '10px' }}
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem', borderRadius: '10px' }}
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
                 />
                 <KeyRound size={18} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '0.85rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
@@ -243,6 +258,41 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
           )}
         </div>
 
+        {/* Forgot PIN Modal */}
+        {showForgotModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+            <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '2rem', borderRadius: '18px', background: 'var(--bg-card)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <HelpCircle size={20} color="#059669" /> Security PIN Assistance
+                </h3>
+                <button onClick={() => setShowForgotModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div style={{ background: 'rgba(16, 185, 129, 0.08)', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.2)', marginBottom: '1.25rem' }}>
+                <div style={{ fontWeight: 800, color: '#059669', fontSize: '0.9rem' }}>🔑 Default Initial PIN</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', marginTop: '0.2rem' }}>
+                  Your initial default security PIN is the <strong>last 4 digits of your registered phone number</strong> (or <code>1234</code>).
+                </div>
+              </div>
+
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+                <strong>Forgotten custom PIN?</strong> Contact your Branch Secretary or Executive Officer for an instant PIN reset:
+                <ul style={{ marginTop: '0.5rem', listStyle: 'none', paddingLeft: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <li>📍 <strong>Takoradi / Main Branch:</strong> Alex Ackah (0243430617)</li>
+                  <li>📍 <strong>Mankessim Branch:</strong> Fanuel Hagan (0244181735)</li>
+                  <li>📍 <strong>Mampong Branch:</strong> Danso Kingsley (0244991855)</li>
+                </ul>
+              </div>
+
+              <button onClick={() => setShowForgotModal(false)} className="btn btn-primary" style={{ width: '100%', padding: '0.65rem' }}>
+                Understood
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
     </div>

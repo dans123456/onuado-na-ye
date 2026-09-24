@@ -175,9 +175,54 @@ export default function AdminPage({ currentUser, members, contributions, setCont
         <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderLeft: '4px solid #3b82f6' }}>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Regional Branches</div>
           <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#3b82f6', margin: '0.2rem 0' }}>
-            {new Set(members.map(m => m.branch)).size} Regions
+            {new Set(members.map(m => m.branch || 'Takoradi')).size} Branches
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Accra, Kumasi, Takoradi, Kasoa, Mampong, Aburi...</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Takoradi, Mankessim, Mampong, Ashaiman, Accra...</div>
+        </div>
+      </div>
+
+      {/* 📊 REGIONAL BRANCH DUES & SHARES PERFORMANCE METERS */}
+      <div className="glass-card" style={{ padding: '1.75rem', borderRadius: '18px', marginBottom: '2.5rem' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '1.25rem', color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <RefreshCw size={20} color="#059669" /> Regional Branch Dues Collection & Shares Performance
+        </h3>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+          {Object.entries(
+            members.reduce((acc, m) => {
+              const b = m.branch || 'Takoradi';
+              if (!acc[b]) acc[b] = { count: 0, duesPaid: 0, duesRequired: 0, shares: 0 };
+              acc[b].count += 1;
+              acc[b].duesPaid += (parseFloat(m.dues_paid) || 0);
+              acc[b].duesRequired += (parseFloat(m.dues_fee_required) || 3900);
+              acc[b].shares += (parseFloat(m.shares_holding) || 0);
+              return acc;
+            }, {})
+          ).map(([branchName, stats]) => {
+            const percentage = Math.min(100, Math.round((stats.duesPaid / (stats.duesRequired || 1)) * 100));
+            return (
+              <div key={branchName} style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>📍 {branchName} Branch</span>
+                  <span className="badge badge-dues">{stats.count} Members</span>
+                </div>
+
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                  Dues Collected: <strong>GH₵ {stats.duesPaid.toLocaleString()}</strong> / GH₵ {stats.duesRequired.toLocaleString()}
+                </div>
+
+                {/* Visual Progress Bar Meter */}
+                <div style={{ height: '8px', background: 'var(--border-color)', borderRadius: '4px', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                  <div style={{ width: `${percentage}%`, height: '100%', background: percentage > 80 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #f59e0b, #d97706)', borderRadius: '4px', transition: 'width 0.4s ease' }}></div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700 }}>
+                  <span style={{ color: percentage > 80 ? '#059669' : '#d97706' }}>{percentage}% Collection Rate</span>
+                  <span style={{ color: '#3b82f6' }}>Shares: GH₵ {Math.round(stats.shares).toLocaleString()}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

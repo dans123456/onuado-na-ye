@@ -97,6 +97,26 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         </button>
       </div>
 
+      {/* 📢 EXECUTIVE ANNOUNCEMENTS & FELLOWSHIP NOTICEBOARD */}
+      <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderRadius: '16px', borderLeft: '5px solid #d97706', marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(5, 150, 105, 0.08))' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ padding: '0.6rem', background: '#d97706', color: '#fff', borderRadius: '10px' }}>
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                📢 Executive Announcement — General Fellowship Meeting
+              </div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                First Sunday of next month @ 4:00 PM • Venue: Takoradi Fellowship Hall & Zoom Link.
+              </div>
+            </div>
+          </div>
+          <span className="badge badge-welfare" style={{ fontWeight: 800 }}>⭐ Executive Notice</span>
+        </div>
+      </div>
+
       {savedSuccess && (
         <div style={{ padding: '0.85rem 1rem', background: 'rgba(16, 185, 129, 0.15)', color: '#059669', borderRadius: '8px', fontWeight: 600, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <CheckCircle2 size={18} /> Personal profile contact details updated successfully!
