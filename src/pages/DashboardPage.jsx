@@ -10,7 +10,8 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
     momo_number: currentUser?.momo_number || '',
     home_address: currentUser?.home_address || '',
     emergency_contact: currentUser?.emergency_contact || '',
-    profile_picture: currentUser?.profile_picture || ''
+    profile_picture: currentUser?.profile_picture || '',
+    pin: currentUser?.pin || (currentUser?.phone_number ? currentUser.phone_number.slice(-4) : '1234')
   });
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
@@ -360,6 +361,18 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                     className="form-input"
                     value={profileForm.emergency_contact}
                     onChange={(e) => setProfileForm({ ...profileForm, emergency_contact: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Security Login PIN (4-Digits)</label>
+                  <input 
+                    type="password" 
+                    maxLength={6}
+                    className="form-input"
+                    placeholder="Set custom 4-digit security PIN"
+                    value={profileForm.pin}
+                    onChange={(e) => setProfileForm({ ...profileForm, pin: e.target.value })}
                   />
                 </div>
 

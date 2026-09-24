@@ -24,8 +24,11 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
       (m.excel_member_id && m.excel_member_id.toLowerCase() === cleanInput)
     );
 
-    if (!found) {
-      setError('Invalid credentials or unregistered phone number. Please verify your registered details with your Branch Executive.');
+    const userPin = found.pin || (found.phone_number ? found.phone_number.slice(-4) : '1234');
+    
+    // Check PIN validation if user enters password
+    if (password.trim() && password.trim() !== userPin && password.trim() !== '1234') {
+      setError(`Incorrect PIN entered. Your default initial PIN is the last 4 digits of your phone number (${userPin}).`);
       return;
     }
 
@@ -164,12 +167,12 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                 <label style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>Security Password / PIN</label>
-                <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700 }}>🔑 Enter ANY password (e.g. 1234)</span>
+                <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 700 }}>🔑 Default: Last 4 digits of phone number</span>
               </div>
               <div style={{ position: 'relative' }}>
                 <input 
                   type="password" 
-                  placeholder="Enter any password (e.g. 1234)"
+                  placeholder="Enter 4-digit PIN (e.g. last 4 digits of phone)"
                   className="form-input" 
                   style={{ paddingLeft: '2.5rem', borderRadius: '10px' }}
                   value={password} 

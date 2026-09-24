@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS public.members (
     father_state VARCHAR(20) DEFAULT 'Alive',
     mother_state VARCHAR(20) DEFAULT 'Alive',
     profile_picture TEXT,
+    pin VARCHAR(50) DEFAULT '1234',
     reg_fees NUMERIC(12,2) DEFAULT 200.00,
     dues_paid NUMERIC(12,2) DEFAULT 0.00,
     levy_paid NUMERIC(12,2) DEFAULT 0.00,
@@ -40,7 +41,9 @@ CREATE TABLE IF NOT EXISTS public.members (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS pin VARCHAR(50) DEFAULT '1234';
 ALTER TABLE public.members DROP CONSTRAINT IF EXISTS members_status_check;
+
 
 
 -- 2. CONTRIBUTIONS TRANSACTION LEDGER
