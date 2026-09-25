@@ -450,36 +450,116 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             )}
           </div>
 
-          {/* Family & Parent State Record */}
+          {/* Family & Welfare Profile */}
           <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#d97706' }}>
-              <Heart size={20} /> Family & Welfare Profile
+              <Heart size={20} /> Family & Next of Kin Profile
             </h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>State of Father</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: currentUser.father_state === 'Alive' ? '#059669' : '#dc2626', marginTop: '0.2rem' }}>
-                  {currentUser.father_state || 'Alive'}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem' }}>
+              
+              <div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Next of Kin</div>
+                <div style={{ fontWeight: 800, color: 'var(--primary-700)', fontSize: '1rem' }}>
+                  {currentUser.next_of_kin || 'Not Specified'} ({currentUser.next_of_kin_relation || 'Relative'})
+                </div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  Contact: <strong>{maskPhone(currentUser.next_of_kin_contact)}</strong>
                 </div>
               </div>
 
-              <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>State of Mother</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: currentUser.mother_state === 'Alive' ? '#059669' : '#dc2626', marginTop: '0.2rem' }}>
-                  {currentUser.mother_state || 'Alive'}
+              <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Marital Status & Spouse</div>
+                <div style={{ fontWeight: 700 }}>
+                  {currentUser.marital_status || 'Married'} {currentUser.spouse_name ? `• Spouse: ${currentUser.spouse_name}` : ''}
+                </div>
+                {currentUser.spouse_contact && (
+                  <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                    Spouse Phone: <strong>{maskPhone(currentUser.spouse_contact)}</strong>
+                  </div>
+                )}
+                {currentUser.children_count && (
+                  <div style={{ fontSize: '0.82rem', color: 'var(--accent-600)', fontWeight: 700, marginTop: '0.2rem' }}>
+                    👨‍👩‍👧‍👦 Children Count: {currentUser.children_count}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Parents' Status & Contacts</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '0.35rem' }}>
+                  <div style={{ padding: '0.6rem 0.75rem', background: 'var(--bg-main)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>Father</div>
+                    <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{currentUser.father_name || 'Father'}</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: currentUser.father_state === 'Alive' ? '#059669' : '#dc2626' }}>
+                      Status: {currentUser.father_state || 'Alive'}
+                    </div>
+                    {currentUser.father_contact && (
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{maskPhone(currentUser.father_contact)}</div>
+                    )}
+                  </div>
+
+                  <div style={{ padding: '0.6rem 0.75rem', background: 'var(--bg-main)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>Mother</div>
+                    <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{currentUser.mother_name || 'Mother'}</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: currentUser.mother_state === 'Alive' ? '#059669' : '#dc2626' }}>
+                      Status: {currentUser.mother_state || 'Alive'}
+                    </div>
+                    {currentUser.mother_contact && (
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{maskPhone(currentUser.mother_contact)}</div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Fellowship Remarks</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: currentUser.status === 'ACTIVE' ? '#059669' : '#d97706', marginTop: '0.2rem' }}>
+              <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Fellowship Status</div>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: currentUser.status === 'ACTIVE' ? '#059669' : '#d97706', marginTop: '0.1rem' }}>
                   {currentUser.status || 'ACTIVE'}
                 </div>
               </div>
+
             </div>
           </div>
 
+          {/* Heritage, Origin & Work Profile */}
+          <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px', gridColumn: '1 / -1' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#2563eb' }}>
+              <Building2 size={20} /> Heritage, Hometown & Workplace Record
+            </h2>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', fontSize: '0.9rem' }}>
+              <div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Hometown & Tribe</div>
+                <div style={{ fontWeight: 800, color: 'var(--text-main)' }}>{currentUser.hometown || 'Ghana'} ({currentUser.tribe || 'Akan'})</div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>District & Region</div>
+                <div style={{ fontWeight: 800, color: 'var(--text-main)' }}>{currentUser.district || 'District'}, {currentUser.region || 'Region'}</div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Place of Birth</div>
+                <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>{currentUser.place_of_birth || 'Ghana'}</div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ghana Post GPS Address</div>
+                <div style={{ fontWeight: 800, color: '#059669', fontFamily: 'monospace' }}>{currentUser.gps_address || 'Not Recorded'}</div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>House Number & Town</div>
+                <div style={{ fontWeight: 700 }}>{currentUser.house_no ? `${currentUser.house_no}, ` : ''}{currentUser.town || currentUser.branch}</div>
+              </div>
+
+              <div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Occupation & Workplace</div>
+                <div style={{ fontWeight: 700 }}>{currentUser.occupation || 'Member'} • {currentUser.place_of_work || 'Ghana'}</div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
