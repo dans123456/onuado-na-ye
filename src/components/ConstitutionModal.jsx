@@ -148,6 +148,7 @@ export const CONSTITUTION_ARTICLES = [
 export default function ConstitutionModal({ isOpen, onClose }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [showFilterPills, setShowFilterPills] = useState(false);
 
   if (!isOpen) return null;
 
