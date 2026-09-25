@@ -1312,3 +1312,15 @@ export const bulkAddContributions = (newContributionsList) => {
   saveMembers(members);
   return updatedContributions;
 };
+
+export const updateMemberPin = (memberId, newPin) => {
+  const members = getMembers();
+  const index = members.findIndex(m => m.id === memberId);
+  if (index !== -1) {
+    members[index].pin = newPin;
+    members[index].is_custom_pin = true;
+    saveMembers(members);
+    return members[index];
+  }
+  return null;
+};
