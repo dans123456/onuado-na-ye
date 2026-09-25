@@ -114,7 +114,7 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           <button 
             onClick={() => setIsDarkMode(!isDarkMode)}
             title="Toggle color theme"
-            className="btn btn-secondary"
+            className="btn btn-secondary nav-theme-btn"
             style={{ padding: '0.45rem', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
           >
             {isDarkMode ? <Sun size={17} color="#f59e0b" /> : <Moon size={17} color="#047857" />}
@@ -122,7 +122,7 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
 
           {/* User Auth & Executive Controls */}
           {currentUser ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
               
               {/* Executive Admin Switcher Button (Desktop & Tablet) */}
               {currentUser.role === 'admin' && (
@@ -144,14 +144,14 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
               <div 
                 onClick={() => handleNav('dashboard')}
                 title="Go to My Personal Member Portal"
-                style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg, #059669, #d97706)', color: '#fff', fontSize: '0.82rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '2px solid #059669', cursor: 'pointer', flexShrink: 0 }}
+                style={{ width: '34px', height: '34px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg, #059669, #d97706)', color: '#fff', fontSize: '0.78rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '2px solid #059669', cursor: 'pointer', flexShrink: 0 }}
               >
                 {currentUser.profile_picture ? (
                   <img src={currentUser.profile_picture} alt={currentUser.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   getInitials(currentUser.full_name)
                 )}
-                <span style={{ position: 'absolute', bottom: '1px', right: '1px', width: '9px', height: '9px', borderRadius: '50%', background: currentUser.status === 'ACTIVE' ? '#10b981' : '#f59e0b', border: '2px solid #fff' }}></span>
+                <span style={{ position: 'absolute', bottom: '1px', right: '1px', width: '8px', height: '8px', borderRadius: '50%', background: currentUser.status === 'ACTIVE' ? '#10b981' : '#f59e0b', border: '1.5px solid #fff' }}></span>
               </div>
 
               {/* Top Bar Log Out Button (Prominent Red Icon/Button) */}
@@ -160,11 +160,11 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 className="btn btn-secondary nav-logout-top-btn" 
                 title="Log Out of Account"
                 style={{ 
-                  padding: '0.45rem 0.65rem', 
-                  fontSize: '0.82rem', 
+                  padding: '0.4rem 0.6rem', 
+                  fontSize: '0.8rem', 
                   display: 'inline-flex', 
                   alignItems: 'center', 
-                  gap: '0.35rem', 
+                  gap: '0.3rem', 
                   color: '#ef4444', 
                   border: '1px solid rgba(239, 68, 68, 0.35)', 
                   background: 'rgba(239, 68, 68, 0.06)',
@@ -188,20 +188,20 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="btn btn-secondary mobile-toggle"
             aria-label="Toggle navigation menu"
-            style={{ padding: '0.45rem', width: '36px', height: '36px', display: 'none', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+            style={{ padding: '0.4rem', width: '34px', height: '34px', display: 'none', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
           >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
-        <div style={{ padding: '1.25rem 1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.75rem', background: isDarkMode ? '#0f172a' : '#ffffff' }}>
+        <div style={{ padding: '1.1rem 1.25rem', borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.65rem', background: isDarkMode ? '#0f172a' : '#ffffff' }}>
           
           {currentUser && (
-            <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.2)', fontSize: '0.84rem', fontWeight: 700, color: 'var(--primary-700)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-              <User size={16} color="#059669" />
+            <div style={{ padding: '0.6rem 0.85rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.2)', fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary-700)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <User size={15} color="#059669" />
               <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 Signed in as: <strong>{currentUser.full_name}</strong>
               </div>
@@ -211,6 +211,10 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
           <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>
           <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Contact Us</button>
+
+          <button onClick={() => setIsDarkMode(!isDarkMode)} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
+            {isDarkMode ? <Sun size={16} color="#f59e0b" /> : <Moon size={16} color="#047857" />} {isDarkMode ? 'Light Theme' : 'Dark Theme'}
+          </button>
 
           {!currentUser ? (
             <button onClick={() => handleNav('login')} className="btn btn-primary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
@@ -398,16 +402,17 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           .momo-desktop-btn { display: none !important; }
           .top-ticker-subtitle { display: none !important; }
           .nav-admin-switch-btn { display: none !important; }
+          .nav-theme-btn { display: none !important; }
         }
         @media (max-width: 580px) {
           .signin-text { display: none !important; }
-          .nav-signin-btn { padding: 0.4rem 0.65rem !important; }
+          .nav-signin-btn { padding: 0.35rem 0.6rem !important; }
           .logout-text { display: none !important; }
-          .nav-logout-top-btn { width: 36px !important; height: 36px !important; padding: 0 !important; justify-content: center !important; borderRadius: 50% !important; }
+          .nav-logout-top-btn { width: 34px !important; height: 34px !important; padding: 0 !important; justify-content: center !important; border-radius: 50% !important; }
         }
         @media (max-width: 480px) {
           .brand-subtitle { display: none !important; }
-          .brand-title { font-size: 1.05rem !important; }
+          .brand-title { font-size: 0.98rem !important; }
         }
       `}</style>
     </nav>
