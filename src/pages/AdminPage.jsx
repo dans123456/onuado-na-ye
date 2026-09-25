@@ -471,10 +471,10 @@ export default function AdminPage({ currentUser, members, contributions, setCont
           overflowY: 'auto' 
         }}>
           <div className="glass-card" style={{ 
-            maxWidth: '920px', 
+            maxWidth: '1100px', 
             width: '100%', 
             margin: 'auto', 
-            padding: '2rem', 
+            padding: '2.25rem', 
             borderRadius: '24px', 
             background: 'var(--bg-card)', 
             maxHeight: '88vh', 
