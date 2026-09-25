@@ -75,7 +75,7 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
       <div style={{ marginTop: '4rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <div className="badge badge-welfare" style={{ marginBottom: '0.5rem' }}>Fellowship Principles</div>
-          <h2 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.5rem' }}>Pillars of ONUADO NA EYE</h2>
+          <h2 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.5rem' }}>Pillars of ONUADO NA EYE MENS' FELLOWSHIP</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1rem', maxWidth: '600px', margin: '0 auto' }}>Built on Christian faith, mutual financial solidarity, and executive accountability.</p>
         </div>
 

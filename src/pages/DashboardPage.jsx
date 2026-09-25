@@ -271,6 +271,13 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         >
           <Wallet size={18} color="#8b5cf6" /> Transaction Ledger History
         </button>
+        <button 
+          onClick={() => setActiveTab('payment_channels')} 
+          className={`btn ${activeTab === 'payment_channels' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
+        >
+          <CreditCard size={18} color="#d97706" /> Official Payment Channels & Guide
+        </button>
       </div>
 
       {/* TAB 1: FULL PERSONAL RECORD & REGISTRATION PROFILE */}
@@ -607,6 +614,72 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 5: OFFICIAL PAYMENT CHANNELS & SETTLEMENT GUIDE */}
+      {activeTab === 'payment_channels' && (
+        <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+          <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <CreditCard size={22} color="#d97706" /> Official Fellowship Payment Channels & Guide
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginTop: '0.25rem' }}>
+              All monthly dues (GH₵ 50), registration fees (GH₵ 200), and special levies for <strong>{currentUser.full_name}</strong> should be transferred using these authorized channels.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.75rem' }}>
+            
+            {/* MoMo Box */}
+            <div style={{ background: 'var(--bg-main)', padding: '1.5rem', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '0.4rem' }}>
+                📱 MTN Mobile Money Wallet
+              </div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706', letterSpacing: '0.05em' }}>
+                0530486443
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                Account Name: <strong>ONUADO NA EYE MENS' FELLOWSHIP</strong>
+              </div>
+
+              <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px dashed var(--border-color)' }}>
+                <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 800 }}>Merchant Pay Code</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#2563eb', marginTop: '0.1rem' }}>293658</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Dial *170# &rarr; Pay Merchant &rarr; Enter Code 293658</div>
+              </div>
+            </div>
+
+            {/* Bank Box */}
+            <div style={{ background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(217, 119, 6, 0.08))', padding: '1.5rem', borderRadius: '14px', border: '1px solid rgba(5, 150, 105, 0.3)' }}>
+              <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--primary-700)', fontWeight: 800, marginBottom: '0.4rem' }}>
+                🏦 Bank Transfer Channel
+              </div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                Fidelity Bank Ghana
+              </div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.4rem', lineHeight: 1.5 }}>
+                Account Name: <strong>ONUADO NA EYE MENS' FELLOWSHIP</strong><br />
+                Official Email: <strong>onuadonaeye@gmail.com</strong>
+              </div>
+
+              <div style={{ marginTop: '1.25rem', padding: '0.85rem', background: 'rgba(255, 255, 255, 0.6)', borderRadius: '8px', fontSize: '0.82rem', border: '1px solid rgba(5, 150, 105, 0.2)' }}>
+                <strong>💡 Payment Reference Format:</strong><br />
+                Please write your Member ID and Payment Purpose in the transfer reference:
+                <div style={{ fontFamily: 'monospace', fontSize: '0.88rem', fontWeight: 800, color: '#059669', marginTop: '0.3rem' }}>
+                  "{currentUser.excel_member_id || 'ONY-001'} {currentUser.full_name.split(' ')[0]} Dues"
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(217, 119, 6, 0.1)', borderRadius: '10px', fontSize: '0.88rem', color: '#b45309', border: '1px solid rgba(217, 119, 6, 0.3)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <AlertCircle size={20} style={{ flexShrink: 0 }} />
+            <div>
+              <strong>Executive Verification Note:</strong> Once payment is sent, our Treasury team automatically receives settlement receipts. Your dashboard ledger will update as soon as the Executive Treasurer approves the transaction.
+            </div>
           </div>
         </div>
       )}
