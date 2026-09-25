@@ -295,10 +295,11 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
       {/* TAB 1: FULL PERSONAL RECORD & REGISTRATION PROFILE */}
       {activeTab === 'record' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.25rem', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%' }}>
           
-          {/* Member Registration Profile Details */}
-          <div className="glass-card" style={{ padding: '1.35rem', borderRadius: '16px', width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))', gap: '1.25rem', width: '100%' }}>
+            {/* Member Registration Profile Details */}
+            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', width: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-600)' }}>
                 <User size={20} /> Verified Personal Profile
@@ -521,9 +522,10 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
             </div>
           </div>
+        </div>
 
-          {/* Heritage, Origin & Work Profile */}
-          <div className="glass-card" style={{ padding: '2.25rem', borderRadius: '20px', gridColumn: '1 / -1', width: '100%' }}>
+        {/* Heritage, Origin & Work Profile */}
+        <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', width: '100%', boxSizing: 'border-box' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#2563eb' }}>
               <Building2 size={20} /> Heritage, Hometown & Workplace Record
             </h2>
