@@ -245,12 +245,29 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             border: '1px solid var(--border-color)'
           }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem', gap: '0.75rem' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, flex: 1 }}>
                 <Wallet size={20} color="#d97706" /> Fellowship Payment Channels
               </h3>
-              <button onClick={() => setShowMoMoModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                <X size={20} />
+              <button 
+                onClick={() => setShowMoMoModal(false)} 
+                aria-label="Close modal"
+                style={{ 
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: 'rgba(0,0,0,0.06)', 
+                  border: 'none', 
+                  cursor: 'pointer', 
+                  color: 'var(--text-main)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <X size={18} />
               </button>
             </div>
 
