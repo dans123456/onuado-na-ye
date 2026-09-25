@@ -58,7 +58,7 @@ export default function App() {
         )}
 
         {activePage === 'contact' && (
-          <ContactPage />
+          <ContactPage setActivePage={setActivePage} currentUser={currentUser} />
         )}
 
         {activePage === 'login' && (
