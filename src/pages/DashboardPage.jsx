@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield } from 'lucide-react';
+import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock } from 'lucide-react';
 import { updateMemberProfile } from '../services/store';
 
 export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('record'); // 'record', 'dues_matrix', 'levies_matrix', 'history'
   const [isEditing, setIsEditing] = useState(false);
+  const [showPII, setShowPII] = useState(false); // Privacy Shield state
   const [profileForm, setProfileForm] = useState({
     phone_number: currentUser?.phone_number || '',
     momo_number: currentUser?.momo_number || '',
@@ -13,6 +14,18 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
     profile_picture: currentUser?.profile_picture || '',
     pin: currentUser?.pin || (currentUser?.phone_number ? currentUser.phone_number.slice(-4) : '1234')
   });
+
+  const maskPhone = (phone) => {
+    if (!phone) return '••••••••••';
+    if (showPII) return phone;
+    return phone.slice(0, 3) + ' •••• ' + phone.slice(-3);
+  };
+
+  const maskID = (idStr) => {
+    if (!idStr) return '••••••••••';
+    if (showPII) return idStr;
+    return idStr.slice(0, 4) + '••••••••' + idStr.slice(-2);
+  };
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
 
@@ -286,19 +299,30 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           
           {/* Member Registration Profile Details */}
           <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-600)' }}>
                 <User size={20} /> Verified Personal Profile
               </h2>
-              {!isEditing ? (
-                <button onClick={() => setIsEditing(true)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
-                  <Edit3 size={14} /> Edit Contact
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button 
+                  onClick={() => setShowPII(!showPII)} 
+                  className="btn btn-secondary" 
+                  title={showPII ? "Hide Sensitive Details" : "Show Unmasked Details"}
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, border: showPII ? '1px solid #d97706' : '1px solid var(--border-color)' }}
+                >
+                  {showPII ? <EyeOff size={14} color="#d97706" /> : <Eye size={14} color="#059669" />}
+                  {showPII ? 'Hide PII' : 'Reveal PII'}
                 </button>
-              ) : (
-                <button onClick={() => setIsEditing(false)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
-                  Cancel
-                </button>
-              )}
+                {!isEditing ? (
+                  <button onClick={() => setIsEditing(true)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
+                    <Edit3 size={14} /> Edit Contact
+                  </button>
+                ) : (
+                  <button onClick={() => setIsEditing(false)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
+                    Cancel
+                  </button>
+                )}
+              </div>
             </div>
 
             {!isEditing ? (
@@ -317,7 +341,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
                 <div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ghana Card National ID</div>
-                  <div style={{ fontWeight: 700, color: '#3b82f6' }}>{currentUser.ghana_card || 'GHA-00134909-6'}</div>
+                  <div style={{ fontWeight: 700, color: '#3b82f6', letterSpacing: '0.04em' }}>{maskID(currentUser.ghana_card || 'GHA-00134909-6')}</div>
                 </div>
 
                 <div>
@@ -328,7 +352,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                 <div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Primary Phone & MoMo</div>
                   <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Phone size={14} color="#059669" /> {currentUser.phone_number} / {currentUser.momo_number || currentUser.phone_number}
+                    <Phone size={14} color="#059669" /> {maskPhone(currentUser.phone_number)}
                   </div>
                 </div>
 
@@ -342,7 +366,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                 <div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Emergency Contact & Next of Kin</div>
                   <div style={{ fontWeight: 600, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <AlertCircle size={14} /> {currentUser.emergency_contact || 'Executive Board - 0244123456'}
+                    <AlertCircle size={14} /> {maskPhone(currentUser.emergency_contact || '0244123456')}
                   </div>
                 </div>
               </div>
