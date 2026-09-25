@@ -194,27 +194,27 @@ export default function ConstitutionModal({ isOpen, onClose }) {
         border: '1px solid var(--border-color)' 
       }}>
         
-        {/* Header - Fixed & Clear Close X Button */}
+        {/* Header - Compact Banner & Fixed Clear Exit X Button */}
         <div style={{ 
-          padding: '1.25rem 1.5rem', 
+          padding: '0.85rem 1.1rem', 
           background: 'linear-gradient(135deg, #064e3b, #059669)', 
           color: '#ffffff', 
           display: 'flex', 
-          justify: 'space-between', 
+          justifyContent: 'space-between', 
           alignItems: 'center', 
-          gap: '1rem',
+          gap: '0.75rem',
           flexShrink: 0 
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fef08a', flexShrink: 0 }}>
-              <BookOpen size={22} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0, flex: 1 }}>
+            <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fef08a', flexShrink: 0 }}>
+              <BookOpen size={18} />
             </div>
-            <div style={{ minWidth: 0 }}>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 900, fontFamily: 'var(--font-heading)', color: '#ffffff', margin: 0, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <h2 style={{ fontSize: '0.98rem', fontWeight: 900, fontFamily: 'var(--font-heading)', color: '#ffffff', margin: 0, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 ONUADO NA EYE MENS' FELLOWSHIP
               </h2>
-              <div style={{ fontSize: '0.8rem', color: '#fef08a', fontWeight: 700, marginTop: '0.1rem' }}>
-                📜 Official Fellowship Constitution (Articles 1 – 19)
+              <div style={{ fontSize: '0.75rem', color: '#fef08a', fontWeight: 700, marginTop: '0.05rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Official Constitution (Articles 1 – 19)
               </div>
             </div>
           </div>
@@ -226,8 +226,8 @@ export default function ConstitutionModal({ isOpen, onClose }) {
               background: 'rgba(255, 255, 255, 0.25)', 
               border: 'none', 
               borderRadius: '50%', 
-              width: '38px', 
-              height: '38px', 
+              width: '36px', 
+              height: '36px', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center', 
@@ -237,58 +237,75 @@ export default function ConstitutionModal({ isOpen, onClose }) {
               boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
             }}
           >
-            <X size={22} />
+            <X size={20} />
           </button>
         </div>
 
-        {/* Search & Category Filter Toolbar */}
-        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border-color)', background: 'var(--bg-main)', display: 'flex', flexDirection: 'column', gap: '0.75rem', flexShrink: 0 }}>
+        {/* Search & Collapsible Category Toolbar */}
+        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', background: 'var(--bg-main)', display: 'flex', flexDirection: 'column', gap: '0.5rem', flexShrink: 0 }}>
           
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
               <input 
                 type="text"
-                placeholder="Search constitution (e.g. Dues, Bereavement, Elections)..."
+                placeholder="Search constitution..."
                 className="form-input"
-                style={{ paddingLeft: '2.4rem', borderRadius: '10px', fontSize: '0.88rem' }}
+                style={{ paddingLeft: '2.2rem', paddingRight: '0.5rem', borderRadius: '8px', fontSize: '0.84rem', height: '36px' }}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <Search size={15} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             </div>
 
+            {/* Filter Toggle Button */}
+            <button
+              onClick={() => setShowFilterPills(!showFilterPills)}
+              className="btn btn-secondary"
+              style={{ padding: '0.35rem 0.6rem', fontSize: '0.78rem', fontWeight: 700, height: '36px', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}
+              title="Filter Categories"
+            >
+              <span>{selectedCategory !== 'All' ? selectedCategory : 'Filter'}</span>
+            </button>
+
+            {/* Compact Download Button */}
             <a 
               href="/constitution.doc" 
               download="CONSTITUTION FOR ONUADƆ NA ƐYƐ.doc" 
               className="btn btn-accent"
-              style={{ padding: '0.5rem 0.85rem', fontSize: '0.8rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}
+              style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 700, height: '36px', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0, whiteSpace: 'nowrap' }}
+              title="Download Document (.doc)"
             >
-              <Download size={15} /> Download Document (.doc)
+              <Download size={15} /> <span>.doc</span>
             </a>
           </div>
 
-          {/* Category Pill Filters */}
-          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  padding: '0.3rem 0.75rem',
-                  borderRadius: '20px',
-                  border: '1px solid var(--border-color)',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  background: selectedCategory === cat ? 'var(--primary-600)' : 'var(--bg-card)',
-                  color: selectedCategory === cat ? '#ffffff' : 'var(--text-muted)'
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          {/* Collapsible Category Pill Filters */}
+          {showFilterPills && (
+            <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', paddingTop: '0.35rem', borderTop: '1px dashed var(--border-color)' }}>
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setSelectedCategory(cat);
+                    setShowFilterPills(false);
+                  }}
+                  style={{
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: '16px',
+                    border: '1px solid var(--border-color)',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    background: selectedCategory === cat ? 'var(--primary-600)' : 'var(--bg-card)',
+                    color: selectedCategory === cat ? '#ffffff' : 'var(--text-muted)'
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Scrollable Constitution Content - Maximum Clear Viewport */}
@@ -336,14 +353,11 @@ export default function ConstitutionModal({ isOpen, onClose }) {
 
         </div>
 
-        {/* Clean Footer Bar */}
-        <div style={{ padding: '0.75rem 1.25rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-main)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+        {/* Compact Footer Caption */}
+        <div style={{ padding: '0.45rem 1rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-main)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, textAlign: 'center' }}>
             Official Constitution • ONUADO NA EYE MENS' FELLOWSHIP
           </div>
-          <button onClick={onClose} className="btn btn-primary" style={{ padding: '0.45rem 1.1rem', fontSize: '0.85rem', fontWeight: 700 }}>
-            Close Reader
-          </button>
         </div>
 
       </div>

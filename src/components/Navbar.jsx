@@ -229,32 +229,34 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           alignItems: 'center', 
           justifyContent: 'center', 
           zIndex: 99999, 
-          padding: '1.25rem 1rem', 
-          overflowY: 'auto' 
+          padding: '0.5rem', 
+          overflowY: 'auto',
+          boxSizing: 'border-box'
         }}>
           <div className="glass-card" style={{ 
             maxWidth: '490px', 
             width: '100%', 
             margin: 'auto', 
-            padding: '1.75rem', 
-            borderRadius: '20px', 
+            padding: '1.25rem 1rem', 
+            borderRadius: '16px', 
             background: isDarkMode ? '#0f172a' : '#ffffff', 
-            maxHeight: '85vh', 
+            maxHeight: '90vh', 
             overflowY: 'auto', 
             boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)',
-            border: '1px solid var(--border-color)'
+            border: '1px solid var(--border-color)',
+            boxSizing: 'border-box'
           }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem', gap: '0.75rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, flex: 1 }}>
-                <Wallet size={20} color="#d97706" /> Fellowship Payment Channels
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, flex: 1 }}>
+                <Wallet size={18} color="#d97706" /> Fellowship Payment Channels
               </h3>
               <button 
                 onClick={() => setShowMoMoModal(false)} 
                 aria-label="Close modal"
                 style={{ 
-                  width: '36px',
-                  height: '36px',
+                  width: '34px',
+                  height: '34px',
                   borderRadius: '50%',
                   background: 'rgba(0,0,0,0.06)', 
                   border: 'none', 
@@ -272,12 +274,12 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             </div>
 
             {/* Official Account Name Pill */}
-            <div style={{ padding: '0.6rem 0.85rem', background: 'rgba(5, 150, 105, 0.1)', borderRadius: '8px', border: '1px solid rgba(5, 150, 105, 0.25)', fontSize: '0.85rem', color: 'var(--primary-700)', fontWeight: 800, textAlign: 'center', marginBottom: '1.1rem' }}>
+            <div style={{ padding: '0.6rem 0.85rem', background: 'rgba(5, 150, 105, 0.1)', borderRadius: '8px', border: '1px solid rgba(5, 150, 105, 0.25)', fontSize: '0.82rem', color: 'var(--primary-700)', fontWeight: 800, textAlign: 'center', marginBottom: '1.1rem', wordBreak: 'break-word' }}>
               Account Name: ONUADO NA EYE MENS' FELLOWSHIP
             </div>
 
             {/* MoMo Number & Merchant Code */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '0.85rem', marginBottom: '1rem' }}>
               <div style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(5, 150, 105, 0.08))', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(217, 119, 6, 0.3)', textAlign: 'center' }}>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>MTN MoMo Number</div>
                 <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#d97706', margin: '0.2rem 0' }}>

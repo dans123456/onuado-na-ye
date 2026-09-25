@@ -32,7 +32,7 @@ export default function ContactPage({ setActivePage, currentUser }) {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.75rem' }}>
         
         {/* Left Col: Executive Contacts & Fellowship Secretariat */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

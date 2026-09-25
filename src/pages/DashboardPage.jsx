@@ -295,10 +295,10 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
       {/* TAB 1: FULL PERSONAL RECORD & REGISTRATION PROFILE */}
       {activeTab === 'record' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '2rem', width: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.25rem', width: '100%' }}>
           
           {/* Member Registration Profile Details */}
-          <div className="glass-card" style={{ padding: '2.25rem', borderRadius: '20px', width: '100%' }}>
+          <div className="glass-card" style={{ padding: '1.35rem', borderRadius: '16px', width: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-600)' }}>
                 <User size={20} /> Verified Personal Profile
@@ -734,7 +734,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.25rem' }}>
             
             {/* MoMo Box */}
             <div style={{ background: 'var(--bg-main)', padding: '1.5rem', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
