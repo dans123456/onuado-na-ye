@@ -484,9 +484,9 @@ export default function AdminPage({ currentUser, members, contributions, setCont
           }}>
             
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem', gap: '1rem' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
                   <span className="badge badge-admin" style={{ fontWeight: 800 }}>
                     Member #{selectedDossierMember.member_no} • {selectedDossierMember.excel_member_id}
                   </span>
@@ -494,15 +494,31 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                     {selectedDossierMember.status || 'ACTIVE'}
                   </span>
                 </div>
-                <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-heading)', color: 'var(--primary-700)', margin: 0 }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'var(--font-heading)', color: 'var(--primary-700)', margin: 0, lineHeight: 1.2 }}>
                   {selectedDossierMember.title} {selectedDossierMember.full_name}
                 </h2>
-                <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
                   {selectedDossierMember.position} • Branch: <strong>{selectedDossierMember.branch}</strong> • Date Joined: <strong>{selectedDossierMember.date_joined}</strong>
                 </div>
               </div>
 
-              <button onClick={() => setSelectedDossierMember(null)} style={{ background: 'rgba(0,0,0,0.08)', border: 'none', borderRadius: '50%', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <button 
+                onClick={() => setSelectedDossierMember(null)} 
+                aria-label="Close Master Dossier"
+                style={{ 
+                  background: 'var(--bg-main)', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: '50%', 
+                  width: '38px', 
+                  height: '38px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  cursor: 'pointer', 
+                  flexShrink: 0, 
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)' 
+                }}
+              >
                 <X size={20} />
               </button>
             </div>
@@ -515,7 +531,7 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <MapPin size={18} /> 1. Contact & Digital Address Directory
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Primary Phone 1</div><strong>{selectedDossierMember.phone_number || '—'}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Secondary Phone 2</div><strong>{selectedDossierMember.phone_number_2 || '—'}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>House Number</div><strong>{selectedDossierMember.house_no || '—'}</strong></div>
@@ -531,7 +547,7 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#2563eb', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Building2 size={18} /> 2. Origin, Heritage & Workplace Details
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Occupation</div><strong>{selectedDossierMember.occupation || '—'}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Place of Work</div><strong>{selectedDossierMember.place_of_work || '—'}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Date of Birth</div><strong>{selectedDossierMember.date_of_birth || '—'}</strong></div>
@@ -547,7 +563,7 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Heart size={18} /> 3. Family, Next of Kin & Parents Directory
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Next of Kin Name</div><strong>{selectedDossierMember.next_of_kin || '—'}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Relationship to Member</div><strong>{selectedDossierMember.next_of_kin_relation || '—'}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Next of Kin Phone</div><strong>{selectedDossierMember.next_of_kin_contact || '—'}</strong></div>

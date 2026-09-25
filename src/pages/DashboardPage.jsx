@@ -487,7 +487,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
               <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Parents' Status & Contacts</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '0.35rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginTop: '0.35rem' }}>
                   <div style={{ padding: '0.6rem 0.75rem', background: 'var(--bg-main)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                     <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>Father</div>
                     <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{currentUser.father_name || 'Father'}</div>
