@@ -10,9 +10,9 @@ export default function AboutPage({ setActivePage }) {
         <div className="badge badge-welfare" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', marginBottom: '1rem' }}>
           About Our Fellowship
         </div>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>The Story of Onuado Na Ye</h1>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>The Story of ONUADO NA EYE MENS' FELLOWSHIP</h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto' }}>
-          "Onuado Na Ye" translates to brotherly love and good works. Founded with a shared commitment to mutual support and transparent fellowship.
+          "ONUADO NA EYE" translates to brotherly love and good works. Founded with a shared commitment to mutual support and transparent fellowship.
         </p>
       </div>
 
@@ -22,7 +22,7 @@ export default function AboutPage({ setActivePage }) {
           <HeartHandshake size={28} /> Our History & Purpose
         </h2>
         <p style={{ color: 'var(--text-main)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '1rem' }}>
-          Onuado Na Ye Fellowship was created by a dedicated circle of 24 close friends and brethren who sought to establish a permanent platform for mutual welfare, financial assistance, social gatherings, and spiritual encouragement.
+          ONUADO NA EYE MENS' FELLOWSHIP was created by a dedicated circle of 24 close friends and brethren who sought to establish a permanent platform for mutual welfare, financial assistance, social gatherings, and spiritual encouragement.
         </p>
         <p style={{ color: 'var(--text-main)', fontSize: '1rem', lineHeight: 1.7 }}>
           Recognizing that individual strength is multiplied in unity, our members contribute regularly toward Monthly Dues, a Welfare Fund, and special community projects. Our web portal provides complete visibility into every cedi contributed.

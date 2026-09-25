@@ -9,7 +9,7 @@ export default function Footer({ setActivePage }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <img src="/logo.png" alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
           <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '0.95rem', color: 'var(--primary-600)' }}>
-            ONUADO NA YE
+            ONUADO NA EYE MENS' FELLOWSHIP
           </span>
         </div>
 
@@ -23,7 +23,7 @@ export default function Footer({ setActivePage }) {
 
         {/* Copyright */}
         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          &copy; {new Date().getFullYear()} Onuado Na Ye Fellowship.
+          &copy; {new Date().getFullYear()} ONUADO NA EYE MENS' FELLOWSHIP. All Rights Reserved.
         </div>
 
       </div>

@@ -616,7 +616,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div className="glass-card" style={{ maxWidth: '500px', width: '100%', padding: '2rem', background: 'var(--bg-card)', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
             <div style={{ textAlign: 'center', borderBottom: '2px dashed var(--border-color)', paddingBottom: '1.25rem', marginBottom: '1.25rem' }}>
-              <div style={{ fontWeight: 900, fontSize: '1.3rem', color: 'var(--primary-600)' }}>ONUADO NA YE FELLOWSHIP</div>
+              <div style={{ fontWeight: 900, fontSize: '1.2rem', color: 'var(--primary-600)' }}>ONUADO NA EYE MENS' FELLOWSHIP</div>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Official Payment Receipt</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Receipt #: ONY-REC-{selectedReceipt.id}</div>
             </div>

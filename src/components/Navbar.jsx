@@ -16,8 +16,8 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
     setActivePage('home');
   };
 
-  const copyMoMoNumber = () => {
-    navigator.clipboard.writeText('0243430617');
+  const copyMoMoNumber = (textToCopy = '0530486443') => {
+    navigator.clipboard.writeText(textToCopy);
     setCopiedMoMo(true);
     setTimeout(() => setCopiedMoMo(false), 2500);
   };
@@ -31,7 +31,7 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
     <nav className="glass-card" style={{ borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none', position: 'sticky', top: 0, zIndex: 100, backdropFilter: 'blur(16px)', background: isDarkMode ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.92)', borderBottom: '1px solid var(--border-color)' }}>
       {/* Top Banner Announcement Ticker */}
       <div style={{ background: 'linear-gradient(90deg, #064e3b, #059669, #d97706)', color: '#ffffff', fontSize: '0.78rem', padding: '0.35rem 1rem', textAlign: 'center', fontWeight: 600, letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'nowrap', overflow: 'hidden' }}>
-        <span>✨ Welcome to <strong>Onuado Na Ye Fellowship</strong></span>
+        <span>✨ Welcome to <strong>ONUADO NA EYE MENS' FELLOWSHIP</strong></span>
         <span className="top-ticker-subtitle" style={{ opacity: 0.7 }}>•</span>
         <span className="top-ticker-subtitle"><em>"Brotherly Love & Solidarity in Action"</em></span>
         <span className="top-ticker-subtitle" style={{ opacity: 0.7 }}>•</span>
@@ -46,7 +46,7 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
         >
           <img 
             src="/logo.png" 
-            alt="Onuado Na Ye Fellowship Logo" 
+            alt="ONUADO NA EYE MENS' FELLOWSHIP Logo" 
             style={{ 
               width: '46px', 
               height: '46px', 
@@ -56,11 +56,11 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             }} 
           />
           <div>
-            <div className="brand-title" style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '1.25rem', lineHeight: 1.1, background: 'linear-gradient(135deg, #059669, #064e3b, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
-              ONUADO NA YE
+            <div className="brand-title" style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '1.2rem', lineHeight: 1.1, background: 'linear-gradient(135deg, #059669, #064e3b, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
+              ONUADO NA EYE
             </div>
-            <div className="brand-subtitle" style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              {currentUser ? 'MEMBER PORTAL' : 'FELLOWSHIP PORTAL'}
+            <div className="brand-subtitle" style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              MENS' FELLOWSHIP {currentUser ? 'PORTAL' : 'OFFICIAL'}
             </div>
           </div>
         </div>
@@ -240,40 +240,74 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
       )}
 
 
-      {/* MoMo Quick Pay Modal */}
+      {/* MoMo & Bank Quick Pay Modal */}
       {showMoMoModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div className="glass-card" style={{ maxWidth: '460px', width: '100%', padding: '2rem', borderRadius: '18px', background: isDarkMode ? '#0f172a' : '#ffffff' }}>
+          <div className="glass-card" style={{ maxWidth: '490px', width: '100%', padding: '2rem', borderRadius: '18px', background: isDarkMode ? '#0f172a' : '#ffffff', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Wallet size={20} color="#d97706" /> Quick Mobile Money Payment
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Wallet size={20} color="#d97706" /> Fellowship Payment Channels
               </h3>
               <button onClick={() => setShowMoMoModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
                 <X size={20} />
               </button>
             </div>
 
-            <div style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(5, 150, 105, 0.1))', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(217, 119, 6, 0.3)', marginBottom: '1.25rem', textAlign: 'center' }}>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>MTN Mobile Money Wallet</div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706', margin: '0.2rem 0', letterSpacing: '0.05em' }}>
-                024 343 0617
+            {/* Official Account Name Pill */}
+            <div style={{ padding: '0.5rem 0.85rem', background: 'rgba(5, 150, 105, 0.1)', borderRadius: '8px', border: '1px solid rgba(5, 150, 105, 0.25)', fontSize: '0.82rem', color: 'var(--primary-700)', fontWeight: 700, textAlign: 'center', marginBottom: '1rem' }}>
+              Account Name: ONUADO NA EYE MENS' FELLOWSHIP
+            </div>
+
+            {/* MoMo Number & Merchant Code */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginBottom: '1rem' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(5, 150, 105, 0.08))', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(217, 119, 6, 0.3)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>MTN MoMo Number</div>
+                <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#d97706', margin: '0.2rem 0' }}>
+                  0530486443
+                </div>
+                <button 
+                  onClick={() => copyMoMoNumber('0530486443')} 
+                  className="btn btn-secondary" 
+                  style={{ marginTop: '0.4rem', padding: '0.25rem 0.5rem', fontSize: '0.75rem', width: '100%', justifyContent: 'center' }}
+                >
+                  {copiedMoMo ? <CheckCircle2 size={12} color="#059669" /> : <Copy size={12} />} {copiedMoMo ? 'Copied!' : 'Copy MoMo'}
+                </button>
               </div>
-              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>Account: Onuado Na Ye Fellowship</div>
-              
-              <button 
-                onClick={copyMoMoNumber} 
-                className="btn btn-secondary" 
-                style={{ marginTop: '0.85rem', padding: '0.4rem 0.85rem', fontSize: '0.8rem', background: '#fff', color: '#000' }}
-              >
-                {copiedMoMo ? <CheckCircle2 size={14} color="#059669" /> : <Copy size={14} />} {copiedMoMo ? 'Copied to Clipboard!' : 'Copy MoMo Number'}
-              </button>
+
+              <div style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(5, 150, 105, 0.08))', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.3)', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Merchant Pay Code</div>
+                <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#3b82f6', margin: '0.2rem 0' }}>
+                  293658
+                </div>
+                <button 
+                  onClick={() => copyMoMoNumber('293658')} 
+                  className="btn btn-secondary" 
+                  style={{ marginTop: '0.4rem', padding: '0.25rem 0.5rem', fontSize: '0.75rem', width: '100%', justifyContent: 'center' }}
+                >
+                  <Copy size={12} /> Copy Merchant ID
+                </button>
+              </div>
             </div>
 
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-              <strong>Instructions:</strong> Dial <code>*170#</code>, select <em>Transfer Money -&gt; MoMo User</em>, enter <strong>024 343 0617</strong>, and put your <strong>Name / Member ID</strong> in the reference! Admins will log your payment immediately.
+            {/* Fidelity Bank Card */}
+            <div style={{ background: 'var(--bg-main)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#059669' }}>🏦 Official Bank Account</span>
+                <span className="badge badge-admin" style={{ fontSize: '0.68rem' }}>FIDELITY BANK</span>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 600 }}>
+                Bank Name: <strong>Fidelity Bank Ghana</strong>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                Official Email: <strong>onuadonaeye@gmail.com</strong>
+              </div>
             </div>
 
-            <button onClick={() => setShowMoMoModal(false)} className="btn btn-primary" style={{ width: '100%', padding: '0.75rem', fontWeight: 700 }}>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+              <strong>Instructions:</strong> Dial <code>*170#</code> -&gt; <em>Pay Merchant (Option 2)</em> using Merchant Code <strong>293658</strong>, or send to MoMo <strong>0530486443</strong> / <strong>Fidelity Bank</strong> with your <strong>Member ID / Name</strong> in the reference!
+            </div>
+
+            <button onClick={() => setShowMoMoModal(false)} className="btn btn-primary" style={{ width: '100%', padding: '0.65rem', fontWeight: 700 }}>
               Got It
             </button>
           </div>

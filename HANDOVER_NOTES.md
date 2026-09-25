@@ -1,9 +1,14 @@
-# 📋 Onuado Na Ye Fellowship — Project Handover Notes (Resume Tomorrow)
+# 📋 ONUADO NA EYE MENS' FELLOWSHIP — Project Handover Notes
 
-**Date**: September 24, 2026  
+**Date**: September 25, 2026  
+**Official Name**: **ONUADO NA EYE MENS' FELLOWSHIP**  
 **Repository**: [https://github.com/dans123456/onuado-na-ye](https://github.com/dans123456/onuado-na-ye)  
 **Live Production Site**: [https://onuado-na-ye.vercel.app](https://onuado-na-ye.vercel.app)  
-**Database**: Supabase PostgreSQL (`https://dupxcvmbbjtvfcxteuvq.supabase.co`)
+**Database**: Supabase PostgreSQL (`https://dupxcvmbbjtvfcxteuvq.supabase.co`)  
+**Official Email**: `onuadonaeye@gmail.com`  
+**Official MoMo Line**: `0530486443`  
+**Merchant Pay Code**: `293658` (MTN MoMo Pay)  
+**Banking Partner**: **Fidelity Bank Ghana**  
 
 ---
 
@@ -15,30 +20,24 @@ The application is **100% built, fully mobile-responsive, connected to live Supa
 
 ## 🛠️ Key Work Completed Today
 
-1. **Database Cleanup**:
-   - Removed the artificial total row `m-025` / `"24"` from both local store and Supabase database.
-   - Database roster now contains exactly the **24 real fellowship members**.
+1. **Rebranding to Official Title**:
+   - Updated all application titles, logos, navbars, footers, headers, receipts, and pages to **ONUADO NA EYE MENS' FELLOWSHIP**.
 
-2. **Mobile Responsiveness & Sizing**:
-   - Removed global button width stretches that caused header layout breaking.
-   - Made [Navbar.jsx](file:///c:/Users/user/.gemini/antigravity-ide/scratch/onuado-na-ye/src/components/Navbar.jsx) Member Sign-In button collapse to a compact icon button on narrow mobile viewports (< 580px) to eliminate text cutoffs.
+2. **Official Treasury & Payment Channels**:
+   - Integrated **Fidelity Bank Ghana** as official banking partner, displayed prominently across the Executive Admin Console, Navbar Modal, and Contact Page.
+   - Updated official MTN Mobile Money wallet line to **0530486443**.
+   - Added 6-digit **MTN MoMo Pay Merchant Code (293658)** for seamless business payments and higher limit support.
+   - Set official contact email to **onuadonaeye@gmail.com**.
 
-3. **Footer Cleanup**:
-   - Streamlined [Footer.jsx](file:///c:/Users/user/.gemini/antigravity-ide/scratch/onuado-na-ye/src/components/Footer.jsx) into a sleek 1-row layout.
-   - Removed *"Encrypted Supabase Database"* badge and *"Executive Portal"* link.
+3. **Database Cleanup**:
+   - Database roster contains exactly the **24 real fellowship members** (`ONY-001` to `ONY-024`).
 
-4. **Admin Console Refinements**:
-   - Added a **Top 4 Regional Branches** collapsible toggle in [AdminPage.jsx](file:///c:/Users/user/.gemini/antigravity-ide/scratch/onuado-na-ye/src/pages/AdminPage.jsx) to eliminate vertical scrolling clutter.
-   - Removed the *"Supabase SQL Exporter"* tab.
-
-5. **Authentication & PINs**:
-   - Member & Executive login supports registered Phone Number / Member ID (`ONY-001` to `ONY-024`).
-   - Default security PIN is the **last 4 digits of member's registered phone number**.
-   - Includes Password show/hide eye toggle and a *"Forgot PIN?"* modal.
+4. **Mobile Responsiveness & Sizing**:
+   - Compact collapsible controls on mobile viewports (< 580px) eliminate text cutoffs.
 
 ---
 
-## 🚀 How to Resume Work Tomorrow
+## 🚀 How to Launch Dev Server
 
 1. **Launch Dev Server**:
    ```bash
@@ -49,12 +48,4 @@ The application is **100% built, fully mobile-responsive, connected to live Supa
 
 ---
 
-## 💡 Potential Ideas to Continue Tomorrow
-
-If you want to add more features tomorrow, here are great options:
-- 📄 **PDF Receipt Downloads**: Add a 1-click "Download PDF Receipt" button for logged payments.
-- 📱 **WhatsApp / SMS Reminders**: Add a quick "Send WhatsApp Dues Reminder" button next to members with outstanding balances.
-- 🌐 **Custom Domain Setup**: Point a custom domain (e.g., `onuadonaye.org`) on Vercel.
-
----
-*Created automatically for Onuado Na Ye Fellowship Portal.*
+*Created automatically for ONUADO NA EYE MENS' FELLOWSHIP.*

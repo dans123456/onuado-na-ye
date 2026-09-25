@@ -12,8 +12,8 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
           <Sparkles size={16} color="#d97706" /> Official Fellowship & Mutual Aid Portal
         </div>
 
-        <h1 style={{ fontSize: '3.2rem', lineHeight: 1.12, fontFamily: 'var(--font-heading)', fontWeight: 900, marginBottom: '1.25rem', background: 'linear-gradient(135deg, #059669, #064e3b, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
-          Onuado Na Ye Fellowship
+        <h1 style={{ fontSize: '3rem', lineHeight: 1.12, fontFamily: 'var(--font-heading)', fontWeight: 900, marginBottom: '1.25rem', background: 'linear-gradient(135deg, #059669, #064e3b, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
+          ONUADO NA EYE MENS' FELLOWSHIP
         </h1>
 
         <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '780px', margin: '0 auto 2.25rem auto', lineHeight: 1.65, fontWeight: 500 }}>
@@ -25,14 +25,14 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
             Access Member Portal <ArrowRight size={18} />
           </button>
           <button onClick={() => setActivePage('contact')} className="btn btn-accent" style={{ padding: '0.9rem 2rem', fontSize: '1.05rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(217, 119, 6, 0.3)' }}>
-            Official MoMo & Bank Accounts <Wallet size={18} />
+            Fidelity Bank & MoMo Details <Wallet size={18} />
           </button>
         </div>
 
         {/* Stats Pill Bar */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem', marginTop: '3.5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--primary-600)' }}>{membersCount || 25}</div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--primary-600)' }}>{membersCount || 24}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Faithful Members</div>
           </div>
           <div style={{ textAlign: 'center' }}>
@@ -57,10 +57,10 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '0.2rem' }}>
-            Fellowship Announcement: Monthly Dues & Welfare Fund Sync
+            Fellowship Announcement: Monthly Dues & Fidelity Bank / MoMo Sync
           </div>
           <div style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-            Members can send monthly dues and welfare contributions via MTN Mobile Money (<strong>024 343 0617</strong> / <strong>024 499 1855</strong>). All transfers are automatically reconciled and reflected on your member dashboard.
+            Members can send monthly dues and welfare contributions via MTN Mobile Money (<strong>0530486443</strong>), Merchant Code (<strong>293658</strong>), or <strong>Fidelity Bank Ghana</strong>. All transfers are automatically reconciled!
           </div>
         </div>
       </div>
@@ -69,7 +69,7 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
       <div style={{ marginTop: '4rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <div className="badge badge-welfare" style={{ marginBottom: '0.5rem' }}>Fellowship Principles</div>
-          <h2 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.5rem' }}>Pillars of Onuado Na Ye</h2>
+          <h2 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.5rem' }}>Pillars of ONUADO NA EYE</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1rem', maxWidth: '600px', margin: '0 auto' }}>Built on Christian faith, mutual financial solidarity, and executive accountability.</p>
         </div>
 

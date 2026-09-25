@@ -146,7 +146,7 @@ export default function AdminPage({ currentUser, members, contributions, setCont
             <Shield size={15} /> Executive Command & Financial Control Center
           </div>
           <h1 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.4rem' }}>
-            Fellowship Executive Console
+            ONUADO NA EYE MENS' FELLOWSHIP — Executive Console
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.98rem' }}>
             Logged in as <strong>{currentUser?.full_name || 'Executive Officer'}</strong> ({currentUser?.position || 'Executive'}). Manage member records, bulk-sync MoMo statements, and issue payment receipts.
@@ -162,6 +162,39 @@ export default function AdminPage({ currentUser, members, contributions, setCont
             <User size={18} /> My Personal Member Portal
           </button>
         )}
+      </div>
+
+      {/* 🏦 OFFICIAL TREASURY PAYMENT CHANNELS & FIDELITY BANK CARD */}
+      <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderRadius: '16px', borderLeft: '5px solid #059669', marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(217, 119, 6, 0.08))' }}>
+        <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--primary-700)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          🏦 Official Fellowship Treasury Payment Channels
+        </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+          <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Official Bank Partner</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#059669', marginTop: '0.1rem' }}>Fidelity Bank Ghana</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Account: ONUADO NA EYE MENS' FELLOWSHIP</div>
+          </div>
+
+          <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>MTN Mobile Money Number</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#d97706', marginTop: '0.1rem' }}>0530486443</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Official MoMo Wallet Line</div>
+          </div>
+
+          <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Merchant Pay Code</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.1rem' }}>293658</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>MTN MoMo Pay (*170# -&gt; Option 2)</div>
+          </div>
+
+          <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Official Fellowship Email</div>
+            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '0.15rem' }}>onuadonaeye@gmail.com</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Official Inquiries & Bank Statements</div>
+          </div>
+        </div>
       </div>
 
       {/* Executive Quick Metrics */}

@@ -64,8 +64,8 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
             style={{ width: '64px', height: '64px', objectFit: 'contain', margin: '0 auto 1rem auto', filter: 'drop-shadow(0 4px 12px rgba(5, 150, 105, 0.4))' }} 
           />
 
-          <h1 style={{ fontSize: '2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.4rem', background: 'linear-gradient(135deg, #059669, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Onuado Na Ye Fellowship
+          <h1 style={{ fontSize: '1.8rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.4rem', background: 'linear-gradient(135deg, #059669, #d97706)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            ONUADO NA EYE MENS' FELLOWSHIP
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem' }}>
             Official Member & Financial Solidarity Portal
@@ -207,7 +207,7 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
           </form>
 
           <div style={{ marginTop: '1.5rem', textAlign: 'center', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            Need registration assistance? Contact your Branch Secretary or call <strong>0244123456</strong>.
+            Need registration assistance? Contact your Branch Secretary, email <strong>onuadonaeye@gmail.com</strong>, or call MoMo line <strong>0530486443</strong>.
           </div>
         </div>
 
