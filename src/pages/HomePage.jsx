@@ -1,7 +1,10 @@
-import React from 'react';
-import { Users, Heart, Wallet, ShieldCheck, ArrowRight, BellRing, Sparkles, Building2, Award } from 'lucide-react';
+import React, { useState } from 'react';
+import { Users, Heart, Wallet, ShieldCheck, ArrowRight, BellRing, Sparkles, Building2, Award, BookOpen } from 'lucide-react';
+import ConstitutionModal from '../components/ConstitutionModal';
 
 export default function HomePage({ setActivePage, membersCount, contributionsCount }) {
+  const [showConstitutionModal, setShowConstitutionModal] = useState(false);
+
   return (
     <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
       
@@ -21,11 +24,14 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
         </p>
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button onClick={() => setActivePage('login')} className="btn btn-primary" style={{ padding: '0.9rem 2rem', fontSize: '1.05rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(5, 150, 105, 0.3)' }}>
+          <button onClick={() => setActivePage('login')} className="btn btn-primary" style={{ padding: '0.9rem 1.75rem', fontSize: '1.02rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(5, 150, 105, 0.3)' }}>
             Access Member Portal <ArrowRight size={18} />
           </button>
-          <button onClick={() => setActivePage('contact')} className="btn btn-accent" style={{ padding: '0.9rem 2rem', fontSize: '1.05rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(217, 119, 6, 0.3)' }}>
+          <button onClick={() => setActivePage('contact')} className="btn btn-accent" style={{ padding: '0.9rem 1.75rem', fontSize: '1.02rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(217, 119, 6, 0.3)' }}>
             Fidelity Bank & MoMo Details <Wallet size={18} />
+          </button>
+          <button onClick={() => setShowConstitutionModal(true)} className="btn btn-secondary" style={{ padding: '0.9rem 1.75rem', fontSize: '1.02rem', fontWeight: 700, background: 'var(--bg-card)', border: '1px solid var(--primary-600)', color: 'var(--primary-600)', boxShadow: '0 6px 20px rgba(0, 0, 0, 0.05)' }}>
+            Read Fellowship Constitution <BookOpen size={18} color="#059669" />
           </button>
         </div>
 
@@ -174,6 +180,12 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
 
         </div>
       </div>
+
+      {/* Constitution Modal */}
+      <ConstitutionModal 
+        isOpen={showConstitutionModal} 
+        onClose={() => setShowConstitutionModal(false)} 
+      />
 
     </div>
   );

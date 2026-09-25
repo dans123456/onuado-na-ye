@@ -1,7 +1,10 @@
-import React from 'react';
-import { HeartHandshake, Shield, Award, Users, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { HeartHandshake, Shield, Award, Users, CheckCircle, BookOpen } from 'lucide-react';
+import ConstitutionModal from '../components/ConstitutionModal';
 
 export default function AboutPage({ setActivePage }) {
+  const [showConstitutionModal, setShowConstitutionModal] = useState(false);
+
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
       
@@ -11,9 +14,16 @@ export default function AboutPage({ setActivePage }) {
           About Our Fellowship
         </div>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>The Story of ONUADO NA EYE MENS' FELLOWSHIP</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto 1.5rem auto' }}>
           "ONUADO NA EYE" translates to brotherly love and good works. Founded with a shared commitment to mutual support and transparent fellowship.
         </p>
+        <button 
+          onClick={() => setShowConstitutionModal(true)} 
+          className="btn btn-primary" 
+          style={{ padding: '0.75rem 1.5rem', fontSize: '0.95rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.25)' }}
+        >
+          <BookOpen size={18} /> Open Interactive Constitution Reader (Articles 1–19)
+        </button>
       </div>
 
       {/* History & Origin */}
@@ -173,6 +183,12 @@ export default function AboutPage({ setActivePage }) {
           </div>
         </div>
       </div>
+
+      {/* Constitution Modal */}
+      <ConstitutionModal 
+        isOpen={showConstitutionModal} 
+        onClose={() => setShowConstitutionModal(false)} 
+      />
 
     </div>
   );
