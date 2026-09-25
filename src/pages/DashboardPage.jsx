@@ -763,7 +763,10 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)' }}>
                 Fidelity Bank Ghana
               </div>
-              <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.4rem', lineHeight: 1.5 }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#059669', margin: '0.35rem 0', letterSpacing: '0.03em' }}>
+                Account No: 2090182444410
+              </div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.2rem', lineHeight: 1.5 }}>
                 Account Name: <strong>ONUADO NA EYE MENS' FELLOWSHIP</strong><br />
                 Official Email: <strong>onuadonaeye@gmail.com</strong>
               </div>

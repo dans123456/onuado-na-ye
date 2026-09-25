@@ -8,7 +8,7 @@
 **Official Email**: `onuadonaeye@gmail.com`  
 **Official MoMo Line**: `0530486443`  
 **Merchant Pay Code**: `293658` (MTN MoMo Pay)  
-**Banking Partner**: **Fidelity Bank Ghana**  
+**Banking Partner**: **Fidelity Bank Ghana** (Acc No: `2090182444410`)  
 
 ---
 

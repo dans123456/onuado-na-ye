@@ -97,6 +97,7 @@ export const CONSTITUTION_ARTICLES = [
     category: 'Finance',
     content: `• Bank Name: Fidelity Bank Ghana
 • Account Name: ONUADO NA EYE MENS' FELLOWSHIP
+• Account Number: 2090182444410
 • Signatories: Group A (President & Secretary) and Group B (Treasurer). Cheques/transfers require one signature from Group A and one from Group B.`
   },
   {

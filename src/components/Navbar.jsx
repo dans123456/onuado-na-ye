@@ -349,14 +349,24 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
 
             {/* Fidelity Bank Card */}
             <div style={{ background: 'var(--bg-main)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '1.25rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                 <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#059669' }}>🏦 Official Bank Account</span>
                 <span className="badge badge-admin" style={{ fontSize: '0.68rem', fontWeight: 800 }}>FIDELITY BANK</span>
               </div>
               <div style={{ fontSize: '0.88rem', color: 'var(--text-main)', fontWeight: 700 }}>
                 Bank Name: <strong>Fidelity Bank Ghana</strong>
               </div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+              <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#059669', margin: '0.3rem 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <span>Account No: <strong>2090182444410</strong></span>
+                <button 
+                  onClick={() => copyMoMoNumber('2090182444410')} 
+                  className="btn btn-secondary" 
+                  style={{ padding: '0.2rem 0.5rem', fontSize: '0.72rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                >
+                  <Copy size={11} /> Copy Acc No
+                </button>
+              </div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                 Official Email: <strong>onuadonaeye@gmail.com</strong>
               </div>
             </div>
