@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { addContribution, bulkAddContributions } from '../services/store';
 
@@ -24,11 +24,20 @@ export default function AdminPage({ currentUser, members, contributions, setCont
   });
   const [manualSuccess, setManualSuccess] = useState('');
 
-  // Member Roster Search
+  // Member Roster Search & Selected Dossier
   const [rosterSearch, setRosterSearch] = useState('');
+  const [selectedDossierMember, setSelectedDossierMember] = useState(null);
 
   // SQL Copy state
   const [copiedSql, setCopiedSql] = useState(false);
+
+  // Filtered Roster
+  const filteredRoster = members.filter(m => 
+    (m.full_name && m.full_name.toLowerCase().includes(rosterSearch.toLowerCase())) ||
+    (m.phone_number && m.phone_number.includes(rosterSearch)) ||
+    (m.excel_member_id && m.excel_member_id.toLowerCase().includes(rosterSearch.toLowerCase())) ||
+    (m.branch && m.branch.toLowerCase().includes(rosterSearch.toLowerCase()))
+  );
 
   // Drag and drop handlers
   const handleDrag = (e) => {
@@ -100,18 +109,18 @@ export default function AdminPage({ currentUser, members, contributions, setCont
       return;
     }
 
-    const selectedMember = members.find(m => m.id === manualForm.member_id);
-
-    const newEntry = {
-      ...manualForm,
+    const updated = addContribution({
+      member_id: manualForm.member_id,
       amount: parseFloat(manualForm.amount),
-      received_by_name: currentUser?.full_name || 'Admin'
-    };
+      contribution_type: manualForm.contribution_type,
+      payment_method: manualForm.payment_method,
+      reference_note: manualForm.reference_note,
+      payment_date: manualForm.payment_date,
+      received_by_name: currentUser?.full_name || 'Executive Admin'
+    });
 
-    const updated = addContribution(newEntry);
     setContributions(updated);
-    setManualSuccess(`Payment of GH₵ ${manualForm.amount} logged for ${selectedMember?.full_name || 'Member'}!`);
-    
+    setManualSuccess(`Transaction of GH₵ ${parseFloat(manualForm.amount).toFixed(2)} recorded successfully!`);
     setManualForm({
       member_id: members[0]?.id || '',
       amount: '',
@@ -124,185 +133,105 @@ export default function AdminPage({ currentUser, members, contributions, setCont
     setTimeout(() => setManualSuccess(''), 4000);
   };
 
-  const copySql = () => {
-    navigator.clipboard.writeText(SQL_SCHEMA_SCRIPT);
-    setCopiedSql(true);
-    setTimeout(() => setCopiedSql(false), 3000);
-  };
+  const exportFullRosterCSV = () => {
+    const headers = [
+      "Member ID,Member No,Full Name,Name in Capitals,Title,Church Position,Branch,Date Joined,Phone 1,Phone 2,House No,GPS Address,Town,Email,Ghana Card,Occupation,Place of Work,Date of Birth,Place of Birth,Hometown,District,Region,Tribe,Next of Kin,Relation,Next of Kin Contact,Marital Status,Spouse Name,Spouse Contact,Children Count,Father Name,Father Contact,Mother Name,Mother Contact,Father Status,Mother Status,Reg Fees,Dues Paid,Levy Paid,Total Payments,Dues Required,Shares Dividends,Shares Value,Treasurer Bill,Shares Holding,Status,Role\n"
+    ];
 
-  const filteredRoster = members.filter(m => 
-    m.full_name.toLowerCase().includes(rosterSearch.toLowerCase()) ||
-    m.phone_number.includes(rosterSearch) ||
-    (m.excel_member_id && m.excel_member_id.toLowerCase().includes(rosterSearch.toLowerCase()))
-  );
+    const rows = members.map(m => 
+      `"${m.excel_member_id}","${m.member_no || ''}","${m.full_name}","${m.name_in_capitals || ''}","${m.title || ''}","${m.position || ''}","${m.branch || ''}","${m.date_joined || ''}","${m.phone_number || ''}","${m.phone_number_2 || ''}","${m.house_no || ''}","${m.gps_address || ''}","${m.town || ''}","${m.email || ''}","${m.ghana_card || ''}","${m.occupation || ''}","${m.place_of_work || ''}","${m.date_of_birth || ''}","${m.place_of_birth || ''}","${m.hometown || ''}","${m.district || ''}","${m.region || ''}","${m.tribe || ''}","${m.next_of_kin || ''}","${m.next_of_kin_relation || ''}","${m.next_of_kin_contact || ''}","${m.marital_status || ''}","${m.spouse_name || ''}","${m.spouse_contact || ''}","${m.children_count || ''}","${m.father_name || ''}","${m.father_contact || ''}","${m.mother_name || ''}","${m.mother_contact || ''}","${m.father_state || ''}","${m.mother_state || ''}","${m.reg_fees || 0}","${m.dues_paid || 0}","${m.levy_paid || 0}","${m.total_payments || 0}","${m.dues_fee_required || 3900}","${m.shares_dividends || 0}","${m.shares_value || 0}","${m.treasurer_bill || 0}","${m.shares_holding || 0}","${m.status || 'ACTIVE'}","${m.role || 'member'}"`
+    ).join("\n");
+
+    const blob = new Blob([headers + rows], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ONUADO_NA_EYE_Master_45_Fields_Member_Roster.csv`;
+    a.click();
+  };
 
   return (
     <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
       
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
-        <div>
-          <div className="badge badge-admin" style={{ marginBottom: '0.5rem', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(5, 150, 105, 0.2))', border: '1px solid rgba(217, 119, 6, 0.4)', color: '#d97706', padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
-            <Shield size={15} /> Executive Command & Financial Control Center
-          </div>
-          <h1 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.4rem' }}>
-            ONUADO NA EYE MENS' FELLOWSHIP — Executive Console
-          </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.98rem' }}>
-            Logged in as <strong>{currentUser?.full_name || 'Executive Officer'}</strong> ({currentUser?.position || 'Executive'}). Manage member records, bulk-sync MoMo statements, and issue payment receipts.
-          </p>
-        </div>
-
-        {setActivePage && (
-          <button 
-            onClick={() => setActivePage('dashboard')}
-            className="btn btn-primary btn-full-mobile"
-            style={{ padding: '0.65rem 1.25rem', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
-          >
-            <User size={18} /> My Personal Member Portal
-          </button>
-        )}
-      </div>
-
-      {/* 🏦 OFFICIAL TREASURY PAYMENT CHANNELS & FIDELITY BANK CARD */}
-      <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderRadius: '16px', borderLeft: '5px solid #059669', marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(217, 119, 6, 0.08))' }}>
-        <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--primary-700)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          🏦 Official Fellowship Treasury Payment Channels
-        </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-          <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Official Bank Partner</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#059669', marginTop: '0.1rem' }}>Fidelity Bank Ghana</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Account: ONUADO NA EYE MENS' FELLOWSHIP</div>
+      {/* Executive Admin Banner */}
+      <div className="glass-card" style={{ padding: '2rem', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(5, 150, 105, 0.15))', border: '1px solid rgba(217, 119, 6, 0.3)', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem' }}>
+          <div>
+            <div className="badge badge-admin" style={{ marginBottom: '0.5rem', padding: '0.35rem 0.85rem', fontSize: '0.8rem' }}>
+              ⭐ Executive Board Console
+            </div>
+            <h1 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: 800 }}>
+              Fellowship Executive Dashboard
+            </h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+              Logged in as: <strong style={{ color: '#d97706' }}>{currentUser?.full_name}</strong> ({currentUser?.position || 'Executive Officer'})
+            </p>
           </div>
 
-          <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>MTN Mobile Money Number</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#d97706', marginTop: '0.1rem' }}>0530486443</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Official MoMo Wallet Line</div>
-          </div>
-
-          <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Merchant Pay Code</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.1rem' }}>293658</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>MTN MoMo Pay (*170# -&gt; Option 2)</div>
-          </div>
-
-          <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Official Fellowship Email</div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '0.15rem' }}>onuadonaeye@gmail.com</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Official Inquiries & Bank Statements</div>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button 
+              onClick={exportFullRosterCSV}
+              className="btn btn-accent" 
+              style={{ padding: '0.65rem 1.1rem', fontSize: '0.88rem', fontWeight: 700 }}
+            >
+              <Download size={16} /> Export All 45 Fields (CSV)
+            </button>
+            <button 
+              onClick={() => setActivePage('dashboard')} 
+              className="btn btn-secondary" 
+              style={{ padding: '0.65rem 1.1rem', fontSize: '0.88rem', fontWeight: 700 }}
+            >
+              <User size={16} /> My Member Portal &rarr;
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Executive Quick Metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-        <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderLeft: '4px solid #059669' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Total Dues & Welfare Ledgers</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#059669', margin: '0.2rem 0' }}>
-            GH₵ {contributions.reduce((acc, c) => acc + (parseFloat(c.amount) || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>From {contributions.length} recorded payments</div>
+      {/* Quick Branch & Member Overview Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #059669' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Registered Members</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#059669', marginTop: '0.2rem' }}>{members.length} Members</div>
         </div>
 
-        <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderLeft: '4px solid #d97706' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Total Fellowship Roster</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#d97706', margin: '0.2rem 0' }}>
-            {members.length} Members
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            {members.filter(m => m.status === 'ACTIVE').length} Active • {members.filter(m => m.status === 'PROBATION').length} Probation
-          </div>
-        </div>
-
-        <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderLeft: '4px solid #3b82f6' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Regional Branches</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#3b82f6', margin: '0.2rem 0' }}>
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #d97706' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Active Regional Branches</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706', marginTop: '0.2rem' }}>
             {new Set(members.map(m => m.branch || 'Takoradi')).size} Branches
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Takoradi, Mankessim, Mampong, Ashaiman, Accra...</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Takoradi, Mankessim, Mampong, Ashaiman, Accra...</div>
+        </div>
+
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #3b82f6' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Ledger Contributions</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#3b82f6', marginTop: '0.2rem' }}>
+            GH₵ {contributions.reduce((sum, c) => sum + parseFloat(c.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </div>
         </div>
       </div>
 
-      {/* 📊 REGIONAL BRANCH DUES & SHARES PERFORMANCE METERS (COMPACT COLLAPSIBLE) */}
-      <div className="glass-card" style={{ padding: '1.25rem 1.5rem', borderRadius: '16px', marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-            <RefreshCw size={18} color="#059669" /> Regional Branch Dues & Shares Summary
-          </h3>
-          <button 
-            type="button"
-            onClick={() => setShowAllBranches(!showAllBranches)}
-            className="btn btn-secondary"
-            style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', fontWeight: 700 }}
-          >
-            {showAllBranches ? 'Show Top 4 Branches' : `View All ${Object.keys(members.reduce((acc, m) => { acc[m.branch || 'Takoradi'] = true; return acc; }, {})).length} Branches`}
-          </button>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-          {Object.entries(
-            members.reduce((acc, m) => {
-              const b = m.branch || 'Takoradi';
-              if (!acc[b]) acc[b] = { count: 0, duesPaid: 0, duesRequired: 0, shares: 0 };
-              acc[b].count += 1;
-              acc[b].duesPaid += (parseFloat(m.dues_paid) || 0);
-              acc[b].duesRequired += (parseFloat(m.dues_fee_required) || 3900);
-              acc[b].shares += (parseFloat(m.shares_holding) || 0);
-              return acc;
-            }, {})
-          ).slice(0, showAllBranches ? undefined : 4).map(([branchName, stats]) => {
-            const percentage = Math.min(100, Math.round((stats.duesPaid / (stats.duesRequired || 1)) * 100));
-            return (
-              <div key={branchName} style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
-                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-main)' }}>📍 {branchName}</span>
-                  <span className="badge badge-dues" style={{ fontSize: '0.68rem' }}>{stats.count} Members</span>
-                </div>
-
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                  Dues: <strong>GH₵ {stats.duesPaid.toLocaleString()}</strong> / GH₵ {stats.duesRequired.toLocaleString()}
-                </div>
-
-                {/* Visual Progress Bar Meter */}
-                <div style={{ height: '6px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden', marginBottom: '0.4rem' }}>
-                  <div style={{ width: `${percentage}%`, height: '100%', background: percentage > 80 ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #f59e0b, #d97706)', borderRadius: '3px' }}></div>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 700 }}>
-                  <span style={{ color: percentage > 80 ? '#059669' : '#d97706' }}>{percentage}% Rate</span>
-                  <span style={{ color: '#3b82f6' }}>Shares: GH₵ {Math.round(stats.shares).toLocaleString()}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Admin Tabs */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+      {/* Navigation Tabs */}
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
         <button 
           onClick={() => setActiveTab('uploader')} 
-          className={`btn ${activeTab === 'uploader' ? 'btn-accent' : 'btn-secondary'}`}
+          className={`btn ${activeTab === 'uploader' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
         >
-          <FileSpreadsheet size={16} /> Excel / MoMo Statement Uploader
+          <UploadCloud size={16} /> Excel / CSV Bulk Uploader
         </button>
         <button 
           onClick={() => setActiveTab('manual')} 
           className={`btn ${activeTab === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
         >
-          <PlusCircle size={16} /> Log Payment Receipt
+          <PlusCircle size={16} /> Log Single Transaction
         </button>
         <button 
           onClick={() => setActiveTab('roster')} 
           className={`btn ${activeTab === 'roster' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
         >
-          <Users size={16} /> Member Roster ({members.length})
+          <Users size={16} /> Member Master Roster ({members.length})
         </button>
       </div>
 
@@ -324,7 +253,6 @@ export default function AdminPage({ currentUser, members, contributions, setCont
             </p>
           </div>
 
-          {/* Dropzone */}
           <div 
             className={`dropzone ${dragActive ? 'active' : ''}`}
             onDragEnter={handleDrag}
@@ -355,10 +283,8 @@ export default function AdminPage({ currentUser, members, contributions, setCont
             </div>
           )}
 
-          {/* Parsed Results Preview */}
           {parseResult && (
             <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
-              
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
                 <div>
                   <h3 style={{ fontSize: '1.25rem' }}>File Parse Summary</h3>
@@ -373,80 +299,8 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                   </button>
                 )}
               </div>
-
-              {/* Matched Records Table */}
-              {parseResult.matched.length > 0 && (
-                <div style={{ marginBottom: '2rem' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem', color: '#059669' }}>
-                    ✅ Ready for Bulk Import ({parseResult.matched.length} Records)
-                  </h4>
-                  <div className="table-container">
-                    <table className="data-table">
-                      <thead>
-                        <tr>
-                          <th>Row #</th>
-                          <th>Matched Member</th>
-                          <th>Phone</th>
-                          <th>Amount (GH₵)</th>
-                          <th>Category</th>
-                          <th>Method</th>
-                          <th>Reference</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {parseResult.matched.map((item, idx) => (
-                          <tr key={idx}>
-                            <td>{item.rowNum}</td>
-                            <td style={{ fontWeight: 700 }}>{item.member_name}</td>
-                            <td>{item.phone_number}</td>
-                            <td style={{ fontWeight: 800, color: 'var(--primary-600)' }}>GH₵ {item.amount.toFixed(2)}</td>
-                            <td><span className="badge badge-dues">{item.contribution_type}</span></td>
-                            <td>{item.payment_method}</td>
-                            <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{item.reference_note}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* Unmatched Records Table */}
-              {parseResult.unmatched.length > 0 && (
-                <div>
-                  <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem', color: '#dc2626' }}>
-                    ⚠️ Skipped Rows ({parseResult.unmatched.length} Records)
-                  </h4>
-                  <div className="table-container">
-                    <table className="data-table">
-                      <thead>
-                        <tr>
-                          <th>Row #</th>
-                          <th>Raw Name</th>
-                          <th>Raw Phone</th>
-                          <th>Amount</th>
-                          <th>Reason Skipped</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {parseResult.unmatched.map((item, idx) => (
-                          <tr key={idx}>
-                            <td>{item.rowNum}</td>
-                            <td>{item.rawName || '—'}</td>
-                            <td>{item.rawPhone || '—'}</td>
-                            <td>{item.rawAmount || '—'}</td>
-                            <td style={{ color: '#dc2626', fontSize: '0.85rem' }}>{item.reason}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
             </div>
           )}
-
         </div>
       )}
 
@@ -476,7 +330,7 @@ export default function AdminPage({ currentUser, members, contributions, setCont
               >
                 {members.map(m => (
                   <option key={m.id} value={m.id}>
-                    {m.full_name} ({m.phone_number})
+                    {m.full_name} ({m.phone_number}) — {m.branch}
                   </option>
                 ))}
               </select>
@@ -505,45 +359,9 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                 >
                   <option value="Monthly Dues">Monthly Dues</option>
                   <option value="Welfare Fund">Welfare Fund</option>
-                  <option value="Special Donation">Special Donation</option>
+                  <option value="Special Levy">Special Levy</option>
                 </select>
               </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Payment Method</label>
-                <select 
-                  className="form-select"
-                  value={manualForm.payment_method}
-                  onChange={(e) => setManualForm({ ...manualForm, payment_method: e.target.value })}
-                >
-                  <option value="Mobile Money">Mobile Money</option>
-                  <option value="Cash">Cash</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Payment Date</label>
-                <input 
-                  type="date"
-                  required
-                  className="form-input"
-                  value={manualForm.payment_date}
-                  onChange={(e) => setManualForm({ ...manualForm, payment_date: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Reference / Receipt Note</label>
-              <input 
-                type="text"
-                placeholder="e.g., MoMo Ref 10928374 or Cash Meeting Receipt #04"
-                className="form-input"
-                value={manualForm.reference_note}
-                onChange={(e) => setManualForm({ ...manualForm, reference_note: e.target.value })}
-              />
             </div>
 
             <button type="submit" className="btn btn-primary" style={{ padding: '0.85rem', fontSize: '1rem', marginTop: '0.5rem' }}>
@@ -553,25 +371,33 @@ export default function AdminPage({ currentUser, members, contributions, setCont
         </div>
       )}
 
-      {/* TAB 3: 24 MEMBER ROSTER */}
+      {/* TAB 3: COMPLETE 24 MEMBER ROSTER (WITH ALL 45 FIELDS DOSSIER) */}
       {activeTab === 'roster' && (
         <div className="glass-card" style={{ padding: '2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
             <div>
-              <h2 style={{ fontSize: '1.3rem' }}>Complete 24-Member Roster</h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Registered accounts & calculated contribution totals</p>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Complete Member Roster & Master Dossiers</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                Click <strong>"Inspect Full 45-Field Dossier 📋"</strong> on any member row to view all 45 extracted fields!
+              </p>
             </div>
 
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="text" 
-                placeholder="Search member name or phone..."
-                className="form-input"
-                style={{ paddingLeft: '2.2rem', width: '260px' }}
-                value={rosterSearch}
-                onChange={(e) => setRosterSearch(e.target.value)}
-              />
-              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type="text" 
+                  placeholder="Search name, phone, branch, ID..."
+                  className="form-input"
+                  style={{ paddingLeft: '2.2rem', width: '270px' }}
+                  value={rosterSearch}
+                  onChange={(e) => setRosterSearch(e.target.value)}
+                />
+                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              </div>
+
+              <button onClick={exportFullRosterCSV} className="btn btn-accent" style={{ padding: '0.5rem 0.85rem', fontSize: '0.82rem', fontWeight: 700 }}>
+                <Download size={15} /> Export CSV (45 Fields)
+              </button>
             </div>
           </div>
 
@@ -579,39 +405,186 @@ export default function AdminPage({ currentUser, members, contributions, setCont
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Excel Member ID</th>
+                  <th>No / ID</th>
                   <th>Full Name</th>
+                  <th>Branch</th>
                   <th>Primary Phone</th>
-                  <th>MoMo Number</th>
-                  <th>Role</th>
-                  <th>Total Contributed</th>
+                  <th>Ghana Card</th>
+                  <th>Status</th>
+                  <th>Action (Inspect Dossier)</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredRoster.map(m => {
-                  const mTotal = contributions
-                    .filter(c => c.member_id === m.id)
-                    .reduce((sum, c) => sum + parseFloat(c.amount || 0), 0);
-
-                  return (
-                    <tr key={m.id}>
-                      <td style={{ fontWeight: 700, color: 'var(--accent-600)' }}>{m.excel_member_id}</td>
-                      <td style={{ fontWeight: 700 }}>{m.full_name}</td>
-                      <td>{m.phone_number}</td>
-                      <td>{m.momo_number || m.phone_number}</td>
-                      <td>
-                        <span className={`badge ${m.role === 'admin' ? 'badge-admin' : 'badge-dues'}`}>
-                          {m.role === 'admin' ? '⭐ Admin' : 'Member'}
-                        </span>
-                      </td>
-                      <td style={{ fontWeight: 800, color: 'var(--primary-600)' }}>
-                        GH₵ {mTotal.toFixed(2)}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {filteredRoster.map(m => (
+                  <tr key={m.id}>
+                    <td style={{ fontWeight: 800, color: 'var(--accent-600)' }}>
+                      #{m.member_no || m.id.replace('m-', '')} ({m.excel_member_id})
+                    </td>
+                    <td style={{ fontWeight: 800 }}>
+                      {m.full_name}
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                        {m.title} • {m.position}
+                      </div>
+                    </td>
+                    <td style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{m.branch}</td>
+                    <td>{m.phone_number}</td>
+                    <td style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}>{m.ghana_card || 'Recorded'}</td>
+                    <td>
+                      <span className={`badge ${m.status === 'ACTIVE' ? 'badge-dues' : 'badge-admin'}`}>
+                        {m.status || 'ACTIVE'}
+                      </span>
+                    </td>
+                    <td>
+                      <button 
+                        onClick={() => setSelectedDossierMember(m)}
+                        className="btn btn-secondary"
+                        style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: 'var(--primary-700)', border: '1px solid rgba(5, 150, 105, 0.4)' }}
+                      >
+                        <Eye size={14} color="#059669" /> Inspect 45 Fields &rarr;
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* 📋 EXECUTIVE MASTER MEMBER DOSSIER MODAL (ALL 45 FIELDS DISPLAYED) */}
+      {selectedDossierMember && (
+        <div style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0, 
+          width: '100vw', 
+          height: '100vh', 
+          background: 'rgba(0,0,0,0.8)', 
+          backdropFilter: 'blur(6px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 99999, 
+          padding: '1.25rem 1rem', 
+          overflowY: 'auto' 
+        }}>
+          <div className="glass-card" style={{ 
+            maxWidth: '920px', 
+            width: '100%', 
+            margin: 'auto', 
+            padding: '2rem', 
+            borderRadius: '24px', 
+            background: 'var(--bg-card)', 
+            maxHeight: '88vh', 
+            overflowY: 'auto', 
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+            border: '1px solid var(--border-color)'
+          }}>
+            
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                  <span className="badge badge-admin" style={{ fontWeight: 800 }}>
+                    Member #{selectedDossierMember.member_no} • {selectedDossierMember.excel_member_id}
+                  </span>
+                  <span style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '12px', background: selectedDossierMember.status === 'ACTIVE' ? '#10b981' : '#f59e0b', color: '#fff', fontWeight: 800 }}>
+                    {selectedDossierMember.status || 'ACTIVE'}
+                  </span>
+                </div>
+                <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-heading)', color: 'var(--primary-700)', margin: 0 }}>
+                  {selectedDossierMember.title} {selectedDossierMember.full_name}
+                </h2>
+                <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                  {selectedDossierMember.position} • Branch: <strong>{selectedDossierMember.branch}</strong> • Date Joined: <strong>{selectedDossierMember.date_joined}</strong>
+                </div>
+              </div>
+
+              <button onClick={() => setSelectedDossierMember(null)} style={{ background: 'rgba(0,0,0,0.08)', border: 'none', borderRadius: '50%', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* 45 FIELDS DOSSIER CONTENT GRID */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              
+              {/* Category 1: Contact & Address Directory */}
+              <div style={{ padding: '1.5rem', background: 'var(--bg-main)', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <MapPin size={18} /> 1. Contact & Digital Address Directory
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Primary Phone 1</div><strong>{selectedDossierMember.phone_number || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Secondary Phone 2</div><strong>{selectedDossierMember.phone_number_2 || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>House Number</div><strong>{selectedDossierMember.house_no || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Ghana Post GPS Address</div><strong style={{ fontFamily: 'monospace', color: '#059669' }}>{selectedDossierMember.gps_address || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Residential Town</div><strong>{selectedDossierMember.town || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Official Email</div><strong>{selectedDossierMember.email || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Ghana Card ID</div><strong style={{ color: '#2563eb' }}>{selectedDossierMember.ghana_card || '—'}</strong></div>
+                </div>
+              </div>
+
+              {/* Category 2: Origin, Heritage & Workplace */}
+              <div style={{ padding: '1.5rem', background: 'var(--bg-main)', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#2563eb', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Building2 size={18} /> 2. Origin, Heritage & Workplace Details
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Occupation</div><strong>{selectedDossierMember.occupation || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Place of Work</div><strong>{selectedDossierMember.place_of_work || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Date of Birth</div><strong>{selectedDossierMember.date_of_birth || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Place of Birth</div><strong>{selectedDossierMember.place_of_birth || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Hometown</div><strong>{selectedDossierMember.hometown || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>District & Region</div><strong>{selectedDossierMember.district || '—'}, {selectedDossierMember.region || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Tribe</div><strong>{selectedDossierMember.tribe || '—'}</strong></div>
+                </div>
+              </div>
+
+              {/* Category 3: Family, Next of Kin & Parents */}
+              <div style={{ padding: '1.5rem', background: 'var(--bg-main)', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Heart size={18} /> 3. Family, Next of Kin & Parents Directory
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Next of Kin Name</div><strong>{selectedDossierMember.next_of_kin || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Relationship to Member</div><strong>{selectedDossierMember.next_of_kin_relation || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Next of Kin Phone</div><strong>{selectedDossierMember.next_of_kin_contact || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Marital Status</div><strong>{selectedDossierMember.marital_status || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Spouse Name & Phone</div><strong>{selectedDossierMember.spouse_name || '—'} ({selectedDossierMember.spouse_contact || '—'})</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Children Count</div><strong>{selectedDossierMember.children_count || '—'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Father Name & Phone</div><strong>{selectedDossierMember.father_name || '—'} ({selectedDossierMember.father_contact || '—'}) • Status: {selectedDossierMember.father_state || 'Alive'}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Mother Name & Phone</div><strong>{selectedDossierMember.mother_name || '—'} ({selectedDossierMember.mother_contact || '—'}) • Status: {selectedDossierMember.mother_state || 'Alive'}</strong></div>
+                </div>
+              </div>
+
+              {/* Category 4: Complete Financial Ledger & Shares Entitlements */}
+              <div style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(217, 119, 6, 0.08))', borderRadius: '16px', border: '1px solid rgba(5, 150, 105, 0.3)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--primary-700)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <CreditCard size={18} /> 4. Financial Ledger & Shares Entitlement
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Registration Fee</div><strong style={{ color: '#059669' }}>GH₵ {(selectedDossierMember.reg_fees || 200).toFixed(2)}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Dues Paid</div><strong style={{ color: '#059669' }}>GH₵ {(selectedDossierMember.dues_paid || 0).toFixed(2)}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Levy Paid</div><strong style={{ color: '#3b82f6' }}>GH₵ {(selectedDossierMember.levy_paid || 0).toFixed(2)}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Payments</div><strong style={{ color: '#d97706' }}>GH₵ {(selectedDossierMember.total_payments || 0).toFixed(2)}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Dues Fee Required</div><strong>GH₵ {(selectedDossierMember.dues_fee_required || 3900).toFixed(2)}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Dividends Count</div><strong>{selectedDossierMember.shares_dividends || 0} Shares</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div><strong>GH₵ {(selectedDossierMember.shares_value || 0).toFixed(2)}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Treasurer Bill</div><strong>GH₵ {(selectedDossierMember.treasurer_bill || 0).toFixed(2)}</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Holding Total</div><strong style={{ color: '#8b5cf6', fontSize: '1rem' }}>GH₵ {(selectedDossierMember.shares_holding || 0).toFixed(2)}</strong></div>
+                </div>
+              </div>
+
+            </div>
+
+            <div style={{ marginTop: '1.75rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button onClick={() => setSelectedDossierMember(null)} className="btn btn-primary" style={{ padding: '0.65rem 1.5rem', fontWeight: 800 }}>
+                Close Master Dossier
+              </button>
+            </div>
+
           </div>
         </div>
       )}
