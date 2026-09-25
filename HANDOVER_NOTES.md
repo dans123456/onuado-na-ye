@@ -29,11 +29,28 @@ The application is **100% built, fully mobile-responsive, connected to live Supa
    - Added 6-digit **MTN MoMo Pay Merchant Code (293658)** for seamless business payments and higher limit support.
    - Set official contact email to **onuadonaeye@gmail.com**.
 
-3. **Database Cleanup**:
-   - Database roster contains exactly the **24 real fellowship members** (`ONY-001` to `ONY-024`).
+3. **Official Executive Board (6 Admins)**:
+   - **Moses Oduro**: President (Role: `admin`)
+   - **Osei Kwame**: Vice President (Role: `admin`)
+   - **Just-Mark Kwabena Quansah**: PRO & Liaison Officer (Role: `admin`)
+   - **Jonathan Danso Siaw**: General Secretary (Role: `admin`)
+   - **William Kojo Anane**: Executive Board Member (Role: `admin`)
+   - **John Ofosuhene Asare**: Executive Board Member (Role: `admin`)
+   - *All remaining 18 members classified as General Members (Role: `member`).*
 
-4. **Mobile Responsiveness & Sizing**:
-   - Compact collapsible controls on mobile viewports (< 580px) eliminate text cutoffs.
+4. **Constitution Integration (`CONSTITUTION FOR ONUADƆ NA ƐYƐ.doc`)**:
+   - Extracted and integrated complete constitutional provisions across the website.
+   - Added **Article 16 Welfare Benefits Schedule Table** to [AboutPage.jsx](file:///c:/Users/user/.gemini/antigravity-ide/scratch/onuado-na-ye/src/pages/AboutPage.jsx):
+     - Bereavement Spouse: GH₵ 5,000.00
+     - Bereavement Parent: GH₵ 3,000.00
+     - Bereavement Child: GH₵ 2,000.00 each
+     - Hospitalization / Accident: GH₵ 1,000.00 + Visitation
+     - Destitution / Property Loss: GH₵ 3,000.00 Relief
+     - Childbirth / Naming: GH₵ 1,000.00
+     - Weddings: 80% Voluntary Levy Pool + Rep Transport
+
+5. **Database Roster**:
+   - Database roster contains exactly the **24 real fellowship members** (`ONY-001` to `ONY-024`).
 
 ---
 

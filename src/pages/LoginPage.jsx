@@ -281,9 +281,10 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
                 <strong>Forgotten custom PIN?</strong> Contact your Branch Secretary or Executive Officer for an instant PIN reset:
                 <ul style={{ marginTop: '0.5rem', listStyle: 'none', paddingLeft: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <li>📍 <strong>Takoradi / Main Branch:</strong> Alex Ackah (0243430617)</li>
-                  <li>📍 <strong>Mankessim Branch:</strong> Fanuel Hagan (0244181735)</li>
-                  <li>📍 <strong>Mampong Branch:</strong> Danso Kingsley (0244991855)</li>
+                  <li>📍 <strong>Fellowship President:</strong> Moses Oduro (0203541966)</li>
+                  <li>📍 <strong>Vice President:</strong> Osei Kwame (0244283224)</li>
+                  <li>📍 <strong>General Secretary:</strong> Jonathan Danso Siaw (0242145516)</li>
+                  <li>📍 <strong>PRO & Liaison Officer:</strong> Mark-Just Quansah (0267461029)</li>
                 </ul>
               </div>
 

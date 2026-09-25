@@ -112,46 +112,64 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
       <div className="glass-card" style={{ marginTop: '4rem', padding: '3rem 2rem', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.05), rgba(217, 119, 6, 0.05))' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div className="badge badge-admin" style={{ marginBottom: '0.5rem' }}>Executive Board</div>
-          <h2 style={{ fontSize: '2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.5rem' }}>Fellowship Executive Officers</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Stewards overseeing fellowship affairs, welfare disbursements, and financial ledgers.</p>
+          <h2 style={{ fontSize: '2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, marginBottom: '0.5rem' }}>Fellowship Executive Board</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Elected Executive Officers governing ONUADO NA EYE MENS' FELLOWSHIP under the Constitution.</p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
           
-          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px' }}>
+          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #059669' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #059669, #064e3b)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              AA
+              MO
             </div>
-            <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Alex Ackah</h4>
-            <div style={{ fontSize: '0.8rem', color: '#d97706', fontWeight: 700 }}>Youth Chairman</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Takoradi Branch • Driver</div>
+            <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Moses Oduro</h4>
+            <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 800 }}>President</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Noyem Branch • Tipper Truck Business</div>
           </div>
 
-          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px' }}>
+          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #d97706' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #d97706, #b45309)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              DK
-            </div>
-            <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Danso Kingsley</h4>
-            <div style={{ fontSize: '0.8rem', color: '#d97706', fontWeight: 700 }}>Men's Fellowship Chairman</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Mampong Branch • Educator</div>
-          </div>
-
-          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              FH
-            </div>
-            <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Fanuel Hagan</h4>
-            <div style={{ fontSize: '0.8rem', color: '#d97706', fontWeight: 700 }}>Secretary</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Mankessim Branch • Electrician</div>
-          </div>
-
-          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
               OK
             </div>
             <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Osei Kwame</h4>
-            <div style={{ fontSize: '0.8rem', color: '#d97706', fontWeight: 700 }}>Treasurer</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Kasoa Branch • Car Merchant</div>
+            <div style={{ fontSize: '0.82rem', color: '#d97706', fontWeight: 800 }}>Vice President</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Kasoa Branch • Car Dealer</div>
+          </div>
+
+          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #3b82f6' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+              JQ
+            </div>
+            <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Mark-Just Quansah</h4>
+            <div style={{ fontSize: '0.82rem', color: '#3b82f6', fontWeight: 800 }}>PRO & Liaison Officer</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Ashaiman Branch • Bakery Enterprise</div>
+          </div>
+
+          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #8b5cf6' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+              JS
+            </div>
+            <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Jonathan Danso Siaw</h4>
+            <div style={{ fontSize: '0.82rem', color: '#8b5cf6', fontWeight: 800 }}>General Secretary</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Aburi Branch • Pensioner</div>
+          </div>
+
+          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #10b981' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #047857)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+              WA
+            </div>
+            <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>William Kojo Anane</h4>
+            <div style={{ fontSize: '0.82rem', color: '#10b981', fontWeight: 800 }}>Executive Member</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Ashaiman Branch • Mechanical Engineering</div>
+          </div>
+
+          <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #f59e0b' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #f59e0b, #b45309)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
+              JA
+            </div>
+            <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>John Ofosuhene Asare</h4>
+            <div style={{ fontSize: '0.82rem', color: '#f59e0b', fontWeight: 800 }}>Executive Member</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Kotobabi Branch • Building Construction</div>
           </div>
 
         </div>

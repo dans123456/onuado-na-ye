@@ -7,7 +7,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-001",
     "full_name": "Alex Ackah",
     "title": "Elder",
-    "position": "Youth Chairman",
+    "position": "Youth Member",
     "date_joined": "January 2024",
     "phone_number": "0243430617",
     "momo_number": "0243430617",
@@ -29,7 +29,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 2.1460892049127342,
     "shares_holding": 3037.2084745260136,
     "balance_owed": 300,
-    "role": "admin",
+    "role": "member",
     "status": "ACTIVE"
   },
   {
@@ -37,7 +37,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-002",
     "full_name": "Danso Kingsley",
     "title": "Elder",
-    "position": "Men's Fellowship Chairman",
+    "position": "Fellowship Member",
     "date_joined": "January 2025",
     "phone_number": "0244991855",
     "momo_number": "0244991855",
@@ -59,7 +59,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 56.1690815971359,
     "shares_holding": 1573.7002742576863,
     "balance_owed": 900,
-    "role": "admin",
+    "role": "member",
     "status": "PROBATION"
   },
   {
@@ -67,7 +67,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-003",
     "full_name": "Fanuel Hagan",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0244181735",
     "momo_number": "0244181735",
@@ -89,7 +89,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 828.3552580226167,
     "shares_holding": 4268.092628053198,
     "balance_owed": 500,
-    "role": "admin",
+    "role": "member",
     "status": "ACTIVE"
   },
   {
@@ -127,7 +127,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-005",
     "full_name": "George Yeboah",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "Fellowship Member",
     "date_joined": "January 2025",
     "phone_number": "0501786106",
     "momo_number": "0501786106",
@@ -149,7 +149,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 0,
     "shares_holding": 0,
     "balance_owed": 2200,
-    "role": "admin",
+    "role": "member",
     "status": "PROBATION"
   },
   {
@@ -157,7 +157,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-006",
     "full_name": "Isaac Darko",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0547261159",
     "momo_number": "0547261159",
@@ -179,7 +179,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 2.1460892049127342,
     "shares_holding": 3947.7271901223435,
     "balance_owed": 0,
-    "role": "admin",
+    "role": "member",
     "status": "ACTIVE"
   },
   {
@@ -187,7 +187,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-007",
     "full_name": "Isaac Donkor",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "Fellowship Member",
     "date_joined": "January 2024",
     "phone_number": "0243109072",
     "momo_number": "0243109072",
@@ -209,7 +209,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 56.1690815971359,
     "shares_holding": 3394.7377054503468,
     "balance_owed": 0,
-    "role": "admin",
+    "role": "member",
     "status": "ACTIVE"
   },
   {
@@ -247,7 +247,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-009",
     "full_name": "John Darbo",
     "title": "Elder",
-    "position": "Youth Chairman",
+    "position": "Fellowship Member",
     "date_joined": "January 2025",
     "phone_number": "0557336020",
     "momo_number": "0557336020",
@@ -269,7 +269,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 0,
     "shares_holding": 0,
     "balance_owed": 2050,
-    "role": "admin",
+    "role": "member",
     "status": "REMOVED"
   },
   {
@@ -277,7 +277,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-010",
     "full_name": "John Ofosuhene Asare",
     "title": "Elder",
-    "position": "Treasurer",
+    "position": "Executive Board Member",
     "date_joined": "January 2023",
     "phone_number": "0242927915",
     "momo_number": "0242927915",
@@ -307,7 +307,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-011",
     "full_name": "Johnson Wood",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0240466830",
     "momo_number": "0240466830",
@@ -329,7 +329,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 828.3552580226167,
     "shares_holding": 4369.2613742305675,
     "balance_owed": 400,
-    "role": "admin",
+    "role": "member",
     "status": "ACTIVE"
   },
   {
@@ -367,7 +367,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-013",
     "full_name": "Jonathan Danso Siaw",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "General Secretary",
     "date_joined": "January 2023",
     "phone_number": "0242145516",
     "momo_number": "0242145516",
@@ -397,7 +397,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-014",
     "full_name": "Joseph Kofi Amanfo",
     "title": "Elder",
-    "position": "National Youth Chairman",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0268713230",
     "momo_number": "0268713230",
@@ -419,7 +419,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 0,
     "shares_holding": 0,
     "balance_owed": 2900,
-    "role": "admin",
+    "role": "member",
     "status": "REMOVED"
   },
   {
@@ -427,7 +427,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-015",
     "full_name": "Justice Kojo Acheampong",
     "title": "Elder",
-    "position": "Youth Chairman",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0247505280",
     "momo_number": "0247505280",
@@ -449,7 +449,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 772.1861764254808,
     "shares_holding": 3807.248561746582,
     "balance_owed": 900,
-    "role": "admin",
+    "role": "member",
     "status": "PROBATION"
   },
   {
@@ -457,7 +457,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-016",
     "full_name": "Just-Mark Kwabena Quansah",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "PRO / Organizer & Liaison Officer",
     "date_joined": "January 2023",
     "phone_number": "0267461029",
     "momo_number": "0267461029",
@@ -487,7 +487,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-017",
     "full_name": "Maxwell Ofei Siaw",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0247880895",
     "momo_number": "0247880895",
@@ -509,7 +509,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 828.3552580226167,
     "shares_holding": 4166.923881875828,
     "balance_owed": 600,
-    "role": "admin",
+    "role": "member",
     "status": "PROBATION"
   },
   {
@@ -517,7 +517,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-018",
     "full_name": "Moses Oduro",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "Fellowship President",
     "date_joined": "January 2023",
     "phone_number": "0203541966",
     "momo_number": "0203541966",
@@ -547,7 +547,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-019",
     "full_name": "Osei Kwame",
     "title": "Elder",
-    "position": "Treasurer",
+    "position": "Vice President",
     "date_joined": "January 2023",
     "phone_number": "0244283224",
     "momo_number": "0244283224",
@@ -577,7 +577,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-020",
     "full_name": "Peter Kingsford Nkrumah",
     "title": "Elder",
-    "position": "Secretary",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0543382738",
     "momo_number": "0543382738",
@@ -599,7 +599,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 0,
     "shares_holding": 0,
     "balance_owed": 3000,
-    "role": "admin",
+    "role": "member",
     "status": "REMOVED"
   },
   {
@@ -607,7 +607,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-021",
     "full_name": "Prince Asante Ahwireng",
     "title": "Elder",
-    "position": "Treasurer",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0548645220",
     "momo_number": "0548645220",
@@ -629,7 +629,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 828.3552580226167,
     "shares_holding": 4166.923881875828,
     "balance_owed": 600,
-    "role": "admin",
+    "role": "member",
     "status": "PROBATION"
   },
   {
@@ -637,7 +637,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-022",
     "full_name": "Samuel Yaw Nkansah",
     "title": "Elder",
-    "position": "Youth Chairman",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0246560312",
     "momo_number": "0246560312",
@@ -659,7 +659,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 0,
     "shares_holding": 0,
     "balance_owed": 2200,
-    "role": "admin",
+    "role": "member",
     "status": "REMOVED"
   },
   {
@@ -667,7 +667,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-023",
     "full_name": "Vincent Agamatey",
     "title": "Elder",
-    "position": "Treasurer",
+    "position": "Fellowship Member",
     "date_joined": "January 2023",
     "phone_number": "0244067032",
     "momo_number": "0244067032",
@@ -689,7 +689,7 @@ const INITIAL_MEMBERS = [
     "treasurer_bill": 828.3552580226167,
     "shares_holding": 4571.598866585307,
     "balance_owed": 200,
-    "role": "admin",
+    "role": "member",
     "status": "ACTIVE"
   },
   {
@@ -697,7 +697,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-024",
     "full_name": "William Kojo Anane",
     "title": "Elder",
-    "position": "Youth Chairman",
+    "position": "Executive Board Member",
     "date_joined": "January 2023",
     "phone_number": "0269563876",
     "momo_number": "0269563876",
@@ -1201,10 +1201,22 @@ const INITIAL_CONTRIBUTIONS = [
 
 import { supabase } from './supabaseClient';
 
-// Helper functions for LocalStorage persistence & Supabase sync
 const getStoredMembers = () => {
   const saved = localStorage.getItem('ony_members');
-  return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
+  if (!saved) return INITIAL_MEMBERS;
+  try {
+    const parsed = JSON.parse(saved);
+    // Sync initial positions & roles to guarantee official executive board roles reflect
+    return parsed.map(m => {
+      const init = INITIAL_MEMBERS.find(i => i.id === m.id || i.excel_member_id === m.excel_member_id);
+      if (init) {
+        return { ...m, role: init.role, position: init.position };
+      }
+      return m;
+    });
+  } catch (e) {
+    return INITIAL_MEMBERS;
+  }
 };
 
 const getStoredContributions = () => {
