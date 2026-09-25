@@ -68,33 +68,47 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
 
         {/* Desktop Navigation Links */}
         <div style={{ display: 'none', gap: '1.25rem', alignItems: 'center', flexShrink: 0 }} className="desktop-links">
-          <button 
-            onClick={() => handleNav('home')}
-            className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
-          >
-            Home
-          </button>
-          <button 
-            onClick={() => handleNav('about')}
-            className={`nav-link ${activePage === 'about' ? 'active' : ''}`}
-          >
-            About Us
-          </button>
-          <button 
-            onClick={() => handleNav('contact')}
-            className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}
-          >
-            Contact Us
-          </button>
-          
-          {currentUser && (
-            <button 
-              onClick={() => handleNav('dashboard')}
-              className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-            >
-              <User size={16} /> My Member Portal
-            </button>
+          {!currentUser ? (
+            <>
+              <button 
+                onClick={() => handleNav('home')}
+                className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
+              >
+                Home
+              </button>
+              <button 
+                onClick={() => handleNav('about')}
+                className={`nav-link ${activePage === 'about' ? 'active' : ''}`}
+              >
+                About Us
+              </button>
+              <button 
+                onClick={() => handleNav('contact')}
+                className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}
+              >
+                Contact Us
+              </button>
+            </>
+          ) : (
+            <>
+              <button 
+                onClick={() => handleNav('dashboard')}
+                className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800 }}
+              >
+                <User size={16} /> My Member Portal
+              </button>
+
+              {currentUser.role === 'admin' && (
+                <button 
+                  onClick={() => handleNav('admin')}
+                  className={`nav-link ${activePage === 'admin' ? 'active' : ''}`}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#d97706', fontWeight: 800 }}
+                >
+                  <Shield size={16} color="#d97706" /> Executive Console
+                </button>
+              )}
+            </>
           )}
         </div>
 

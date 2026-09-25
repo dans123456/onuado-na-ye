@@ -50,7 +50,7 @@ export default function ContactPage({ setActivePage, currentUser }) {
               className="btn btn-primary" 
               style={{ padding: '0.65rem 1.25rem', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 700 }}
             >
-              Log Into Member Portal &rarr;
+              {currentUser ? 'Go to My Member Portal →' : 'Log Into Member Portal →'}
             </button>
           </div>
 
