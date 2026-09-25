@@ -99,9 +99,9 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
         </div>
 
         {/* Right Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
           
-          {/* Quick MoMo Pay Trigger Button */}
+          {/* Quick MoMo Pay Trigger Button (Desktop Only) */}
           <button 
             onClick={() => setShowMoMoModal(true)}
             className="btn btn-accent momo-desktop-btn"
@@ -122,9 +122,9 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
 
           {/* User Auth & Executive Controls */}
           {currentUser ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
               
-              {/* Executive Admin Switcher Button (SINGLE CLEAN BUTTON FOR ADMINS) */}
+              {/* Executive Admin Switcher Button (Desktop & Tablet) */}
               {currentUser.role === 'admin' && (
                 <button 
                   onClick={() => handleNav(activePage === 'admin' ? 'dashboard' : 'admin')}
@@ -154,14 +154,30 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 <span style={{ position: 'absolute', bottom: '1px', right: '1px', width: '9px', height: '9px', borderRadius: '50%', background: currentUser.status === 'ACTIVE' ? '#10b981' : '#f59e0b', border: '2px solid #fff' }}></span>
               </div>
 
-              {/* Log Out Button */}
-              <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '0.45rem 0.65rem', fontSize: '0.82rem' }}>
-                <LogOut size={15} /> <span className="logout-text">Logout</span>
+              {/* Top Bar Log Out Button (Prominent Red Icon/Button) */}
+              <button 
+                onClick={handleLogout} 
+                className="btn btn-secondary nav-logout-top-btn" 
+                title="Log Out of Account"
+                style={{ 
+                  padding: '0.45rem 0.65rem', 
+                  fontSize: '0.82rem', 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '0.35rem', 
+                  color: '#ef4444', 
+                  border: '1px solid rgba(239, 68, 68, 0.35)', 
+                  background: 'rgba(239, 68, 68, 0.06)',
+                  flexShrink: 0 
+                }}
+              >
+                <LogOut size={16} color="#ef4444" />
+                <span className="logout-text" style={{ fontWeight: 700 }}>Logout</span>
               </button>
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <button onClick={() => handleNav('login')} className="btn btn-primary nav-signin-btn" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)', whiteSpace: 'nowrap', fontWeight: 700 }}>
+              <button onClick={() => handleNav('login')} className="btn btn-primary nav-signin-btn" style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)', whiteSpace: 'nowrap', fontWeight: 700 }}>
                 <User size={15} /> <span className="signin-text">Member Sign In</span>
               </button>
             </div>
@@ -171,7 +187,8 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="btn btn-secondary mobile-toggle"
-            style={{ padding: '0.45rem', display: 'none' }}
+            aria-label="Toggle navigation menu"
+            style={{ padding: '0.45rem', width: '36px', height: '36px', display: 'none', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -181,6 +198,16 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
         <div style={{ padding: '1.25rem 1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.75rem', background: isDarkMode ? '#0f172a' : '#ffffff' }}>
+          
+          {currentUser && (
+            <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.2)', fontSize: '0.84rem', fontWeight: 700, color: 'var(--primary-700)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+              <User size={16} color="#059669" />
+              <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                Signed in as: <strong>{currentUser.full_name}</strong>
+              </div>
+            </div>
+          )}
+
           <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
           <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>
           <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Contact Us</button>
@@ -205,8 +232,15 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 <Wallet size={16} /> Pay Dues MoMo
               </button>
 
-              <button onClick={handleLogout} className="btn btn-secondary" style={{ justifyContent: 'flex-start', color: '#ef4444', fontWeight: 700 }}>
-                <LogOut size={16} /> Logout
+              <button 
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }} 
+                className="btn btn-secondary" 
+                style={{ justifyContent: 'flex-start', color: '#ef4444', fontWeight: 800, background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+              >
+                <LogOut size={16} color="#ef4444" /> Logout from Account
               </button>
             </>
           )}
@@ -359,17 +393,17 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
         }
         @media (max-width: 899px) {
           .mobile-toggle { display: inline-flex !important; }
-          .logout-text { display: none; }
         }
         @media (max-width: 640px) {
           .momo-desktop-btn { display: none !important; }
           .top-ticker-subtitle { display: none !important; }
+          .nav-admin-switch-btn { display: none !important; }
         }
         @media (max-width: 580px) {
           .signin-text { display: none !important; }
-          .nav-signin-btn { padding: 0.45rem 0.65rem !important; }
-          .admin-switch-text { display: none !important; }
-          .nav-admin-switch-btn { padding: 0.45rem 0.6rem !important; }
+          .nav-signin-btn { padding: 0.4rem 0.65rem !important; }
+          .logout-text { display: none !important; }
+          .nav-logout-top-btn { width: 36px !important; height: 36px !important; padding: 0 !important; justify-content: center !important; borderRadius: 50% !important; }
         }
         @media (max-width: 480px) {
           .brand-subtitle { display: none !important; }
