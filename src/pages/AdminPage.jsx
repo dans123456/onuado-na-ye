@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
-import { addContribution, bulkAddContributions } from '../services/store';
+import { addContribution, bulkAddContributions, getAnnouncement, saveAnnouncement } from '../services/store';
 
 export default function AdminPage({ currentUser, members, contributions, setContributions, setActivePage }) {
-  const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'manual', 'roster'
+  const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'manual', 'roster', 'announcement'
   const [showAllBranches, setShowAllBranches] = useState(false);
 
   // Uploader State
@@ -12,6 +12,64 @@ export default function AdminPage({ currentUser, members, contributions, setCont
   const [parseResult, setParseResult] = useState(null);
   const [isParsing, setIsParsing] = useState(false);
   const [importSuccess, setImportSuccess] = useState('');
+
+  // Announcement Ticker Logger State
+  const [announcementText, setAnnouncementText] = useState(getAnnouncement());
+  const [announcementStatus, setAnnouncementStatus] = useState('');
+
+  const handlePublishAnnouncement = (e) => {
+    e.preventDefault();
+    saveAnnouncement(announcementText);
+    setAnnouncementStatus('Broadcast announcement ticker updated live across the portal!');
+    setTimeout(() => setAnnouncementStatus(''), 4000);
+  };
+
+  const handleExportCSV = () => {
+    const headers = [
+      'Excel Member ID',
+      'Member No',
+      'Full Name',
+      'Title',
+      'Position',
+      'Branch',
+      'Phone Number',
+      'Date Joined',
+      'Registration Fee (GHc)',
+      'Dues Paid (GHc)',
+      'Levy Paid (GHc)',
+      'Total Payments (GHc)',
+      'Balance Owed (GHc)',
+      'Status',
+      'Role'
+    ];
+
+    const rows = members.map(m => [
+      `"${m.excel_member_id || ''}"`,
+      m.member_no || '',
+      `"${m.full_name || ''}"`,
+      `"${m.title || ''}"`,
+      `"${m.position || ''}"`,
+      `"${m.branch || ''}"`,
+      `"${m.phone_number || ''}"`,
+      `"${m.date_joined || ''}"`,
+      m.reg_fees || 0,
+      m.dues_paid || 0,
+      m.levy_paid || 0,
+      m.total_payments || 0,
+      m.balance_owed || 0,
+      `"${m.status || 'ACTIVE'}"`,
+      `"${m.role || 'member'}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `ONUADO_NA_EYE_MASTER_ROSTER_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Manual Entry Form State
   const [manualForm, setManualForm] = useState({
@@ -210,28 +268,46 @@ export default function AdminPage({ currentUser, members, contributions, setCont
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+      {/* Navigation Tabs & Actions */}
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => setActiveTab('uploader')} 
+            className={`btn ${activeTab === 'uploader' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
+          >
+            <UploadCloud size={16} /> Excel / CSV Bulk Uploader
+          </button>
+          <button 
+            onClick={() => setActiveTab('manual')} 
+            className={`btn ${activeTab === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
+          >
+            <PlusCircle size={16} /> Log Single Transaction
+          </button>
+          <button 
+            onClick={() => setActiveTab('roster')} 
+            className={`btn ${activeTab === 'roster' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
+          >
+            <Users size={16} /> Member Master Roster ({members.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('announcement')} 
+            className={`btn ${activeTab === 'announcement' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
+          >
+            <Megaphone size={16} color="#d97706" /> Broadcast Announcement
+          </button>
+        </div>
+
         <button 
-          onClick={() => setActiveTab('uploader')} 
-          className={`btn ${activeTab === 'uploader' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
+          onClick={handleExportCSV}
+          className="btn btn-accent"
+          style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          title="Download complete member records & ledgers as CSV Excel file"
         >
-          <UploadCloud size={16} /> Excel / CSV Bulk Uploader
-        </button>
-        <button 
-          onClick={() => setActiveTab('manual')} 
-          className={`btn ${activeTab === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
-        >
-          <PlusCircle size={16} /> Log Single Transaction
-        </button>
-        <button 
-          onClick={() => setActiveTab('roster')} 
-          className={`btn ${activeTab === 'roster' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
-        >
-          <Users size={16} /> Member Master Roster ({members.length})
+          <Download size={16} /> Export Master Ledger (.csv)
         </button>
       </div>
 
@@ -448,6 +524,64 @@ export default function AdminPage({ currentUser, members, contributions, setCont
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* TAB 4: BROADCAST ANNOUNCEMENT TICKER */}
+      {activeTab === 'announcement' && (
+        <div className="glass-card" style={{ padding: '2.25rem', maxWidth: '750px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.35rem', color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <Megaphone size={24} color="#d97706" /> Broadcast Live Portal Announcement
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.35rem' }}>
+              Publish official announcements, meeting notices, or fellowship updates directly to the top ticker across all portal pages.
+            </p>
+          </div>
+
+          {announcementStatus && (
+            <div style={{ padding: '0.85rem 1rem', background: 'rgba(16, 185, 129, 0.15)', color: '#059669', borderRadius: '8px', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+              <CheckCircle2 size={20} /> {announcementStatus}
+            </div>
+          )}
+
+          <form onSubmit={handlePublishAnnouncement} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-main)' }}>
+                Live Top Ticker Text
+              </label>
+              <textarea 
+                rows={3}
+                required
+                className="form-input"
+                style={{ borderRadius: '10px', fontSize: '0.92rem', padding: '0.75rem', lineHeight: 1.5 }}
+                value={announcementText}
+                onChange={(e) => setAnnouncementText(e.target.value)}
+                placeholder="e.g. ✨ Next General Online Meeting: Sunday 1st October @ 4:00 PM GMT on Zoom!"
+              />
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+                This message broadcasts instantly to all logged-in members and public visitors on the top header banner.
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button 
+                type="button" 
+                onClick={() => setAnnouncementText("Welcome to ONUADO NA EYE MENS' FELLOWSHIP • \"Brotherly Love & Solidarity in Action\"")}
+                className="btn btn-secondary" 
+                style={{ padding: '0.65rem 1rem', fontSize: '0.85rem' }}
+              >
+                Reset Default
+              </button>
+              <button 
+                type="submit" 
+                className="btn btn-accent" 
+                style={{ padding: '0.65rem 1.35rem', fontSize: '0.9rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <Megaphone size={17} /> Publish Live Ticker
+              </button>
+            </div>
+          </form>
         </div>
       )}
 

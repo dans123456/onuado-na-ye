@@ -1,10 +1,26 @@
-import React, { useState } from 'react';
-import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy, Megaphone } from 'lucide-react';
+import { getAnnouncement } from '../services/store';
 
 export default function Navbar({ activePage, setActivePage, currentUser, setCurrentUser, isDarkMode, setIsDarkMode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showMoMoModal, setShowMoMoModal] = useState(false);
   const [copiedMoMo, setCopiedMoMo] = useState(false);
+  const [announcementText, setAnnouncementText] = useState(getAnnouncement());
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setAnnouncementText(getAnnouncement());
+    };
+    window.addEventListener('storage', handleStorageChange);
+    const interval = setInterval(() => {
+      setAnnouncementText(getAnnouncement());
+    }, 2000);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleNav = (page) => {
     setActivePage(page);
@@ -31,9 +47,7 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
     <nav className="glass-card" style={{ borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none', position: 'sticky', top: 0, zIndex: 100, backdropFilter: 'blur(16px)', background: isDarkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)', borderBottom: '1px solid var(--border-color)' }}>
       {/* Top Banner Announcement Ticker */}
       <div style={{ background: 'linear-gradient(90deg, #064e3b, #059669, #d97706)', color: '#ffffff', fontSize: '0.78rem', padding: '0.35rem 1rem', textAlign: 'center', fontWeight: 600, letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'nowrap', overflow: 'hidden' }}>
-        <span>✨ Welcome to <strong>ONUADO NA EYE MENS' FELLOWSHIP</strong></span>
-        <span className="top-ticker-subtitle" style={{ opacity: 0.7 }}>•</span>
-        <span className="top-ticker-subtitle"><em>"Brotherly Love & Solidarity in Action"</em></span>
+        <span>✨ <strong>{announcementText}</strong></span>
         <span className="top-ticker-subtitle" style={{ opacity: 0.7 }}>•</span>
         <span className="top-ticker-subtitle" style={{ background: 'rgba(255,255,255,0.2)', padding: '0.1rem 0.5rem', borderRadius: '4px', fontSize: '0.72rem' }}>10+ Branches</span>
       </div>

@@ -1324,3 +1324,14 @@ export const updateMemberPin = (memberId, newPin) => {
   }
   return null;
 };
+
+const DEFAULT_ANNOUNCEMENT = "Welcome to ONUADO NA EYE MENS' FELLOWSHIP • \"Brotherly Love & Solidarity in Action\"";
+
+export const getAnnouncement = () => {
+  return localStorage.getItem('ony_announcement') || DEFAULT_ANNOUNCEMENT;
+};
+
+export const saveAnnouncement = (text) => {
+  localStorage.setItem('ony_announcement', text);
+  return text;
+};
