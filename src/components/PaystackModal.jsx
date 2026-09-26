@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CreditCard, ShieldCheck, CheckCircle2, Lock, Smartphone, AlertCircle, X, ArrowRight, DollarSign, Sparkles } from 'lucide-react';
 import { initializePaystackPayment } from '../services/paystack';
+import LoadingModal from './LoadingModal';
 
 export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentSuccess }) {
   if (!isOpen) return null;
@@ -237,7 +238,16 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
           </div>
         )}
 
+        {/* Payment Gateway Loading Overlay */}
+        <LoadingModal 
+          isOpen={isProcessing}
+          title="Connecting to Paystack Gateway..."
+          subtitle="Awaiting Mobile Money / Card Payment Authorization..."
+          type="payment"
+        />
+
       </div>
     </div>
   );
 }
+

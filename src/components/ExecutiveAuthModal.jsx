@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, Lock, Mail, Eye, EyeOff, AlertCircle, Sparkles, ArrowRight, X, ShieldCheck } from 'lucide-react';
+import LoadingModal from './LoadingModal';
 
 export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, currentUser }) {
   if (!isOpen) return null;
@@ -8,6 +9,7 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAuthenticate = (e) => {
     e.preventDefault();
@@ -38,7 +40,12 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
     if (isEmailValid && isPassValid) {
       setPassword('');
       setError('');
-      onSuccess();
+      setIsLoading(true);
+
+      setTimeout(() => {
+        setIsLoading(false);
+        onSuccess();
+      }, 650);
     } else if (!isEmailValid) {
       setError('Invalid Executive Admin Email. Official Executive Email is onuadonaeye@gmail.com');
     } else {
@@ -148,6 +155,13 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
             </button>
           </div>
         </form>
+
+        <LoadingModal 
+          isOpen={isLoading}
+          title="Unlocking Executive Console..."
+          subtitle="Verifying Security Clearance & Financial Ledgers..."
+          type="admin"
+        />
 
       </div>
     </div>

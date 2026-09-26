@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Lock, Phone, Shield, ArrowRight, CheckCircle2, ChevronDown, KeyRound, Sparkles, Eye, EyeOff, HelpCircle, X, ShieldCheck } from 'lucide-react';
 import { updateMemberPin } from '../services/store';
+import LoadingModal from '../components/LoadingModal';
 
 export default function LoginPage({ members, setCurrentUser, setActivePage }) {
   const [phoneOrEmail, setPhoneOrEmail] = useState('');
@@ -8,6 +9,10 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [error, setError] = useState('');
+
+  // Loading State for Login Animation
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState({ title: '', subtitle: '' });
   
   // First-Time Custom PIN / Password Setup Modal
   const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
@@ -68,8 +73,18 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
       return;
     }
 
-    setCurrentUser(found);
-    setActivePage('dashboard');
+    // Trigger smooth loading animation
+    setLoadingText({
+      title: `Welcome, ${found.full_name.split(' ')[0]}!`,
+      subtitle: `Unlocking verified member record & portal ledger (${found.excel_member_id || 'ONY-001'})...`
+    });
+    setIsLoading(true);
+
+    setTimeout(() => {
+      setCurrentUser(found);
+      setActivePage('dashboard');
+      setIsLoading(false);
+    }, 650);
   };
 
   const handleSaveNewPin = (e) => {
@@ -88,15 +103,34 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
     const updatedUser = updateMemberPin(pendingUser.id, newPin);
     setShowSetPasswordModal(false);
     const finalUser = updatedUser || { ...pendingUser, pin: newPin, is_custom_pin: true };
-    setCurrentUser(finalUser);
-    setActivePage('dashboard');
+
+    setLoadingText({
+      title: `Saving PIN & Opening Portal...`,
+      subtitle: `Encrypting security credentials for ${finalUser.full_name}...`
+    });
+    setIsLoading(true);
+
+    setTimeout(() => {
+      setCurrentUser(finalUser);
+      setActivePage('dashboard');
+      setIsLoading(false);
+    }, 650);
   };
 
   const handleQuickLogin = (memberId) => {
     const member = members.find(m => m.id === memberId);
     if (member) {
-      setCurrentUser(member);
-      setActivePage('dashboard');
+      setLoadingText({
+        title: `Signing in as ${member.full_name}...`,
+        subtitle: `Loading ${member.role === 'admin' ? 'Executive Officer' : 'Member'} Dashboard...`
+      });
+      setIsLoading(true);
+
+      setTimeout(() => {
+        setCurrentUser(member);
+        setActivePage('dashboard');
+        setIsLoading(false);
+      }, 550);
     }
   };
 
@@ -373,6 +407,14 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
             </div>
           </div>
         )}
+
+        {/* Global Smooth Loading Overlay */}
+        <LoadingModal 
+          isOpen={isLoading} 
+          title={loadingText.title} 
+          subtitle={loadingText.subtitle} 
+          type="member" 
+        />
 
       </div>
 
