@@ -44,7 +44,7 @@ export default function Footer({ setActivePage, currentUser, setCurrentUser }) {
                 onClick={handleLogout} 
                 style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 600 }}
               >
-                Logout ({currentUser.name.split(' ')[0]})
+                Logout ({(currentUser.full_name || currentUser.name || 'Member').split(' ')[0]})
               </button>
             </>
           ) : (
