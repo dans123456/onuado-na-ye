@@ -112,16 +112,6 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
               >
                 <User size={16} /> My Member Portal
               </button>
-
-              {currentUser.role === 'admin' && (
-                <button 
-                  onClick={() => handleNav('admin')}
-                  className={`nav-link ${activePage === 'admin' ? 'active' : ''}`}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#d97706', fontWeight: 800 }}
-                >
-                  <Shield size={16} color="#d97706" /> Executive Console
-                </button>
-              )}
             </>
           )}
         </div>
