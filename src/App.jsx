@@ -140,7 +140,11 @@ export default function App() {
         )}
       </main>
 
-      <Footer setActivePage={handleNavigate} />
+      <Footer 
+        setActivePage={handleNavigate} 
+        currentUser={currentUser}
+        setCurrentUser={setCurrentUser}
+      />
 
       {/* Executive Re-Authentication Password Security Modal */}
       <ExecutiveAuthModal 

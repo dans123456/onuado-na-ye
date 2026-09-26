@@ -1,6 +1,11 @@
 import React from 'react';
 
-export default function Footer({ setActivePage }) {
+export default function Footer({ setActivePage, currentUser, setCurrentUser }) {
+  const handleLogout = () => {
+    if (setCurrentUser) setCurrentUser(null);
+    if (setActivePage) setActivePage('home');
+  };
+
   return (
     <footer style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', marginTop: '2.5rem', padding: '1.25rem 1rem' }}>
       <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -18,7 +23,33 @@ export default function Footer({ setActivePage }) {
           <button onClick={() => setActivePage('home')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>Home</button>
           <button onClick={() => setActivePage('about')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>About Us</button>
           <button onClick={() => setActivePage('contact')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>Contact Us</button>
-          <button onClick={() => setActivePage('login')} style={{ background: 'none', border: 'none', color: 'var(--primary-600)', cursor: 'pointer', fontWeight: 700 }}>Member Sign-In</button>
+          
+          {currentUser ? (
+            <>
+              <button 
+                onClick={() => setActivePage('dashboard')} 
+                style={{ background: 'none', border: 'none', color: 'var(--primary-600)', cursor: 'pointer', fontWeight: 700 }}
+              >
+                My Member Portal
+              </button>
+              {currentUser.role === 'admin' && (
+                <button 
+                  onClick={() => setActivePage('admin')} 
+                  style={{ background: 'none', border: 'none', color: 'var(--secondary-600, #4f46e5)', cursor: 'pointer', fontWeight: 700 }}
+                >
+                  Executive Console
+                </button>
+              )}
+              <button 
+                onClick={handleLogout} 
+                style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 600 }}
+              >
+                Logout ({currentUser.name.split(' ')[0]})
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setActivePage('login')} style={{ background: 'none', border: 'none', color: 'var(--primary-600)', cursor: 'pointer', fontWeight: 700 }}>Member Sign-In</button>
+          )}
         </div>
 
         {/* Copyright */}
@@ -30,3 +61,4 @@ export default function Footer({ setActivePage }) {
     </footer>
   );
 }
+
