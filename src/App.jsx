@@ -124,6 +124,7 @@ export default function App() {
             <AdminPage 
               currentUser={currentUser}
               members={members}
+              setMembers={setMembers}
               contributions={contributions}
               setContributions={setContributions}
               setActivePage={handleNavigate}

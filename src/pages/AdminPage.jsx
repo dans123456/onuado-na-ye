@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
-import { addContribution, bulkAddContributions, getAnnouncement, saveAnnouncement } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, getAnnouncement, saveAnnouncement } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 
-export default function AdminPage({ currentUser, members, contributions, setContributions, setActivePage }) {
+export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'roster', 'manual', 'announcement', 'treasury'
   const [showAllBranches, setShowAllBranches] = useState(false);
 
@@ -155,7 +155,12 @@ export default function AdminPage({ currentUser, members, contributions, setCont
 
     const updated = bulkAddContributions(entriesToInsert);
     setContributions(updated);
-    setImportSuccess(`Successfully imported ${entriesToInsert.length} contributions to database ledgers!`);
+
+    if (setMembers) {
+      setMembers(getMembers());
+    }
+
+    setImportSuccess(`Successfully imported ${entriesToInsert.length} member payment records & updated database ledgers!`);
     setParseResult(null);
 
     setTimeout(() => setImportSuccess(''), 5000);
