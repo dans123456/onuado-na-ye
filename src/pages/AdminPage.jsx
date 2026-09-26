@@ -266,6 +266,14 @@ export default function AdminPage({ currentUser, members, contributions, setCont
             GH₵ {contributions.reduce((sum, c) => sum + parseFloat(c.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
         </div>
+
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #8b5cf6' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Fellowship Shares Holding</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.2rem' }}>
+            GH₵ {members.reduce((sum, m) => sum + (parseFloat(m.shares_holding) || (parseFloat(m.shares_value || 0) + parseFloat(m.treasurer_bill || 0))), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Sum of Shares Value + Treasurer Bill</div>
+        </div>
       </div>
 
       {/* Navigation Tabs & Actions */}

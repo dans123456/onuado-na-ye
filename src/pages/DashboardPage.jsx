@@ -220,7 +220,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
       </div>
 
       {/* 🟢🟡 GREEN & YELLOW FINANCIAL OVERVIEW GRID (Matching Excel PERSONAL RECORD Row 1) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
         
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #059669' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Registration Fees</div>
@@ -247,11 +247,64 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#8b5cf6', marginTop: '0.2rem' }}>{sharesDividends} Shares</div>
         </div>
 
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #0284c7' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Shares Base Value</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0284c7', marginTop: '0.2rem' }}>GH₵ {sharesValue.toFixed(2)}</div>
+        </div>
+
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #ec4899' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Treasurer Bill</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ec4899', marginTop: '0.2rem' }}>GH₵ {treasurerBill.toFixed(2)}</div>
         </div>
 
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #7c3aed', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(217, 119, 6, 0.08))' }}>
+          <div style={{ fontSize: '0.75rem', color: '#7c3aed', textTransform: 'uppercase', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>Grand Total Shares</span>
+            <Sparkles size={12} color="#7c3aed" />
+          </div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#7c3aed', marginTop: '0.2rem' }}>GH₵ {sharesHolding.toFixed(2)}</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>Shares Value + Treasurer Bill</div>
+        </div>
+
+      </div>
+
+      {/* 💎 GRAND TOTAL SHARES HOLDING BREAKDOWN BANNER */}
+      <div className="glass-card" style={{ padding: '1.25rem 1.5rem', marginBottom: '2.5rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(5, 150, 105, 0.08))', border: '1.5px solid rgba(124, 58, 237, 0.3)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(124, 58, 237, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed' }}>
+              <TrendingUp size={24} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>
+                Member Shares Holding Grand Total
+              </div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#7c3aed', lineHeight: 1.1 }}>
+                GH₵ {sharesHolding.toFixed(2)}
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, marginLeft: '0.5rem' }}>({sharesDividends} Shares)</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '1.25rem', background: 'var(--bg-main)', padding: '0.65rem 1.25rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontSize: '0.85rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>Shares Base Value</span>
+              <strong style={{ color: 'var(--text-main)', fontSize: '0.95rem' }}>GH₵ {sharesValue.toFixed(2)}</strong>
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontWeight: 800, fontSize: '1.1rem' }}>+</div>
+            <div>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>Treasurer Bill</span>
+              <strong style={{ color: '#ec4899', fontSize: '0.95rem' }}>GH₵ {treasurerBill.toFixed(2)}</strong>
+            </div>
+            <div style={{ color: '#7c3aed', fontWeight: 900, fontSize: '1.1rem' }}>=</div>
+            <div style={{ background: 'rgba(124, 58, 237, 0.1)', padding: '0.35rem 0.75rem', borderRadius: '8px' }}>
+              <span style={{ color: '#7c3aed', fontSize: '0.72rem', display: 'block', fontWeight: 800, textTransform: 'uppercase' }}>Grand Total Shares</span>
+              <strong style={{ color: '#7c3aed', fontSize: '1.05rem', fontWeight: 900 }}>GH₵ {sharesHolding.toFixed(2)}</strong>
+            </div>
+          </div>
+
+        </div>
       </div>
 
       {/* Navigation Tabs Mapped to Excel PERSONAL RECORD Breakdown */}
