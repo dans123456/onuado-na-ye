@@ -14,7 +14,7 @@
 
 ## 📌 Status Summary (Where We Left Off)
 
-The application is **100% built, fully mobile-responsive, connected to live Supabase PostgreSQL backend, and deployed**. All 24 official members are seeded in the database with their respective dues, welfare ledgers, and regional branch assignments.
+The application is **100% built, fully mobile-responsive, connected to live Supabase PostgreSQL backend, and deployed**. All 24 official members are seeded in the database with their respective dues, welfare ledgers, and official fellowship branch assignments across the 16 branches (Aburi, Ashaiman, Atensu, Dansoman, Darkoman, Kasoa, Koforidua, Kotobabi, Mampong, Mankessim, Noyem, Nsawam, Odorkor, Suame, Takoradi, Teshie).
 
 ---
 

@@ -20,7 +20,7 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
         </h1>
 
         <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '780px', margin: '0 auto 2.25rem auto', lineHeight: 1.65, fontWeight: 500 }}>
-          Standing together in brotherly love, financial solidarity, mutual welfare, and divine fellowship across 10+ regional branches in Ghana.
+          Standing together in brotherly love, financial solidarity, mutual welfare, and divine fellowship across 16 official fellowship branches in Ghana.
         </p>
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -42,8 +42,8 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Faithful Members</div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#3b82f6' }}>10+</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Regional Branches</div>
+            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#3b82f6' }}>16</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Fellowship Branches</div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--accent-600)' }}>100%</div>
@@ -105,9 +105,9 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
             <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(59, 130, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', marginBottom: '1.25rem' }}>
               <Building2 size={26} />
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.6rem' }}>Nationwide Regional Branches</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.6rem' }}>Nationwide Fellowship Branches</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', lineHeight: 1.6 }}>
-              Connecting members across Accra, Kumasi, Takoradi, Ashaiman, Kasoa, Mampong, Aburi, Nsawam, and Mankessim.
+              Connecting members across Aburi, Ashaiman, Atensu, Dansoman, Darkoman, Kasoa, Koforidua, Kotobabi, Mampong, Mankessim, Noyem, Nsawam, Odorkor, Suame, Takoradi, and Teshie.
             </p>
           </div>
 
