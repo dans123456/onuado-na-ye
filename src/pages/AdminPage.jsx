@@ -692,11 +692,25 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   </div>
                 </div>
 
-                {parseResult.matched.length > 0 && (
-                  <button onClick={handleBulkImport} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: 800 }}>
-                    <CheckCircle2 size={18} /> Import & Apply {parseResult.matched.length} Records to Ledgers
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <button 
+                    onClick={() => {
+                      setParseResult(null);
+                      setIsParsing(false);
+                      setImportSuccess('');
+                    }} 
+                    className="btn btn-secondary" 
+                    style={{ padding: '0.75rem 1.25rem', fontSize: '0.92rem', fontWeight: 700, color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.35)', background: 'rgba(220, 38, 38, 0.05)' }}
+                  >
+                    <X size={16} /> Cancel Upload
                   </button>
-                )}
+
+                  {parseResult.matched.length > 0 && (
+                    <button onClick={handleBulkImport} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: 800 }}>
+                      <CheckCircle2 size={18} /> Import & Apply {parseResult.matched.length} Records to Ledgers
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Multi-Sheet Reports Summary Badges */}
