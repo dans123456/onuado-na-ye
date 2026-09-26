@@ -201,11 +201,26 @@ export default function AdminPage({ currentUser, members, contributions, setCont
       `"${m.excel_member_id}","${m.member_no || ''}","${m.full_name}","${m.name_in_capitals || ''}","${m.title || ''}","${m.position || ''}","${m.branch || ''}","${m.date_joined || ''}","${m.phone_number || ''}","${m.phone_number_2 || ''}","${m.house_no || ''}","${m.gps_address || ''}","${m.town || ''}","${m.email || ''}","${m.ghana_card || ''}","${m.occupation || ''}","${m.place_of_work || ''}","${m.date_of_birth || ''}","${m.place_of_birth || ''}","${m.hometown || ''}","${m.district || ''}","${m.region || ''}","${m.tribe || ''}","${m.next_of_kin || ''}","${m.next_of_kin_relation || ''}","${m.next_of_kin_contact || ''}","${m.marital_status || ''}","${m.spouse_name || ''}","${m.spouse_contact || ''}","${m.children_count || ''}","${m.father_name || ''}","${m.father_contact || ''}","${m.mother_name || ''}","${m.mother_contact || ''}","${m.father_state || ''}","${m.mother_state || ''}","${m.reg_fees || 0}","${m.dues_paid || 0}","${m.levy_paid || 0}","${m.total_payments || 0}","${m.dues_fee_required || 3900}","${m.shares_dividends || 0}","${m.shares_value || 0}","${m.treasurer_bill || 0}","${m.shares_holding || 0}","${m.status || 'ACTIVE'}","${m.role || 'member'}"`
     ).join("\n");
 
-    const blob = new Blob([headers + rows], { type: 'text/csv' });
+    const totalSharesVal = members.reduce((sum, m) => sum + (parseFloat(m.shares_value) || 0), 0).toFixed(2);
+    const totalTreasBill = members.reduce((sum, m) => sum + (parseFloat(m.treasurer_bill) || 0), 0).toFixed(2);
+    const grandSharesHold = members.reduce((sum, m) => sum + (parseFloat(m.shares_holding) || 0), 0).toFixed(2);
+
+    const summarySection = `\n\n` +
+      `"=== EXECUTIVE TREASURY & BANK ACCOUNT BALANCES SUMMARY ==="\n` +
+      `"Fidelity Bank Ghana Ending Balance (Acc: 2090182444410)","GHc 10,698.88"\n` +
+      `"MTN Mobile Money Ending Balance (Line: 0530486443 / Merchant: 293658)","GHc 1.95"\n` +
+      `"North Tema Co-Operative Credit Union (Acc: 2161006002421201)","GHc 366.24"\n` +
+      `"Master Shares Value Total","GHc ${totalSharesVal}"\n` +
+      `"Master Treasurer Bill Total","GHc ${totalTreasBill}"\n` +
+      `"Grand Total Shares Holding","GHc ${grandSharesHold}"\n` +
+      `"Verified Trial Balance Income","GHc 86,103.20"\n` +
+      `"Verified Trial Balance Expenditure","GHc 86,103.20"\n`;
+
+    const blob = new Blob([headers + rows + summarySection], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ONUADO_NA_EYE_Master_45_Fields_Member_Roster.csv`;
+    a.download = `ONUADO_NA_EYE_Master_Ledger_And_Treasury_Balances_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
