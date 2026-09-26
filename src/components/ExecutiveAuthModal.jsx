@@ -4,8 +4,7 @@ import { Shield, Lock, Mail, Eye, EyeOff, AlertCircle, Sparkles, ArrowRight, X, 
 export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, currentUser }) {
   if (!isOpen) return null;
 
-  const defaultEmail = currentUser?.email || `${(currentUser?.full_name || 'executive').toLowerCase().replace(/[^a-z0-9]/g, '')}@onuadonaeye.org`;
-  const [email, setEmail] = useState(defaultEmail);
+  const [email, setEmail] = useState('onuadonaeye@gmail.com');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -14,27 +13,36 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
     e.preventDefault();
     setError('');
 
+    const cleanEmail = email.trim().toLowerCase();
     const cleanPass = password.trim();
+
+    if (!cleanEmail) {
+      setError('Please enter the Executive Admin Gmail (onuadonaeye@gmail.com).');
+      return;
+    }
+
     if (!cleanPass) {
       setError('Please enter your Executive Admin password or Security PIN.');
       return;
     }
 
     const memberPin = currentUser?.pin || (currentUser?.phone_number ? currentUser.phone_number.slice(-4) : '1234');
-
-    // Master password or personal PIN validation
-    if (
+    const isEmailValid = cleanEmail.includes('onuadonaeye@gmail') || cleanEmail === (currentUser?.email || '').toLowerCase();
+    const isPassValid = 
       cleanPass === 'Executive2026!' ||
       cleanPass === 'Executive2026' ||
       cleanPass === 'Admin2026' ||
       cleanPass === memberPin ||
-      cleanPass === '1234'
-    ) {
+      cleanPass === '1234';
+
+    if (isEmailValid && isPassValid) {
       setPassword('');
       setError('');
       onSuccess();
+    } else if (!isEmailValid) {
+      setError('Invalid Executive Admin Email. Official Executive Email is onuadonaeye@gmail.com');
     } else {
-      setError('Invalid Executive Password. Hint: Use your custom Security PIN or Executive Master Password (Executive2026!).');
+      setError('Invalid Executive Password. Hint: Use Master Password (Executive2026!) or your custom Security PIN.');
     }
   };
 
@@ -57,7 +65,7 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
             Executive Council Authentication
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.35rem' }}>
-            Re-verify your Executive Admin credentials for <strong>{currentUser?.full_name || 'Executive Officer'}</strong> to access the Executive Console.
+            Re-verify Executive Admin Gmail & Password for <strong>{currentUser?.full_name || 'Executive Officer'}</strong> to access the Executive Console.
           </p>
         </div>
 
@@ -71,7 +79,7 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
         <form onSubmit={handleAuthenticate} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
           <div>
             <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '0.35rem' }}>
-              Executive Admin Email Address
+              Executive Admin Gmail
             </label>
             <div style={{ position: 'relative' }}>
               <Mail size={18} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
@@ -81,7 +89,7 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ paddingLeft: '2.5rem' }}
-                placeholder="executive@onuadonaeye.org"
+                placeholder="onuadonaeye@gmail.com"
               />
             </div>
           </div>
@@ -113,9 +121,13 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
             </div>
           </div>
 
-          {/* Master Password Hint Badge */}
-          <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(217, 119, 6, 0.08)', borderRadius: '8px', border: '1px solid rgba(217, 119, 6, 0.2)', fontSize: '0.78rem', color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Sparkles size={14} /> Master Executive Password: <strong>Executive2026!</strong> (or your PIN)
+          {/* Master Password & Email Hint Badge */}
+          <div style={{ padding: '0.65rem 0.85rem', background: 'rgba(217, 119, 6, 0.08)', borderRadius: '8px', border: '1px solid rgba(217, 119, 6, 0.2)', fontSize: '0.78rem', color: '#d97706', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}>
+              <Sparkles size={14} /> Executive Admin Credentials:
+            </div>
+            <div>• Gmail: <strong>onuadonaeye@gmail.com</strong></div>
+            <div>• Password: <strong>Executive2026!</strong> (or your PIN)</div>
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
