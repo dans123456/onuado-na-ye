@@ -17,7 +17,15 @@ export const normalizePhone = (phone) => {
 };
 
 /**
- * Parses an uploaded Excel (.xlsx, .xls) or CSV file across ALL SHEETS
+ * List of non-payment / auxiliary / picture sheet titles to ignore for payment matching
+ */
+const IGNORED_SHEET_KEYWORDS = [
+  'pictures', 'vehicle', 'pastors', 'elders', 'cash flow', 'trial balance',
+  'disbursement', 'vouchers', 'trading', 'accounts', 'dashboard'
+];
+
+/**
+ * Parses an uploaded Excel (.xlsx, .xls) or CSV file across sheets with intelligent change filtering
  */
 export const parseUploadedFile = (file, existingMembers) => {
   return new Promise((resolve, reject) => {
@@ -31,7 +39,7 @@ export const parseUploadedFile = (file, existingMembers) => {
           const parsed = processSheetMatrix(results.data, existingMembers, 'CSV Data');
           resolve({
             matched: parsed.matched,
-            unmatched: parsed.unmatched,
+            unmatched: [],
             sheetReports: [parsed],
             totalRows: parsed.totalRows
           });
@@ -50,8 +58,14 @@ export const parseUploadedFile = (file, existingMembers) => {
           let sheetReports = [];
           let totalRowsCount = 0;
 
-          // Scan EVERY SHEET in the uploaded workbook
+          // Scan sheets in the uploaded workbook
           workbook.SheetNames.forEach((sheetName) => {
+            const sLower = sheetName.toLowerCase();
+            
+            // Skip auxiliary picture / vehicle / internal summary sheets
+            const isIgnored = IGNORED_SHEET_KEYWORDS.some(kw => sLower.includes(kw));
+            if (isIgnored) return;
+
             const worksheet = workbook.Sheets[sheetName];
             const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
             if (matrix && matrix.length > 0) {
@@ -66,23 +80,23 @@ export const parseUploadedFile = (file, existingMembers) => {
               });
 
               allMatched.push(...res.matched);
-              allUnmatched.push(...res.unmatched);
               totalRowsCount += res.totalRows;
             }
           });
 
-          // De-duplicate matched entries across sheets by member_id & payment delta
+          // De-duplicate matched entries across sheets by member_id & contribution_type, keeping highest delta
           const uniqueMatchedMap = new Map();
           allMatched.forEach(item => {
-            const key = `${item.member_id}-${item.amount}-${item.contribution_type}`;
-            if (!uniqueMatchedMap.has(key)) {
+            const key = `${item.member_id}-${item.contribution_type}`;
+            const existing = uniqueMatchedMap.get(key);
+            if (!existing || (item.amount > existing.amount)) {
               uniqueMatchedMap.set(key, item);
             }
           });
 
           resolve({
             matched: Array.from(uniqueMatchedMap.values()),
-            unmatched: allUnmatched,
+            unmatched: [],
             sheetReports: sheetReports,
             totalRows: totalRowsCount
           });
@@ -218,7 +232,6 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
 
     const amountNum = parseNum(rawAmount);
 
-    // If parsing a Matrix sheet (like YEARLY DUES or SPECIAL LEVY), sum across numeric columns for this row
     let matrixSumDues = 0;
     let matrixSumLevies = 0;
     if (sNameLower.includes('dues')) {
@@ -252,11 +265,11 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
     });
 
     if (member) {
-      let finalAmount = amountNum;
+      let finalAmount = 0;
       let finalType = rawType.toLowerCase().includes('levy') || sNameLower.includes('levy') ? 'Special Levy' : 'Monthly Dues';
       let changeDetected = null;
 
-      // Smart Multi-Sheet Change Detector
+      // Smart Change Detection: Only trigger if there is an ACTUAL INCREASE over current database values
       if (excelDues !== null && excelDues > (member.dues_paid || 0)) {
         const duesDiff = excelDues - (member.dues_paid || 0);
         finalAmount = duesDiff;
@@ -292,51 +305,30 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
           diff: totalDiff,
           description: `Sheet [${sheetName}]: Total payments increased from GH₵ ${(member.total_payments || 0).toFixed(2)} → GH₵ ${excelTotal.toFixed(2)} (+GH₵ ${totalDiff.toFixed(2)})`
         };
-      } else if (amountNum > 0) {
-        changeDetected = {
-          hasChange: true,
-          field: 'New Payment',
-          oldVal: 0,
-          newVal: amountNum,
-          diff: amountNum,
-          description: `Sheet [${sheetName}]: New ${finalType} payment of GH₵ ${amountNum.toFixed(2)} logged`
-        };
-      } else {
-        changeDetected = {
-          hasChange: false,
-          field: 'Up to Date',
-          description: `Sheet [${sheetName}]: Record matches current portal store`
-        };
       }
 
-      matched.push({
-        sheetName: sheetName || 'Main',
-        rowNum: bestHeaderIdx + 2 + idx,
-        member_id: member.id,
-        member_name: member.full_name,
-        excel_member_id: member.excel_member_id,
-        phone_number: member.phone_number,
-        amount: finalAmount > 0 ? finalAmount : 50,
-        contribution_type: finalType,
-        payment_method: rawMethod.toLowerCase().includes('cash') ? 'Cash' : 'Mobile Money',
-        reference_note: `${rawRef} [Sheet: ${sheetName || 'Main'}]`,
-        payment_date: rawDate,
-        changeDetected: changeDetected,
-        excelDues: excelDues,
-        excelLevy: excelLevy,
-        excelTotal: excelTotal
-      });
-    } else if (cleanName || cleanPhone || cleanId) {
-      unmatched.push({
-        sheetName: sheetName || 'Main',
-        rowNum: bestHeaderIdx + 2 + idx,
-        rawName,
-        rawPhone,
-        rawAmount,
-        reason: 'No matching member found by ID, Phone, or Name'
-      });
+      // CRITICAL FIX: ONLY push to matched IF there is an actual DETECTED CHANGE / NEW PAYMENT!
+      if (changeDetected && changeDetected.hasChange && finalAmount > 0) {
+        matched.push({
+          sheetName: sheetName || 'Main',
+          rowNum: bestHeaderIdx + 2 + idx,
+          member_id: member.id,
+          member_name: member.full_name,
+          excel_member_id: member.excel_member_id,
+          phone_number: member.phone_number,
+          amount: finalAmount,
+          contribution_type: finalType,
+          payment_method: rawMethod.toLowerCase().includes('cash') ? 'Cash' : 'Mobile Money',
+          reference_note: `${rawRef} [Sheet: ${sheetName || 'Main'}]`,
+          payment_date: rawDate,
+          changeDetected: changeDetected,
+          excelDues: excelDues,
+          excelLevy: excelLevy,
+          excelTotal: excelTotal
+        });
+      }
     }
   });
 
-  return { matched, unmatched, totalRows: dataRows.length, bankUpdates };
+  return { matched, unmatched: [], totalRows: dataRows.length, bankUpdates };
 };
