@@ -1299,12 +1299,20 @@ export const bulkAddContributions = (newContributionsList) => {
     const memberIndex = members.findIndex(m => m.id === c.member_id);
     if (memberIndex !== -1) {
       const amountNum = parseFloat(c.amount) || 0;
-      if (c.contribution_type === 'Monthly Dues') {
+
+      if (c.excelDues !== null && c.excelDues !== undefined && c.excelDues > (members[memberIndex].dues_paid || 0)) {
+        members[memberIndex].dues_paid = c.excelDues;
+      } else if (c.contribution_type === 'Monthly Dues') {
         members[memberIndex].dues_paid = (members[memberIndex].dues_paid || 0) + amountNum;
+      }
+
+      if (c.excelLevy !== null && c.excelLevy !== undefined && c.excelLevy > (members[memberIndex].levy_paid || 0)) {
+        members[memberIndex].levy_paid = c.excelLevy;
       } else if (c.contribution_type === 'Special Levy') {
         members[memberIndex].levy_paid = (members[memberIndex].levy_paid || 0) + amountNum;
       }
-      members[memberIndex].total_payments = (members[memberIndex].total_payments || 0) + amountNum;
+
+      members[memberIndex].total_payments = (members[memberIndex].reg_fees || 200) + (members[memberIndex].dues_paid || 0) + (members[memberIndex].levy_paid || 0);
       members[memberIndex].balance_owed = Math.max(0, (members[memberIndex].dues_fee_required || 3900) - members[memberIndex].dues_paid);
     }
   });

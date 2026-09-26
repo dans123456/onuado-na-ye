@@ -150,7 +150,9 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       payment_method: item.payment_method,
       reference_note: item.reference_note + ` (Excel Row ${item.rowNum})`,
       payment_date: item.payment_date,
-      received_by_name: currentUser?.full_name || 'Admin'
+      received_by_name: currentUser?.full_name || 'Admin',
+      excelDues: item.excelDues,
+      excelLevy: item.excelLevy
     }));
 
     const updated = bulkAddContributions(entriesToInsert);
