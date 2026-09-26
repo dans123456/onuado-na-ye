@@ -5,7 +5,7 @@ import { addContribution, bulkAddContributions, getAnnouncement, saveAnnouncemen
 import { getMemberLevyDetails } from '../utils/levyData';
 
 export default function AdminPage({ currentUser, members, contributions, setContributions, setActivePage }) {
-  const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'manual', 'roster', 'announcement'
+  const [activeTab, setActiveTab] = useState('treasury'); // 'treasury', 'uploader', 'manual', 'roster', 'announcement'
   const [showAllBranches, setShowAllBranches] = useState(false);
 
   // Uploader State
@@ -308,6 +308,13 @@ export default function AdminPage({ currentUser, members, contributions, setCont
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
           <button 
+            onClick={() => setActiveTab('treasury')} 
+            className={`btn ${activeTab === 'treasury' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 800, fontSize: '0.88rem' }}
+          >
+            <Building2 size={16} color="#059669" /> Treasury & Bank Balances
+          </button>
+          <button 
             onClick={() => setActiveTab('uploader')} 
             className={`btn ${activeTab === 'uploader' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
@@ -350,6 +357,295 @@ export default function AdminPage({ currentUser, members, contributions, setCont
       {importSuccess && (
         <div style={{ padding: '1.25rem', background: 'rgba(16, 185, 129, 0.15)', color: '#059669', borderRadius: '0.75rem', fontWeight: 700, marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }}>
           <CheckCircle2 size={22} /> {importSuccess}
+        </div>
+      )}
+
+      {/* TAB 0: EXECUTIVE TREASURY ACCOUNTS & TRIAL BALANCE */}
+      {activeTab === 'treasury' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          
+          {/* Header Note */}
+          <div style={{ marginBottom: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <Building2 size={24} color="#059669" /> Official Fellowship Treasury & Bank Balances
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginTop: '0.25rem' }}>
+              Extracted directly from Excel sheets <strong>FIDELITY BANK</strong>, <strong>MTN MOMO ACCOUNT</strong>, <strong>BANK ACCOUNT TEMA</strong>, and <strong>TRIAL BALANCE</strong>.
+            </p>
+          </div>
+
+          {/* 4 Treasury Account Cards Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 270px), 1fr))', gap: '1.25rem' }}>
+            
+            {/* Fidelity Bank Ghana */}
+            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #059669', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(255, 255, 255, 0.02))' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Fidelity Bank Ghana
+                </span>
+                <span className="badge badge-dues" style={{ fontSize: '0.7rem' }}>FIDELITY</span>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Account No: <strong style={{ color: 'var(--text-main)', fontFamily: 'monospace' }}>2090182444410</strong></div>
+              
+              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending Bank Balance</div>
+                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#059669', marginTop: '0.15rem' }}>
+                  GH₵ 10,698.88
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Cash Deposited:</span><strong>GH₵ 125,113.88</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Withdrawals / Investments:</span><strong>GH₵ 114,415.00</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Matured Bills Reversed:</span><strong style={{ color: '#2563eb' }}>GH₵ 62,425.51</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Interest Earned:</span><strong style={{ color: '#d97706' }}>GH₵ 88.37</strong></div>
+              </div>
+            </div>
+
+            {/* MTN Mobile Money Account */}
+            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #d97706', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(255, 255, 255, 0.02))' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  MTN Mobile Money Account
+                </span>
+                <span className="badge badge-admin" style={{ fontSize: '0.7rem' }}>MTN MOMO</span>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>MoMo Line: <strong style={{ color: '#d97706' }}>0530486443</strong> • Code: <strong style={{ color: '#2563eb' }}>293658</strong></div>
+
+              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending MoMo Balance</div>
+                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#dc2626', marginTop: '0.15rem' }}>
+                  GH₵ -398.05
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ 99,688.75</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Charges:</span><strong>GH₵ 100,086.80</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Account Name:</span><strong>ONUADO NA EYE FELLOWSHIP</strong></div>
+              </div>
+            </div>
+
+            {/* North Tema Co-Operative Credit Union */}
+            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #2563eb', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(255, 255, 255, 0.02))' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Bank Account Tema (Credit Union)
+                </span>
+                <span className="badge" style={{ fontSize: '0.7rem', background: 'rgba(37, 99, 235, 0.15)', color: '#2563eb' }}>TEMA</span>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Account No: <strong style={{ color: 'var(--text-main)', fontFamily: 'monospace' }}>2161006002421201</strong></div>
+
+              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending Bank Tema Balance</div>
+                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#2563eb', marginTop: '0.15rem' }}>
+                  GH₵ 366.24
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Shares Held:</span><strong>GH₵ 100.00</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Savings Deposited:</span><strong>GH₵ 5,500.00</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Bank Interest:</span><strong style={{ color: '#d97706' }}>GH₵ 166.24</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Cash Withdrawals:</span><strong>GH₵ 5,400.00</strong></div>
+              </div>
+            </div>
+
+            {/* Vehicle Purchase Investment Account */}
+            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #7c3aed', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(255, 255, 255, 0.02))' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Vehicle Purchase Fund Account
+                </span>
+                <span className="badge" style={{ fontSize: '0.7rem', background: 'rgba(124, 58, 237, 0.15)', color: '#7c3aed' }}>ASSET FUND</span>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Purpose: <strong>Fellowship Vehicle Acquisition</strong></div>
+
+              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Transferred Vehicle Fund</div>
+                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#7c3aed', marginTop: '0.15rem' }}>
+                  GH₵ 66,000.00
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Transfer Source:</span><strong>Fidelity Bank Account</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Status:</span><strong style={{ color: '#059669' }}>Earmarked for Vehicle</strong></div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* MASTER TRIAL BALANCE TABLE */}
+          <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                  <FileText size={20} color="#2563eb" /> Verified Fellowship Trial Balance Sheet
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>
+                  Extracted from Excel sheet <strong>TRAIL BALANCE</strong>. Total Balanced Income & Expenditure: <strong>GH₵ 86,103.20</strong>.
+                </p>
+              </div>
+
+              <div style={{ padding: '0.6rem 1rem', background: 'rgba(5, 150, 105, 0.1)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.3)', textAlign: 'right' }}>
+                <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#059669', fontWeight: 800 }}>Trial Balance Sum</div>
+                <div style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-main)' }}>GH₵ 86,103.20</div>
+              </div>
+            </div>
+
+            <div className="table-container">
+              <table className="data-table" style={{ fontSize: '0.88rem' }}>
+                <thead>
+                  <tr>
+                    <th>Particulars / Line Item</th>
+                    <th>Income (GH₵)</th>
+                    <th>Expenditure & Assets (GH₵)</th>
+                    <th>Category / Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>REGISTRATION FEES</td>
+                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 4,800.00</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td><span className="badge badge-dues">Income</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>TOTAL MONTHLY DUES FOR 2023</td>
+                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 10,800.00</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td><span className="badge badge-dues">Income</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>TOTAL MONTHLY DUES FOR 2024</td>
+                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 16,900.00</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td><span className="badge badge-dues">Income</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>TOTAL MONTHLY DUES FOR 2025</td>
+                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 22,350.00</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td><span className="badge badge-dues">Income</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>TOTAL MONTHLY DUES FOR 2026</td>
+                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 15,500.00</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td><span className="badge badge-dues">Income</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>TREASURER BILL INTEREST</td>
+                    <td style={{ fontWeight: 800, color: '#d97706' }}>GH₵ 10,502.70</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td><span className="badge badge-welfare">Investment Returns</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>LEVY BALANCE</td>
+                    <td style={{ fontWeight: 800, color: '#3b82f6' }}>GH₵ 1,250.50</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td><span className="badge badge-dues">Special Levy</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>SPECIAL CONTRIBUTIONS</td>
+                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 4,000.00</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td><span className="badge badge-dues">Income</span></td>
+                  </tr>
+                  
+                  {/* Expenditures */}
+                  <tr style={{ background: 'rgba(220, 38, 38, 0.03)' }}>
+                    <td style={{ fontWeight: 800 }}>TRANSFER TO PURCHASES VEHICLE ACCOUNT</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 800, color: '#7c3aed' }}>GH₵ 66,000.00</td>
+                    <td><span className="badge" style={{ background: 'rgba(124, 58, 237, 0.15)', color: '#7c3aed' }}>Asset Investment</span></td>
+                  </tr>
+                  <tr style={{ background: 'rgba(5, 150, 105, 0.03)' }}>
+                    <td style={{ fontWeight: 800 }}>FIDELITY BANK ENDING BALANCE</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 10,698.88</td>
+                    <td><span className="badge badge-dues">Bank Asset</span></td>
+                  </tr>
+                  <tr style={{ background: 'rgba(37, 99, 235, 0.03)' }}>
+                    <td style={{ fontWeight: 800 }}>BANK TEMA ENDING BALANCE</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 800, color: '#2563eb' }}>GH₵ 366.24</td>
+                    <td><span className="badge badge-dues">Bank Asset</span></td>
+                  </tr>
+                  <tr style={{ background: 'rgba(217, 119, 6, 0.03)' }}>
+                    <td style={{ fontWeight: 800 }}>MOMO ACCOUNT ENDING BALANCE</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 800, color: '#dc2626' }}>GH₵ -398.05</td>
+                    <td><span className="badge badge-admin">MoMo Overdraft</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>TRANSPORTATIONS</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 700 }}>GH₵ 5,100.00</td>
+                    <td>Expenditure</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>REGISTRAR GENERAL (RGD) FEES</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 700 }}>GH₵ 1,300.00</td>
+                    <td>Legal & Compliance</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>MOMO CHARGES & COMMISSIONS</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 700 }}>GH₵ 1,091.80</td>
+                    <td>Bank Fees</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>GENERAL EXPENSES</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 700 }}>GH₵ 1,010.00</td>
+                    <td>Expenditure</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>DOCUMENTATIONS</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 700 }}>GH₵ 500.00</td>
+                    <td>Expenditure</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>PRINTING & STATIONERY</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 700 }}>GH₵ 285.00</td>
+                    <td>Expenditure</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>BANK TEMA SHARES</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 700 }}>GH₵ 100.00</td>
+                    <td>Shares Investment</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>TREASURER BILL CHARGES</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 700 }}>GH₵ 34.34</td>
+                    <td>Bank Fees</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 800 }}>FIDELITY BANK CHARGES</td>
+                    <td style={{ color: 'var(--text-muted)' }}>—</td>
+                    <td style={{ fontWeight: 700 }}>GH₵ 15.00</td>
+                    <td>Bank Fees</td>
+                  </tr>
+
+                  {/* Grand Totals */}
+                  <tr style={{ background: 'var(--bg-main)', borderTop: '2.5px solid var(--border-color)', fontSize: '1rem' }}>
+                    <td style={{ fontWeight: 900, color: 'var(--primary-700)' }}>GRAND TOTALS (BALANCED)</td>
+                    <td style={{ fontWeight: 900, color: '#059669', fontSize: '1.1rem' }}>GH₵ 86,103.20</td>
+                    <td style={{ fontWeight: 900, color: '#059669', fontSize: '1.1rem' }}>GH₵ 86,103.20</td>
+                    <td><span className="badge badge-dues" style={{ fontWeight: 800 }}>Balanced 100% ✓</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       )}
 
