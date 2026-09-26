@@ -7,6 +7,7 @@ import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminPage from './pages/AdminPage';
+import ExecutiveAuthModal from './components/ExecutiveAuthModal';
 
 import { getMembers, getContributions } from './services/store';
 
@@ -14,6 +15,10 @@ export default function App() {
   const [activePage, setActivePage] = useState('home'); // 'home', 'about', 'contact', 'login', 'dashboard', 'admin'
   const [currentUser, setCurrentUser] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  
+  // Executive Re-Authentication State
+  const [showExecutiveAuthModal, setShowExecutiveAuthModal] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
   // Live state from store
   const [members, setMembers] = useState([]);
@@ -24,6 +29,11 @@ export default function App() {
     setContributions(getContributions());
   }, []);
 
+  // Reset admin session authentication when user logs out or changes
+  useEffect(() => {
+    setIsAdminAuthenticated(false);
+  }, [currentUser]);
+
   // Update root dark class
   useEffect(() => {
     if (isDarkMode) {
@@ -33,11 +43,26 @@ export default function App() {
     }
   }, [isDarkMode]);
 
+  // Guarded Navigation Handler
+  const handleNavigate = (page) => {
+    if (page === 'admin' && currentUser?.role === 'admin' && !isAdminAuthenticated) {
+      setShowExecutiveAuthModal(true);
+    } else {
+      setActivePage(page);
+    }
+  };
+
+  const handleExecutiveAuthSuccess = () => {
+    setIsAdminAuthenticated(true);
+    setShowExecutiveAuthModal(false);
+    setActivePage('admin');
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar 
         activePage={activePage}
-        setActivePage={setActivePage}
+        setActivePage={handleNavigate}
         currentUser={currentUser}
         setCurrentUser={setCurrentUser}
         isDarkMode={isDarkMode}
@@ -47,25 +72,25 @@ export default function App() {
       <main style={{ flex: 1 }}>
         {activePage === 'home' && (
           <HomePage 
-            setActivePage={setActivePage} 
+            setActivePage={handleNavigate} 
             membersCount={members.length} 
             contributionsCount={contributions.length} 
           />
         )}
 
         {activePage === 'about' && (
-          <AboutPage setActivePage={setActivePage} />
+          <AboutPage setActivePage={handleNavigate} />
         )}
 
         {activePage === 'contact' && (
-          <ContactPage setActivePage={setActivePage} currentUser={currentUser} />
+          <ContactPage setActivePage={handleNavigate} currentUser={currentUser} />
         )}
 
         {activePage === 'login' && (
           <LoginPage 
             members={members}
             setCurrentUser={setCurrentUser}
-            setActivePage={setActivePage}
+            setActivePage={handleNavigate}
           />
         )}
 
@@ -77,13 +102,13 @@ export default function App() {
               members={members}
               setMembers={setMembers}
               contributions={contributions}
-              setActivePage={setActivePage}
+              setActivePage={handleNavigate}
             />
           ) : (
             <LoginPage 
               members={members}
               setCurrentUser={setCurrentUser}
-              setActivePage={setActivePage}
+              setActivePage={handleNavigate}
             />
           )
         )}
@@ -95,13 +120,13 @@ export default function App() {
               members={members}
               contributions={contributions}
               setContributions={setContributions}
-              setActivePage={setActivePage}
+              setActivePage={handleNavigate}
             />
           ) : (
             <div style={{ textAlign: 'center', padding: '5rem 1.5rem' }}>
               <h2>Access Restricted</h2>
               <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>You must log in as an Executive Administrator to view the Admin Console.</p>
-              <button onClick={() => setActivePage('login')} className="btn btn-primary">
+              <button onClick={() => handleNavigate('login')} className="btn btn-primary">
                 Log In as Executive Admin (Alex Ackah, Osei Kwame, etc.)
               </button>
             </div>
@@ -109,7 +134,15 @@ export default function App() {
         )}
       </main>
 
-      <Footer setActivePage={setActivePage} />
+      <Footer setActivePage={handleNavigate} />
+
+      {/* Executive Re-Authentication Password Security Modal */}
+      <ExecutiveAuthModal 
+        isOpen={showExecutiveAuthModal}
+        onClose={() => setShowExecutiveAuthModal(false)}
+        onSuccess={handleExecutiveAuthSuccess}
+        currentUser={currentUser}
+      />
     </div>
   );
 }

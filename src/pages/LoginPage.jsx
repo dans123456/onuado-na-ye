@@ -58,7 +58,7 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
     }
 
     setCurrentUser(found);
-    setActivePage(found.role === 'admin' ? 'admin' : 'dashboard');
+    setActivePage('dashboard');
   };
 
   const handleSaveNewPin = (e) => {
@@ -78,14 +78,14 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
     setShowSetPasswordModal(false);
     const finalUser = updatedUser || { ...pendingUser, pin: newPin, is_custom_pin: true };
     setCurrentUser(finalUser);
-    setActivePage(finalUser.role === 'admin' ? 'admin' : 'dashboard');
+    setActivePage('dashboard');
   };
 
   const handleQuickLogin = (memberId) => {
     const member = members.find(m => m.id === memberId);
     if (member) {
       setCurrentUser(member);
-      setActivePage(member.role === 'admin' ? 'admin' : 'dashboard');
+      setActivePage('dashboard');
     }
   };
 
