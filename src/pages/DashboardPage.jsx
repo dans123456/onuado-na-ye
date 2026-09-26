@@ -658,34 +658,45 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td style={{ fontWeight: 800 }}>DUES 2023</td>
-                  <td>GH₵ 600.00</td>
-                  <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 600.00</td>
-                  <td style={{ fontWeight: 700, color: 'var(--text-muted)' }}>GH₵ 0.00</td>
-                  <td><span className="badge badge-dues">Fully Paid ✓</span></td>
-                </tr>
-                <tr>
-                  <td style={{ fontWeight: 800 }}>DUES 2024</td>
-                  <td>GH₵ 900.00</td>
-                  <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 900.00</td>
-                  <td style={{ fontWeight: 700, color: 'var(--text-muted)' }}>GH₵ 0.00</td>
-                  <td><span className="badge badge-dues">Fully Paid ✓</span></td>
-                </tr>
-                <tr>
-                  <td style={{ fontWeight: 800 }}>DUES 2025</td>
-                  <td>GH₵ 1,200.00</td>
-                  <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 1,200.00</td>
-                  <td style={{ fontWeight: 700, color: 'var(--text-muted)' }}>GH₵ 0.00</td>
-                  <td><span className="badge badge-dues">Fully Paid ✓</span></td>
-                </tr>
-                <tr>
-                  <td style={{ fontWeight: 800 }}>DUES 2026</td>
-                  <td>GH₵ 1,200.00</td>
-                  <td style={{ fontWeight: 800, color: '#3b82f6' }}>GH₵ {duesPaid > 2700 ? (duesPaid - 2700).toFixed(2) : '300.00'}</td>
-                  <td style={{ fontWeight: 800, color: '#dc2626' }}>GH₵ {balanceOwed.toFixed(2)}</td>
-                  <td><span className="badge badge-welfare">Partial / Owed ⚠️</span></td>
-                </tr>
+                {(() => {
+                  let remPaid = duesPaid || 0;
+                  const yearlySchedule = [
+                    { year: 'DUES 2023', expected: 600 },
+                    { year: 'DUES 2024', expected: 900 },
+                    { year: 'DUES 2025', expected: 1200 },
+                    { year: 'DUES 2026', expected: 1200 },
+                  ];
+
+                  return yearlySchedule.map((item) => {
+                    const amountPaid = Math.min(item.expected, Math.max(0, remPaid));
+                    remPaid = Math.max(0, remPaid - amountPaid);
+                    const balance = Math.max(0, item.expected - amountPaid);
+                    const isFullyPaid = balance === 0 && amountPaid > 0;
+                    const isPartial = balance > 0 && amountPaid > 0;
+
+                    return (
+                      <tr key={item.year}>
+                        <td style={{ fontWeight: 800 }}>{item.year}</td>
+                        <td>GH₵ {item.expected.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td style={{ fontWeight: 800, color: isFullyPaid ? '#059669' : (isPartial ? '#3b82f6' : 'var(--text-muted)') }}>
+                          GH₵ {amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td style={{ fontWeight: 700, color: balance > 0 ? '#dc2626' : 'var(--text-muted)' }}>
+                          GH₵ {balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td>
+                          {isFullyPaid ? (
+                            <span className="badge badge-dues">Fully Paid ✓</span>
+                          ) : isPartial ? (
+                            <span className="badge badge-welfare">Partial / Owed ⚠️</span>
+                          ) : (
+                            <span className="badge" style={{ background: 'var(--bg-card-hover)', color: 'var(--text-muted)' }}>Unpaid</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  });
+                })()}
                 {['2027', '2028', '2029', '2030', '2031', '2032', '2033'].map(year => (
                   <tr key={year}>
                     <td style={{ fontWeight: 800, opacity: 0.6 }}>DUES {year}</td>

@@ -234,15 +234,22 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
 
     let matrixSumDues = 0;
     let matrixSumLevies = 0;
+    
+    // Sum numeric values in row if sheet is matrix-formatted
     if (sNameLower.includes('dues')) {
-      row.forEach(c => {
-        const val = parseNum(c);
-        if (val > 0 && val <= 3000) matrixSumDues += val;
+      row.forEach((c, cIdx) => {
+        // Exclude member no / phone / id column values
+        if (cIdx !== headerMap['id'] && cIdx !== headerMap['phone']) {
+          const val = parseNum(c);
+          if (val > 0 && val <= 3000) matrixSumDues += val;
+        }
       });
     } else if (sNameLower.includes('levy')) {
-      row.forEach(c => {
-        const val = parseNum(c);
-        if (val > 0 && val <= 1000) matrixSumLevies += val;
+      row.forEach((c, cIdx) => {
+        if (cIdx !== headerMap['id'] && cIdx !== headerMap['phone']) {
+          const val = parseNum(c);
+          if (val > 0 && val <= 1000) matrixSumLevies += val;
+        }
       });
     }
 
@@ -280,7 +287,7 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
           oldVal: member.dues_paid || 0,
           newVal: excelDues,
           diff: duesDiff,
-          description: `Sheet [${sheetName}]: Dues increased from GH₵ ${(member.dues_paid || 0).toFixed(2)} → GH₵ ${excelDues.toFixed(2)} (+GH₵ ${duesDiff.toFixed(2)})`
+          description: `Sheet [${sheetName}]: Yearly Dues updated for ${member.full_name}: increased from GH₵ ${(member.dues_paid || 0).toFixed(2)} → GH₵ ${excelDues.toFixed(2)} (+GH₵ ${duesDiff.toFixed(2)})`
         };
       } else if (excelLevy !== null && excelLevy > (member.levy_paid || 0)) {
         const levyDiff = excelLevy - (member.levy_paid || 0);
@@ -292,7 +299,7 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
           oldVal: member.levy_paid || 0,
           newVal: excelLevy,
           diff: levyDiff,
-          description: `Sheet [${sheetName}]: Levy increased from GH₵ ${(member.levy_paid || 0).toFixed(2)} → GH₵ ${excelLevy.toFixed(2)} (+GH₵ ${levyDiff.toFixed(2)})`
+          description: `Sheet [${sheetName}]: Special Levy updated for ${member.full_name}: increased from GH₵ ${(member.levy_paid || 0).toFixed(2)} → GH₵ ${excelLevy.toFixed(2)} (+GH₵ ${levyDiff.toFixed(2)})`
         };
       } else if (excelTotal !== null && excelTotal > (member.total_payments || 0)) {
         const totalDiff = excelTotal - (member.total_payments || 0);
@@ -307,7 +314,7 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
         };
       }
 
-      // CRITICAL FIX: ONLY push to matched IF there is an actual DETECTED CHANGE / NEW PAYMENT!
+      // ONLY push to matched IF there is an actual DETECTED CHANGE / NEW PAYMENT!
       if (changeDetected && changeDetected.hasChange && finalAmount > 0) {
         matched.push({
           sheetName: sheetName || 'Main',
@@ -319,7 +326,7 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
           amount: finalAmount,
           contribution_type: finalType,
           payment_method: rawMethod.toLowerCase().includes('cash') ? 'Cash' : 'Mobile Money',
-          reference_note: `${rawRef} [Sheet: ${sheetName || 'Main'}]`,
+          reference_note: `Yearly Dues Update [Sheet: ${sheetName || 'Main'}]`,
           payment_date: rawDate,
           changeDetected: changeDetected,
           excelDues: excelDues,
