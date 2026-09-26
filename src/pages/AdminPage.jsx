@@ -408,20 +408,20 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                 <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   MTN Mobile Money Account
                 </span>
-                <span className="badge badge-admin" style={{ fontSize: '0.7rem' }}>MTN MOMO</span>
+                <span className="badge badge-dues" style={{ fontSize: '0.7rem' }}>MTN MOMO</span>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>MoMo Line: <strong style={{ color: '#d97706' }}>0530486443</strong> • Code: <strong style={{ color: '#2563eb' }}>293658</strong></div>
 
               <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending MoMo Balance</div>
-                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#dc2626', marginTop: '0.15rem' }}>
-                  GH₵ -398.05
+                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#059669', marginTop: '0.15rem' }}>
+                  GH₵ 1.95
                 </div>
               </div>
 
               <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ 99,688.75</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Charges:</span><strong>GH₵ 100,086.80</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ 100,088.75</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Vouchers:</span><strong>GH₵ 100,086.80</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Account Name:</span><strong>ONUADO NA EYE FELLOWSHIP</strong></div>
               </div>
             </div>
@@ -448,29 +448,6 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Savings Deposited:</span><strong>GH₵ 5,500.00</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Bank Interest:</span><strong style={{ color: '#d97706' }}>GH₵ 166.24</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Cash Withdrawals:</span><strong>GH₵ 5,400.00</strong></div>
-              </div>
-            </div>
-
-            {/* Vehicle Purchase Investment Account */}
-            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #7c3aed', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(255, 255, 255, 0.02))' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Vehicle Purchase Fund Account
-                </span>
-                <span className="badge" style={{ fontSize: '0.7rem', background: 'rgba(124, 58, 237, 0.15)', color: '#7c3aed' }}>ASSET FUND</span>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Purpose: <strong>Fellowship Vehicle Acquisition</strong></div>
-
-              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Transferred Vehicle Fund</div>
-                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#7c3aed', marginTop: '0.15rem' }}>
-                  GH₵ 66,000.00
-                </div>
-              </div>
-
-              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Transfer Source:</span><strong>Fidelity Bank Account</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Status:</span><strong style={{ color: '#059669' }}>Earmarked for Vehicle</strong></div>
               </div>
             </div>
 
@@ -555,12 +532,6 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                   </tr>
                   
                   {/* Expenditures */}
-                  <tr style={{ background: 'rgba(220, 38, 38, 0.03)' }}>
-                    <td style={{ fontWeight: 800 }}>TRANSFER TO PURCHASES VEHICLE ACCOUNT</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 800, color: '#7c3aed' }}>GH₵ 66,000.00</td>
-                    <td><span className="badge" style={{ background: 'rgba(124, 58, 237, 0.15)', color: '#7c3aed' }}>Asset Investment</span></td>
-                  </tr>
                   <tr style={{ background: 'rgba(5, 150, 105, 0.03)' }}>
                     <td style={{ fontWeight: 800 }}>FIDELITY BANK ENDING BALANCE</td>
                     <td style={{ color: 'var(--text-muted)' }}>—</td>
@@ -573,11 +544,11 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                     <td style={{ fontWeight: 800, color: '#2563eb' }}>GH₵ 366.24</td>
                     <td><span className="badge badge-dues">Bank Asset</span></td>
                   </tr>
-                  <tr style={{ background: 'rgba(217, 119, 6, 0.03)' }}>
+                  <tr style={{ background: 'rgba(5, 150, 105, 0.03)' }}>
                     <td style={{ fontWeight: 800 }}>MOMO ACCOUNT ENDING BALANCE</td>
                     <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 800, color: '#dc2626' }}>GH₵ -398.05</td>
-                    <td><span className="badge badge-admin">MoMo Overdraft</span></td>
+                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 1.95</td>
+                    <td><span className="badge badge-dues">MoMo Wallet</span></td>
                   </tr>
                   <tr>
                     <td style={{ fontWeight: 800 }}>TRANSPORTATIONS</td>
