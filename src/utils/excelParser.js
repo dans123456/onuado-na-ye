@@ -216,7 +216,7 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
     const rawTotal = getCellVal('total_payments');
     const rawAmount = getCellVal('amount') || row.find(c => typeof c === 'number' && c > 0) || '0';
     
-    const rawType = getCellVal('type') || (sNameLower.includes('levy') ? 'Special Levy' : 'Monthly Dues');
+    const rawType = getCellVal('type') || (sNameLower.includes('levy') ? 'Special Levy' : 'Yearly Dues');
     const rawMethod = getCellVal('method') || 'Mobile Money';
     const rawRef = getCellVal('ref') || `Excel Sync [${sheetName || 'Main'}]`;
     const rawDate = getCellVal('date') || new Date().toISOString().split('T')[0];
@@ -274,14 +274,14 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
 
     if (member) {
       let finalAmount = 0;
-      let finalType = rawType.toLowerCase().includes('levy') || sNameLower.includes('levy') ? 'Special Levy' : 'Monthly Dues';
+      let finalType = rawType.toLowerCase().includes('levy') || sNameLower.includes('levy') ? 'Special Levy' : 'Yearly Dues';
       let changeDetected = null;
 
       // Smart Change Detection: Only trigger if there is an ACTUAL INCREASE over current database values
       if (excelDues !== null && excelDues > (member.dues_paid || 0)) {
         const duesDiff = excelDues - (member.dues_paid || 0);
         finalAmount = duesDiff;
-        finalType = 'Monthly Dues';
+        finalType = 'Yearly Dues';
         changeDetected = {
           hasChange: true,
           field: 'Dues Paid',

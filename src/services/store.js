@@ -1269,7 +1269,7 @@ export const addContribution = (contribution) => {
   const memberIndex = members.findIndex(m => m.id === contribution.member_id);
   if (memberIndex !== -1) {
     const amountNum = parseFloat(contribution.amount) || 0;
-    if (contribution.contribution_type === 'Monthly Dues') {
+    if (contribution.contribution_type === 'Monthly Dues' || contribution.contribution_type === 'Yearly Dues') {
       members[memberIndex].dues_paid = (members[memberIndex].dues_paid || 0) + amountNum;
     } else if (contribution.contribution_type === 'Special Levy') {
       members[memberIndex].levy_paid = (members[memberIndex].levy_paid || 0) + amountNum;
@@ -1302,7 +1302,7 @@ export const bulkAddContributions = (newContributionsList) => {
 
       if (c.excelDues !== null && c.excelDues !== undefined && c.excelDues > (members[memberIndex].dues_paid || 0)) {
         members[memberIndex].dues_paid = c.excelDues;
-      } else if (c.contribution_type === 'Monthly Dues') {
+      } else if (c.contribution_type === 'Monthly Dues' || c.contribution_type === 'Yearly Dues') {
         members[memberIndex].dues_paid = (members[memberIndex].dues_paid || 0) + amountNum;
       }
 
