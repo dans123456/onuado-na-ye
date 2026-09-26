@@ -521,42 +521,48 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                   <th>Full Name</th>
                   <th>Branch</th>
                   <th>Primary Phone</th>
-                  <th>Ghana Card</th>
+                  <th>Outstanding Balance</th>
                   <th>Status</th>
                   <th>Action (Inspect Dossier)</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredRoster.map(m => (
-                  <tr key={m.id}>
-                    <td style={{ fontWeight: 800, color: 'var(--accent-600)' }}>
-                      #{m.member_no || m.id.replace('m-', '')} ({m.excel_member_id})
-                    </td>
-                    <td style={{ fontWeight: 800 }}>
-                      {m.full_name}
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                        {m.title} • {m.position}
-                      </div>
-                    </td>
-                    <td style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{m.branch}</td>
-                    <td>{m.phone_number}</td>
-                    <td style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}>{m.ghana_card || 'Recorded'}</td>
-                    <td>
-                      <span className={`badge ${m.status === 'ACTIVE' ? 'badge-dues' : 'badge-admin'}`}>
-                        {m.status || 'ACTIVE'}
-                      </span>
-                    </td>
-                    <td>
-                      <button 
-                        onClick={() => setSelectedDossierMember(m)}
-                        className="btn btn-secondary"
-                        style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: 'var(--primary-700)', border: '1px solid rgba(5, 150, 105, 0.4)' }}
-                      >
-                        <Eye size={14} color="#059669" /> Inspect 45 Fields &rarr;
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {filteredRoster.map(m => {
+                  const balanceOwed = m.balance_owed !== undefined ? m.balance_owed : Math.max(0, (m.dues_fee_required || 3900) - (m.dues_paid || 0));
+                  return (
+                    <tr key={m.id}>
+                      <td style={{ fontWeight: 800, color: 'var(--accent-600)' }}>
+                        #{m.member_no || m.id.replace('m-', '')} ({m.excel_member_id})
+                      </td>
+                      <td style={{ fontWeight: 800 }}>
+                        {m.full_name}
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                          {m.title} • {m.position}
+                        </div>
+                      </td>
+                      <td style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{m.branch}</td>
+                      <td>{m.phone_number}</td>
+                      <td style={{ fontWeight: 800, color: balanceOwed > 0 ? '#dc2626' : '#059669' }}>
+                        GH₵ {balanceOwed.toFixed(2)}
+                        {balanceOwed > 0 && <span style={{ fontSize: '0.7rem', color: '#dc2626', display: 'block', fontWeight: 600 }}>Owed ⚠️</span>}
+                      </td>
+                      <td>
+                        <span className={`badge ${m.status === 'ACTIVE' ? 'badge-dues' : 'badge-admin'}`}>
+                          {m.status || 'ACTIVE'}
+                        </span>
+                      </td>
+                      <td>
+                        <button 
+                          onClick={() => setSelectedDossierMember(m)}
+                          className="btn btn-secondary"
+                          style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: 'var(--primary-700)', border: '1px solid rgba(5, 150, 105, 0.4)' }}
+                        >
+                          <Eye size={14} color="#059669" /> Inspect 45 Fields &rarr;
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -663,6 +669,15 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                   <span style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '12px', background: selectedDossierMember.status === 'ACTIVE' ? '#10b981' : '#f59e0b', color: '#fff', fontWeight: 800 }}>
                     {selectedDossierMember.status || 'ACTIVE'}
                   </span>
+                  {/* Outstanding Dues Balance Badge */}
+                  {(() => {
+                    const bal = selectedDossierMember.balance_owed !== undefined ? selectedDossierMember.balance_owed : Math.max(0, (selectedDossierMember.dues_fee_required || 3900) - (selectedDossierMember.dues_paid || 0));
+                    return (
+                      <span style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem5rem', borderRadius: '12px', background: bal > 0 ? 'rgba(220, 38, 38, 0.15)' : 'rgba(5, 150, 105, 0.15)', color: bal > 0 ? '#dc2626' : '#059669', border: '1px solid currentColor', fontWeight: 800 }}>
+                        {bal > 0 ? `Outstanding: GH₵ ${bal.toFixed(2)} ⚠️` : 'Dues Settled ✓'}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <h2 style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'var(--font-heading)', color: 'var(--primary-700)', margin: 0, lineHeight: 1.2 }}>
                   {selectedDossierMember.title} {selectedDossierMember.full_name}
@@ -748,7 +763,7 @@ export default function AdminPage({ currentUser, members, contributions, setCont
               {/* Category 4: Complete Financial Ledger & Shares Entitlements */}
               <div style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(217, 119, 6, 0.08))', borderRadius: '16px', border: '1px solid rgba(5, 150, 105, 0.3)' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--primary-700)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <CreditCard size={18} /> 4. Financial Ledger & Shares Entitlement
+                  <CreditCard size={18} /> 4. Financial Ledger & Outstanding Dues Balance
                 </h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1rem', fontSize: '0.88rem' }}>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Registration Fee</div><strong style={{ color: '#059669' }}>GH₵ {(selectedDossierMember.reg_fees || 200).toFixed(2)}</strong></div>
@@ -756,6 +771,17 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Levy Paid</div><strong style={{ color: '#3b82f6' }}>GH₵ {(selectedDossierMember.levy_paid || 0).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Payments</div><strong style={{ color: '#d97706' }}>GH₵ {(selectedDossierMember.total_payments || 0).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Dues Fee Required</div><strong>GH₵ {(selectedDossierMember.dues_fee_required || 3900).toFixed(2)}</strong></div>
+                  <div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Outstanding Dues Balance</div>
+                    {(() => {
+                      const bal = selectedDossierMember.balance_owed !== undefined ? selectedDossierMember.balance_owed : Math.max(0, (selectedDossierMember.dues_fee_required || 3900) - (selectedDossierMember.dues_paid || 0));
+                      return (
+                        <strong style={{ color: bal > 0 ? '#dc2626' : '#059669', fontSize: '1.05rem', fontWeight: 900 }}>
+                          GH₵ {bal.toFixed(2)} {bal > 0 ? '⚠️' : '✓'}
+                        </strong>
+                      );
+                    })()}
+                  </div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Dividends Count</div><strong>{selectedDossierMember.shares_dividends || 0} Shares</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div><strong>GH₵ {(selectedDossierMember.shares_value || 0).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Treasurer Bill</div><strong>GH₵ {(selectedDossierMember.treasurer_bill || 0).toFixed(2)}</strong></div>
