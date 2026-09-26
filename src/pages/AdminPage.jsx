@@ -684,20 +684,129 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
           {parseResult && (
             <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.25rem' }}>File Parse Summary</h3>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary-600)' }}>Multi-Sheet Excel Parse & Dues Delta Summary</h3>
                   <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                    Total Rows Analyzed: <strong>{parseResult.totalRows}</strong> | Successfully Matched: <span style={{ color: '#059669', fontWeight: 800 }}>{parseResult.matched.length}</span> | Unmatched: <span style={{ color: '#dc2626', fontWeight: 800 }}>{parseResult.unmatched.length}</span>
+                    Total Rows Analyzed Across All Sheets: <strong>{parseResult.totalRows}</strong> | Matched Records: <span style={{ color: '#059669', fontWeight: 800 }}>{parseResult.matched.length}</span> | Unmatched: <span style={{ color: '#dc2626', fontWeight: 800 }}>{parseResult.unmatched.length}</span>
                   </div>
                 </div>
 
                 {parseResult.matched.length > 0 && (
-                  <button onClick={handleBulkImport} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
-                    <CheckCircle2 size={18} /> Import {parseResult.matched.length} Matched Records Now
+                  <button onClick={handleBulkImport} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: 800 }}>
+                    <CheckCircle2 size={18} /> Import & Apply {parseResult.matched.length} Records to Ledgers
                   </button>
                 )}
               </div>
+
+              {/* Multi-Sheet Reports Summary Badges */}
+              {parseResult.sheetReports && parseResult.sheetReports.length > 0 && (
+                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                  {parseResult.sheetReports.map((report, idx) => (
+                    <div 
+                      key={idx} 
+                      style={{ 
+                        padding: '0.4rem 0.75rem', 
+                        borderRadius: '8px', 
+                        fontSize: '0.78rem', 
+                        fontWeight: 700, 
+                        background: report.matchedCount > 0 ? 'rgba(5, 150, 105, 0.1)' : 'var(--bg-main)', 
+                        border: report.matchedCount > 0 ? '1px solid rgba(5, 150, 105, 0.3)' : '1px solid var(--border-color)',
+                        color: report.matchedCount > 0 ? '#059669' : 'var(--text-muted)'
+                      }}
+                    >
+                      📊 <strong>{report.sheetName}</strong>: {report.matchedCount} Matched ({report.totalRows} rows)
+                      {report.bankUpdates && <span style={{ color: '#2563eb', marginLeft: '0.4rem' }}>[Ending Balance Scanned]</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Matched Records & Detected Changes Preview Table */}
+              {parseResult.matched.length > 0 && (
+                <div className="table-container" style={{ marginBottom: '2rem' }}>
+                  <div style={{ padding: '0.75rem 1rem', background: 'rgba(5, 150, 105, 0.08)', fontWeight: 800, color: '#059669', borderBottom: '1px solid var(--border-color)', fontSize: '0.88rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>✅ Matched Member Records & Detected Dues Increases ({parseResult.matched.length})</span>
+                    <span style={{ fontSize: '0.75rem', opacity: 0.85 }}>Scanned Across All Sheets</span>
+                  </div>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Row & Sheet</th>
+                        <th>Member Name & ID</th>
+                        <th>Phone</th>
+                        <th>Category</th>
+                        <th>Parsed Payment Amount</th>
+                        <th>Detected Dues / Payment Change</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {parseResult.matched.map((item, index) => (
+                        <tr key={index} style={{ background: item.changeDetected?.hasChange ? 'rgba(16, 185, 129, 0.05)' : 'transparent' }}>
+                          <td style={{ fontWeight: 700 }}>
+                            <div>#{item.rowNum}</div>
+                            <span className="badge" style={{ fontSize: '0.68rem', background: 'rgba(217, 119, 6, 0.12)', color: '#d97706' }}>
+                              {item.sheetName || 'Main'}
+                            </span>
+                          </td>
+                          <td style={{ fontWeight: 800 }}>
+                            {item.member_name}
+                            <div style={{ fontSize: '0.75rem', color: 'var(--primary-600)', fontWeight: 700 }}>{item.excel_member_id}</div>
+                          </td>
+                          <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.phone_number}</td>
+                          <td><span className="badge badge-dues">{item.contribution_type}</span></td>
+                          <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ {parseFloat(item.amount).toFixed(2)}</td>
+                          <td>
+                            {item.changeDetected?.hasChange ? (
+                              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <Sparkles size={14} color="#059669" />
+                                <span>{item.changeDetected.description}</span>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                {item.changeDetected?.description || 'Matches current store'}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Unmatched Rows Section if any */}
+              {parseResult.unmatched.length > 0 && (
+                <div className="table-container">
+                  <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.08)', fontWeight: 800, color: '#dc2626', borderBottom: '1px solid var(--border-color)', fontSize: '0.88rem' }}>
+                    ⚠️ Unmatched Rows Across Sheets ({parseResult.unmatched.length})
+                  </div>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Row & Sheet</th>
+                        <th>Extracted Name</th>
+                        <th>Extracted Phone</th>
+                        <th>Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {parseResult.unmatched.map((item, idx) => (
+                        <tr key={idx}>
+                          <td>
+                            #{item.rowNum}
+                            <span className="badge" style={{ fontSize: '0.68rem', marginLeft: '0.4rem' }}>{item.sheetName || 'Sheet'}</span>
+                          </td>
+                          <td>{item.rawName || '—'}</td>
+                          <td>{item.rawPhone || '—'}</td>
+                          <td style={{ color: '#dc2626', fontWeight: 600 }}>{item.reason}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
             </div>
           )}
         </div>
