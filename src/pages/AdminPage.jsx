@@ -5,7 +5,7 @@ import { addContribution, bulkAddContributions, getAnnouncement, saveAnnouncemen
 import { getMemberLevyDetails } from '../utils/levyData';
 
 export default function AdminPage({ currentUser, members, contributions, setContributions, setActivePage }) {
-  const [activeTab, setActiveTab] = useState('treasury'); // 'treasury', 'uploader', 'manual', 'roster', 'announcement'
+  const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'roster', 'manual', 'announcement', 'treasury'
   const [showAllBranches, setShowAllBranches] = useState(false);
 
   // Uploader State
@@ -323,25 +323,11 @@ export default function AdminPage({ currentUser, members, contributions, setCont
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
           <button 
-            onClick={() => setActiveTab('treasury')} 
-            className={`btn ${activeTab === 'treasury' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '0.6rem 1.1rem', fontWeight: 800, fontSize: '0.88rem' }}
-          >
-            <Building2 size={16} color="#059669" /> Treasury & Bank Balances
-          </button>
-          <button 
             onClick={() => setActiveTab('uploader')} 
             className={`btn ${activeTab === 'uploader' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
           >
             <UploadCloud size={16} /> Excel / CSV Bulk Uploader
-          </button>
-          <button 
-            onClick={() => setActiveTab('manual')} 
-            className={`btn ${activeTab === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
-          >
-            <PlusCircle size={16} /> Log Single Transaction
           </button>
           <button 
             onClick={() => setActiveTab('roster')} 
@@ -351,11 +337,25 @@ export default function AdminPage({ currentUser, members, contributions, setCont
             <Users size={16} /> Member Master Roster ({members.length})
           </button>
           <button 
+            onClick={() => setActiveTab('manual')} 
+            className={`btn ${activeTab === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
+          >
+            <PlusCircle size={16} /> Log Single Transaction
+          </button>
+          <button 
             onClick={() => setActiveTab('announcement')} 
             className={`btn ${activeTab === 'announcement' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
           >
             <Megaphone size={16} color="#d97706" /> Broadcast Announcement
+          </button>
+          <button 
+            onClick={() => setActiveTab('treasury')} 
+            className={`btn ${activeTab === 'treasury' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 800, fontSize: '0.88rem' }}
+          >
+            <Building2 size={16} color="#059669" /> Treasury & Bank Balances
           </button>
         </div>
 
@@ -385,14 +385,38 @@ export default function AdminPage({ currentUser, members, contributions, setCont
               <Building2 size={24} color="#059669" /> Official Fellowship Treasury & Bank Balances
             </h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginTop: '0.25rem' }}>
-              Extracted directly from Excel sheets <strong>FIDELITY BANK</strong>, <strong>MTN MOMO ACCOUNT</strong>, <strong>BANK ACCOUNT TEMA</strong>, and <strong>TRIAL BALANCE</strong>.
+              Extracted directly from Excel sheets <strong>MTN MOMO ACCOUNT</strong>, <strong>FIDELITY BANK</strong>, <strong>BANK ACCOUNT TEMA</strong>, and <strong>TRIAL BALANCE</strong>.
             </p>
           </div>
 
-          {/* 4 Treasury Account Cards Grid */}
+          {/* 3 Treasury Account Cards Grid (MTN MoMo 1st, Fidelity Bank 2nd, Bank Tema 3rd) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 270px), 1fr))', gap: '1.25rem' }}>
             
-            {/* Fidelity Bank Ghana */}
+            {/* 1ST CARD: MTN Mobile Money Account */}
+            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #d97706', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(255, 255, 255, 0.02))' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  MTN Mobile Money Account
+                </span>
+                <span className="badge badge-dues" style={{ fontSize: '0.7rem' }}>MTN MOMO</span>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>MoMo Line: <strong style={{ color: '#d97706' }}>0530486443</strong> • Code: <strong style={{ color: '#2563eb' }}>293658</strong></div>
+
+              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending MoMo Balance</div>
+                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#059669', marginTop: '0.15rem' }}>
+                  GH₵ 1.95
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ 100,088.75</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Vouchers:</span><strong>GH₵ 100,086.80</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Account Name:</span><strong>ONUADO NA EYE FELLOWSHIP</strong></div>
+              </div>
+            </div>
+
+            {/* 2ND CARD: Fidelity Bank Ghana */}
             <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #059669', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(255, 255, 255, 0.02))' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
@@ -414,30 +438,6 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Withdrawals / Investments:</span><strong>GH₵ 114,415.00</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Matured Bills Reversed:</span><strong style={{ color: '#2563eb' }}>GH₵ 62,425.51</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Interest Earned:</span><strong style={{ color: '#d97706' }}>GH₵ 88.37</strong></div>
-              </div>
-            </div>
-
-            {/* MTN Mobile Money Account */}
-            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #d97706', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(255, 255, 255, 0.02))' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  MTN Mobile Money Account
-                </span>
-                <span className="badge badge-dues" style={{ fontSize: '0.7rem' }}>MTN MOMO</span>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>MoMo Line: <strong style={{ color: '#d97706' }}>0530486443</strong> • Code: <strong style={{ color: '#2563eb' }}>293658</strong></div>
-
-              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending MoMo Balance</div>
-                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#059669', marginTop: '0.15rem' }}>
-                  GH₵ 1.95
-                </div>
-              </div>
-
-              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ 100,088.75</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Vouchers:</span><strong>GH₵ 100,086.80</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Account Name:</span><strong>ONUADO NA EYE FELLOWSHIP</strong></div>
               </div>
             </div>
 
