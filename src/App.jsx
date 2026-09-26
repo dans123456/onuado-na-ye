@@ -83,7 +83,12 @@ export default function App() {
         )}
 
         {activePage === 'contact' && (
-          <ContactPage setActivePage={handleNavigate} currentUser={currentUser} />
+          <ContactPage 
+            setActivePage={handleNavigate} 
+            currentUser={currentUser} 
+            setContributions={setContributions}
+            setMembers={setMembers}
+          />
         )}
 
         {activePage === 'login' && (
@@ -102,6 +107,7 @@ export default function App() {
               members={members}
               setMembers={setMembers}
               contributions={contributions}
+              setContributions={setContributions}
               setActivePage={handleNavigate}
             />
           ) : (

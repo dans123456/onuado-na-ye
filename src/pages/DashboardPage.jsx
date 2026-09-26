@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock } from 'lucide-react';
-import { updateMemberProfile } from '../services/store';
+import { updateMemberProfile, addContribution, getMembers, getContributions } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
+import PaystackModal from '../components/PaystackModal';
 
-export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions, setActivePage }) {
+export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('record'); // 'record', 'dues_matrix', 'levies_matrix', 'history'
   const [isEditing, setIsEditing] = useState(false);
   const [showPII, setShowPII] = useState(false); // Privacy Shield state
+  const [isPaystackOpen, setIsPaystackOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({
     phone_number: currentUser?.phone_number || '',
     momo_number: currentUser?.momo_number || '',
@@ -29,6 +31,26 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   };
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+
+  const handlePaystackSuccess = (paymentResult) => {
+    const updated = addContribution({
+      member_id: currentUser?.id,
+      amount: paymentResult.amount,
+      contribution_type: paymentResult.contribution_type,
+      payment_method: 'Paystack (MoMo / Card)',
+      reference_note: `Paystack Ref: ${paymentResult.reference}`,
+      received_by_name: 'Paystack Gateway'
+    });
+    if (setContributions) {
+      setContributions(updated);
+    }
+    const freshMembers = getMembers();
+    setMembers(freshMembers);
+    const freshUser = freshMembers.find(m => m.id === currentUser?.id);
+    if (freshUser) {
+      setCurrentUser(freshUser);
+    }
+  };
 
   // Filter user's specific contributions
   const userContributions = contributions.filter(c => c.member_id === currentUser?.id);
@@ -123,9 +145,19 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           </p>
         </div>
 
-        <button onClick={exportCSV} className="btn btn-secondary" style={{ padding: '0.65rem 1.1rem', fontWeight: 600 }}>
-          <Download size={18} /> Export Full Record (CSV)
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => setIsPaystackOpen(true)} 
+            className="btn btn-primary"
+            style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: 'linear-gradient(135deg, #059669, #d97706)', border: 'none', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <CreditCard size={18} /> Pay Online (Paystack MoMo / Card)
+          </button>
+
+          <button onClick={exportCSV} className="btn btn-secondary" style={{ padding: '0.65rem 1.1rem', fontWeight: 600 }}>
+            <Download size={18} /> Export Full Record (CSV)
+          </button>
+        </div>
       </div>
 
       {/* 📢 EXECUTIVE ANNOUNCEMENTS & FELLOWSHIP NOTICEBOARD */}
@@ -860,29 +892,27 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               </div>
             </div>
 
-            {/* Bank Box */}
-            <div style={{ background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(217, 119, 6, 0.08))', padding: '1.5rem', borderRadius: '14px', border: '1px solid rgba(5, 150, 105, 0.3)' }}>
-              <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--primary-700)', fontWeight: 800, marginBottom: '0.4rem' }}>
-                🏦 Bank Transfer Channel
-              </div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                Fidelity Bank Ghana
-              </div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#059669', margin: '0.35rem 0', letterSpacing: '0.03em' }}>
-                Account No: 2090182444410
-              </div>
-              <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.2rem', lineHeight: 1.5 }}>
-                Account Name: <strong>ONUADO NA EYE MENS' FELLOWSHIP</strong><br />
-                Official Email: <strong>onuadonaeye@gmail.com</strong>
-              </div>
-
-              <div style={{ marginTop: '1.25rem', padding: '0.85rem', background: 'rgba(255, 255, 255, 0.6)', borderRadius: '8px', fontSize: '0.82rem', border: '1px solid rgba(5, 150, 105, 0.2)' }}>
-                <strong>💡 Payment Reference Format:</strong><br />
-                Please write your Member ID and Payment Purpose in the transfer reference:
-                <div style={{ fontFamily: 'monospace', fontSize: '0.88rem', fontWeight: 800, color: '#059669', marginTop: '0.3rem' }}>
-                  "{currentUser.excel_member_id || 'ONY-001'} {currentUser.full_name.split(' ')[0]} Dues"
+            {/* Paystack Online Checkout Box */}
+            <div style={{ background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.12), rgba(217, 119, 6, 0.12))', padding: '1.5rem', borderRadius: '14px', border: '2px solid #059669', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#059669', fontWeight: 800, marginBottom: '0.4rem' }}>
+                  ⚡ Paystack Instant Payment Gateway
+                </div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                  Pay via Mobile Money / Card
+                </div>
+                <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.5 }}>
+                  Instant receipt generation and automatic ledger logging for MTN MoMo, Telecel Cash, Visa & Mastercard.
                 </div>
               </div>
+
+              <button 
+                onClick={() => setIsPaystackOpen(true)} 
+                className="btn btn-primary"
+                style={{ marginTop: '1.25rem', padding: '0.8rem', fontWeight: 800, background: 'linear-gradient(135deg, #059669, #d97706)', border: 'none', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)', width: '100%', justifyContent: 'center' }}
+              >
+                <CreditCard size={18} /> Pay Online Now (GHS) →
+              </button>
             </div>
 
           </div>
@@ -927,6 +957,14 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           </div>
         </div>
       )}
+
+      {/* Paystack Online Payment Gateway Modal */}
+      <PaystackModal 
+        isOpen={isPaystackOpen}
+        onClose={() => setIsPaystackOpen(false)}
+        currentUser={currentUser}
+        onPaymentSuccess={handlePaystackSuccess}
+      />
 
     </div>
   );

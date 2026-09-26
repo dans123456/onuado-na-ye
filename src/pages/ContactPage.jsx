@@ -1,9 +1,25 @@
 import React, { useState } from 'react';
-import { Mail, CheckCircle2, Send, Clock, ShieldCheck, Video, Users } from 'lucide-react';
+import { Mail, CheckCircle2, Send, Clock, ShieldCheck, Video, Users, CreditCard } from 'lucide-react';
+import PaystackModal from '../components/PaystackModal';
+import { addContribution, getMembers } from '../services/store';
 
-export default function ContactPage({ setActivePage, currentUser }) {
+export default function ContactPage({ setActivePage, currentUser, setContributions, setMembers }) {
   const [submitted, setSubmitted] = useState(false);
+  const [isPaystackOpen, setIsPaystackOpen] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', message: '' });
+
+  const handlePaystackSuccess = (paymentResult) => {
+    const updated = addContribution({
+      member_id: currentUser?.id || 'm-001',
+      amount: paymentResult.amount,
+      contribution_type: paymentResult.contribution_type,
+      payment_method: 'Paystack (MoMo / Card)',
+      reference_note: `Paystack Ref: ${paymentResult.reference}`,
+      received_by_name: 'Paystack Gateway'
+    });
+    if (setContributions) setContributions(updated);
+    if (setMembers) setMembers(getMembers());
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -45,13 +61,22 @@ export default function ContactPage({ setActivePage, currentUser }) {
             <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1.1rem' }}>
               Official payment instructions (Fidelity Bank account details, MTN MoMo wallet, and Merchant Code) are securely located inside each member's personal <strong>Member Portal</strong> for privacy and transaction tracking.
             </p>
-            <button 
-              onClick={handlePortalRedirect}
-              className="btn btn-primary" 
-              style={{ padding: '0.65rem 1.25rem', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 700 }}
-            >
-              {currentUser ? 'Go to My Member Portal →' : 'Log Into Member Portal →'}
-            </button>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <button 
+                onClick={() => setIsPaystackOpen(true)}
+                className="btn btn-primary"
+                style={{ padding: '0.65rem 1.25rem', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 800, background: 'linear-gradient(135deg, #059669, #d97706)', border: 'none' }}
+              >
+                <CreditCard size={18} /> Pay via Paystack (MoMo / Card)
+              </button>
+              <button 
+                onClick={handlePortalRedirect}
+                className="btn btn-secondary" 
+                style={{ padding: '0.65rem 1.25rem', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 700 }}
+              >
+                {currentUser ? 'Go to My Member Portal →' : 'Log Into Member Portal →'}
+              </button>
+            </div>
           </div>
 
           {/* Fellowship Secretariat & Online Meeting Info */}
@@ -193,6 +218,13 @@ export default function ContactPage({ setActivePage, currentUser }) {
         </div>
 
       </div>
+
+      <PaystackModal 
+        isOpen={isPaystackOpen}
+        onClose={() => setIsPaystackOpen(false)}
+        currentUser={currentUser}
+        onPaymentSuccess={handlePaystackSuccess}
+      />
 
     </div>
   );
