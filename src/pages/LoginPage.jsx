@@ -24,18 +24,29 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
     e.preventDefault();
     setError('');
 
-    const cleanInput = phoneOrEmail.trim().toLowerCase();
-    if (!cleanInput) {
+    const rawInput = phoneOrEmail.trim().toLowerCase();
+    if (!rawInput) {
       setError('Please enter your registered Phone Number or Member ID.');
       return;
     }
 
-    // Match against phone, full name, or excel_member_id
-    const found = members.find(m => 
-      m.phone_number.includes(cleanInput) || 
-      m.full_name.toLowerCase().includes(cleanInput) ||
-      (m.excel_member_id && m.excel_member_id.toLowerCase() === cleanInput)
-    );
+    const cleanDigits = rawInput.replace(/\D/g, '');
+    const cleanId = rawInput.replace(/[^a-z0-9]/g, '');
+
+    // Match against phone, full name, or excel_member_id with flexible formatting
+    const found = members.find(m => {
+      const memberPhone = (m.phone_number || '').replace(/\D/g, '');
+      const memberPhone2 = (m.phone_number_2 || '').replace(/\D/g, '');
+      const memberIdClean = (m.excel_member_id || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const nameClean = (m.full_name || '').toLowerCase();
+
+      return (
+        (cleanDigits.length >= 3 && memberPhone.includes(cleanDigits)) ||
+        (cleanDigits.length >= 3 && memberPhone2.includes(cleanDigits)) ||
+        (cleanId && memberIdClean === cleanId) ||
+        nameClean.includes(rawInput)
+      );
+    });
 
     if (!found) {
       setError('No registered member record found. Please verify your phone number or Member ID (e.g. ONY-001).');
