@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { addContribution, bulkAddContributions, getAnnouncement, saveAnnouncement } from '../services/store';
+import { getMemberLevyDetails } from '../utils/levyData';
 
 export default function AdminPage({ currentUser, members, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'manual', 'roster', 'announcement'
@@ -732,6 +733,43 @@ export default function AdminPage({ currentUser, members, contributions, setCont
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div><strong>GH₵ {(selectedDossierMember.shares_value || 0).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Treasurer Bill</div><strong>GH₵ {(selectedDossierMember.treasurer_bill || 0).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Holding Total</div><strong style={{ color: '#8b5cf6', fontSize: '1rem' }}>GH₵ {(selectedDossierMember.shares_holding || 0).toFixed(2)}</strong></div>
+                </div>
+              </div>
+
+              {/* Category 5: Special Levies Breakdown */}
+              <div style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.08))', borderRadius: '16px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#2563eb', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Heart size={18} /> 5. Special Levies Breakdown (Extracted from SPECIAL LEVY Sheet)
+                </h3>
+                <div className="table-container">
+                  <table className="data-table" style={{ fontSize: '0.82rem' }}>
+                    <thead>
+                      <tr>
+                        <th>Levy Call-Up</th>
+                        <th>Person Raised For (Header Column)</th>
+                        <th>Standard Rate</th>
+                        <th>Member Paid</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {getMemberLevyDetails(selectedDossierMember).slice(0, 6).map(levy => (
+                        <tr key={levy.id}>
+                          <td style={{ fontWeight: 800, color: '#3b82f6' }}>{levy.number}</td>
+                          <td style={{ fontWeight: 800 }}>{levy.recipient}</td>
+                          <td>GH₵ {levy.amount.toFixed(2)}</td>
+                          <td style={{ fontWeight: 800, color: levy.amountPaid > 0 ? '#059669' : (levy.isExempt ? '#d97706' : 'var(--text-muted)') }}>
+                            GH₵ {levy.amountPaid.toFixed(2)}
+                          </td>
+                          <td>
+                            <span className={`badge ${levy.statusClass}`} style={{ fontSize: '0.7rem' }}>
+                              {levy.statusText}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 

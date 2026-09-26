@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock } from 'lucide-react';
 import { updateMemberProfile } from '../services/store';
+import { getMemberLevyDetails } from '../utils/levyData';
 
 export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('record'); // 'record', 'dues_matrix', 'levies_matrix', 'history'
@@ -44,6 +45,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const sharesHolding = currentUser?.shares_holding || 3863.42;
   const balanceOwed = currentUser?.balance_owed !== undefined ? currentUser.balance_owed : Math.max(0, duesFeeRequired - duesPaid);
   const netPayoutValue = Math.max(0, sharesHolding - balanceOwed);
+  const memberLevyList = getMemberLevyDetails(currentUser);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -686,47 +688,95 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
       {/* TAB 3: 1ST - 12TH LEVIES INSTALLMENT GRID */}
       {activeTab === 'levies_matrix' && (
         <div className="glass-card" style={{ padding: '2.25rem', borderRadius: '18px' }}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Heart size={22} /> 1st – 12th Levies Installment Ledger
-            </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Individual special welfare levy installments paid as recorded in Excel sheet.</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-            <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>1st LEVY</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.2rem' }}>GH₵ 200.00</div>
-            </div>
-            <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>2nd LEVY</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.2rem' }}>GH₵ 100.00</div>
-            </div>
-            <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>3rd LEVY</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.2rem' }}>GH₵ 200.00</div>
-            </div>
-            <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>4th LEVY</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.2rem' }}>GH₵ 200.00</div>
-            </div>
-            <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>5th LEVY</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.2rem' }}>GH₵ 200.00</div>
-            </div>
-            <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>6th LEVY</div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.2rem' }}>GH₵ 100.00</div>
-            </div>
-          </div>
-
-          <div style={{ padding: '1.5rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '14px', border: '1px solid rgba(59, 130, 246, 0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#3b82f6' }}>TOTAL LEVY BALANCE PAID</div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)', marginTop: '0.2rem' }}>GH₵ {levyPaid.toFixed(2)}</div>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Heart size={22} /> 1st – 12th Special Levies Schedule & Beneficiary Ledger
+              </h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>
+                Verified special levy contributions extracted strictly from Excel sheet <strong>SPECIAL LEVY</strong>.
+              </p>
             </div>
-            <span className="badge badge-dues" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Levies Status: Verified ✓</span>
+            <div style={{ padding: '0.75rem 1.25rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.3)', textAlign: 'right' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>Total Levies Paid</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)' }}>GH₵ {levyPaid.toFixed(2)}</div>
+            </div>
           </div>
+
+          {/* Quick Cards Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.1rem', marginBottom: '2.5rem' }}>
+            {memberLevyList.slice(0, 6).map((levy) => (
+              <div key={levy.id} style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: levy.isExempt ? '1.5px solid #d97706' : '1px solid var(--border-color)', position: 'relative' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#3b82f6', background: 'rgba(59, 130, 246, 0.12)', padding: '0.15rem 0.6rem', borderRadius: '6px' }}>
+                    {levy.number}
+                  </span>
+                  <span className={`badge ${levy.statusClass}`} style={{ fontSize: '0.72rem' }}>
+                    {levy.statusText}
+                  </span>
+                </div>
+
+                <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>
+                  Person Raised For
+                </div>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.75rem' }}>
+                  {levy.recipient}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.6rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.88rem' }}>
+                  <div>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>Rate</span>
+                    <strong>GH₵ {levy.amount.toFixed(2)}</strong>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>Your Payment</span>
+                    <strong style={{ color: levy.amountPaid > 0 ? '#059669' : (levy.isExempt ? '#d97706' : '#dc2626'), fontSize: '1.05rem' }}>
+                      GH₵ {levy.amountPaid.toFixed(2)}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Full Detailed Matrix Table (Levies 1 to 12) */}
+          <div className="table-container">
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--text-main)' }}>
+              Detailed 1st – 12th Levies Master Schedule
+            </h3>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Levy No</th>
+                  <th>Person Levy Raised For (Special Levy Header)</th>
+                  <th>Standard Rate</th>
+                  <th>Your Paid Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {memberLevyList.map((item) => (
+                  <tr key={item.id} style={{ background: item.isExempt ? 'rgba(217, 119, 6, 0.04)' : 'transparent' }}>
+                    <td style={{ fontWeight: 800, color: '#3b82f6' }}>{item.number}</td>
+                    <td style={{ fontWeight: 800 }}>
+                      {item.recipient}
+                      {item.isExempt && <span style={{ marginLeft: '0.4rem', fontSize: '0.75rem', color: '#d97706', fontWeight: 700 }}>(Beneficiary)</span>}
+                    </td>
+                    <td>GH₵ {item.amount.toFixed(2)}</td>
+                    <td style={{ fontWeight: 800, color: item.amountPaid > 0 ? '#059669' : (item.isExempt ? '#d97706' : 'var(--text-muted)') }}>
+                      GH₵ {item.amountPaid.toFixed(2)}
+                    </td>
+                    <td>
+                      <span className={`badge ${item.statusClass}`}>
+                        {item.statusText}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
         </div>
       )}
 
