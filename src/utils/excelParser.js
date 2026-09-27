@@ -233,29 +233,60 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
 
     const amountNum = parseNum(rawAmount);
 
-    let matrixSumDues = 0;
-    let matrixSumLevies = 0;
-    
-    // Sum numeric values in row if sheet is matrix-formatted
+    // Identify year or levy breakdown columns in header row
+    const headerRow = matrix[bestHeaderIdx] || [];
+    const yearColIndices = [];
+    const levyColIndices = [];
+    let totalColIdx = headerMap['total_payments'] !== undefined ? headerMap['total_payments'] : headerMap['dues_paid'];
+
+    headerRow.forEach((cell, cIdx) => {
+      if (cell === null || cell === undefined || cIdx === headerMap['name'] || cIdx === headerMap['id'] || cIdx === headerMap['phone']) return;
+      const str = String(cell).toLowerCase().trim();
+      
+      if (/\b(202[3-9]|203[0-3])\b/.test(str)) {
+        yearColIndices.push(cIdx);
+      } else if (sNameLower.includes('levy') && (str.includes('eld') || /\b(1st|2nd|3rd|4th|5th|6th|7th|8th|9th|10th|11th|12th)\b/.test(str)) && !str.includes('total')) {
+        levyColIndices.push(cIdx);
+      }
+    });
+
+    let calculatedDues = null;
+    let calculatedLevy = null;
+
     if (sNameLower.includes('dues')) {
-      row.forEach((c, cIdx) => {
-        // Exclude member no / phone / id column values
-        if (cIdx !== headerMap['id'] && cIdx !== headerMap['phone']) {
-          const val = parseNum(c);
-          if (val > 0 && val <= 3000) matrixSumDues += val;
-        }
-      });
+      if (yearColIndices.length > 0) {
+        let yearSum = 0;
+        yearColIndices.forEach(cIdx => {
+          if (row[cIdx] !== undefined && row[cIdx] !== null) {
+            const val = parseNum(row[cIdx]);
+            if (val > 0) yearSum += val;
+          }
+        });
+        calculatedDues = yearSum;
+      } else if (totalColIdx !== undefined && row[totalColIdx] !== undefined) {
+        calculatedDues = parseNum(row[totalColIdx]);
+      } else if (rawDues !== '') {
+        calculatedDues = parseNum(rawDues);
+      }
     } else if (sNameLower.includes('levy')) {
-      row.forEach((c, cIdx) => {
-        if (cIdx !== headerMap['id'] && cIdx !== headerMap['phone']) {
-          const val = parseNum(c);
-          if (val > 0 && val <= 1000) matrixSumLevies += val;
-        }
-      });
+      if (levyColIndices.length > 0) {
+        let levySum = 0;
+        levyColIndices.forEach(cIdx => {
+          if (row[cIdx] !== undefined && row[cIdx] !== null) {
+            const val = parseNum(row[cIdx]);
+            if (val > 0) levySum += val;
+          }
+        });
+        calculatedLevy = levySum;
+      } else if (totalColIdx !== undefined && row[totalColIdx] !== undefined) {
+        calculatedLevy = parseNum(row[totalColIdx]);
+      } else if (rawLevy !== '') {
+        calculatedLevy = parseNum(rawLevy);
+      }
     }
 
-    const excelDues = rawDues !== '' ? parseNum(rawDues) : (matrixSumDues > 0 ? matrixSumDues : null);
-    const excelLevy = rawLevy !== '' ? parseNum(rawLevy) : (matrixSumLevies > 0 ? matrixSumLevies : null);
+    const excelDues = calculatedDues !== null && calculatedDues > 0 ? calculatedDues : (rawDues !== '' ? parseNum(rawDues) : null);
+    const excelLevy = calculatedLevy !== null && calculatedLevy > 0 ? calculatedLevy : (rawLevy !== '' ? parseNum(rawLevy) : null);
     const excelTotal = rawTotal !== '' ? parseNum(rawTotal) : null;
 
     // Match against existing members by Phone, Member ID, or Name
