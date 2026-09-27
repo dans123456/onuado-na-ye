@@ -1214,7 +1214,7 @@ const INITIAL_CONTRIBUTIONS = [
   { id: "c-007", member_id: "m-024", amount: 3900, contribution_type: "Monthly Dues", payment_method: "Mobile Money", reference_note: "Dues Settlement", received_by_name: "Jonathan Danso Siaw", payment_date: "2026-01-20" }
 ];
 
-const SHARE_BASE_RATE = 50.58437298165138;
+const SHARE_BASE_RATE = 50.584373088685016;
 
 export const recalculateMemberFinancials = (member) => {
   if (!member) return member;
