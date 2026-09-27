@@ -22,7 +22,8 @@ export const normalizePhone = (phone) => {
 const IGNORED_SHEET_KEYWORDS = [
   'pictures', 'vehicle', 'pastors', 'elders', 'cash flow', 'trial balance',
   'disbursement', 'vouchers', 'trading', 'accounts', 'dashboard',
-  'fees', 'yearly dues fees', 'special levy fees'
+  'fees', 'yearly dues fees', 'special levy fees',
+  'shares', 'holding', 'holdings', 'dividend', 'devident', 'treasure bill', 'treasurer bill'
 ];
 
 /**
