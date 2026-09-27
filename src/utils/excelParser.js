@@ -170,16 +170,23 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
     row.forEach((cell, colIdx) => {
       if (cell === null || cell === undefined || cell === '') return;
       const cleanCell = String(cell).toLowerCase().replace(/[^a-z0-9]/g, '');
-      
+      const rawCellStr = String(cell).trim();
+
+      // Check keyword weights
       Object.keys(KEYWORD_WEIGHTS).forEach(keyType => {
         const keywords = KEYWORD_WEIGHTS[keyType];
         if (keywords.some(kw => cleanCell.includes(kw.replace(/[^a-z0-9]/g, '')))) {
           if (!currentMap[keyType]) {
             currentMap[keyType] = colIdx;
-            score++;
+            score += 2;
           }
         }
       });
+
+      // Extra score for primary matrix header indicators (year numbers 2023-2033, ELDER, NO., NAME, TOTAL)
+      if (/\b(202[3-9]|203[0-3])\b/.test(rawCellStr) || rawCellStr.includes('ELDER') || rawCellStr === 'NAME' || rawCellStr === 'NO.' || rawCellStr.includes('TOTAL')) {
+        score += 3;
+      }
     });
 
     if (score > maxScore) {
@@ -365,12 +372,13 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
           amount: finalAmount,
           contribution_type: finalType,
           payment_method: rawMethod.toLowerCase().includes('cash') ? 'Cash' : 'Mobile Money',
-          reference_note: `Yearly Dues Update [Sheet: ${sheetName || 'Main'}]`,
+          reference_note: `${finalType} Update [Sheet: ${sheetName || 'Main'}]`,
           payment_date: rawDate,
           changeDetected: changeDetected,
           excelDues: excelDues,
           excelLevy: excelLevy,
-          excelTotal: excelTotal
+          excelTotal: excelTotal,
+          action: changeDetected.diff < 0 ? 'deduct' : 'add'
         });
       }
     }

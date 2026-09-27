@@ -156,22 +156,37 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   const handleBulkImport = () => {
     if (!parseResult || parseResult.matched.length === 0) return;
 
+    const activeRecords = parseResult.matched.filter(item => {
+      const act = item.action || (item.changeDetected?.diff < 0 ? 'deduct' : 'add');
+      return act !== 'skip';
+    });
+
+    if (activeRecords.length === 0) {
+      alert("All records are currently set to 'Skip'. No changes will be applied.");
+      return;
+    }
+
     setLoadingTitle('Updating Member Information & Ledgers...');
     setLoadingSubtitle('Syncing member dues, outstanding balances, shares dividends, and grand total holdings...');
     setIsLoadingModalOpen(true);
 
     setTimeout(() => {
-      const entriesToInsert = parseResult.matched.map(item => ({
-        member_id: item.member_id,
-        amount: item.amount,
-        contribution_type: item.contribution_type,
-        payment_method: item.payment_method,
-        reference_note: item.reference_note + ` (Excel Row ${item.rowNum})`,
-        payment_date: item.payment_date,
-        received_by_name: currentUser?.full_name || 'Admin',
-        excelDues: item.excelDues,
-        excelLevy: item.excelLevy
-      }));
+      const entriesToInsert = activeRecords.map(item => {
+        const act = item.action || (item.changeDetected?.diff < 0 ? 'deduct' : 'add');
+        return {
+          member_id: item.member_id,
+          amount: item.amount,
+          action: act,
+          contribution_type: item.contribution_type,
+          payment_method: item.payment_method,
+          reference_note: (act === 'deduct' ? '[Deduction/Correction] ' : '') + item.reference_note + ` (Excel Row ${item.rowNum})`,
+          payment_date: item.payment_date,
+          received_by_name: currentUser?.full_name || 'Admin',
+          excelDues: item.excelDues,
+          excelLevy: item.excelLevy,
+          excelTotal: item.excelTotal
+        };
+      });
 
       const updated = bulkAddContributions(entriesToInsert);
       setContributions(updated);
@@ -180,7 +195,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         setMembers(getMembers());
       }
 
-      setImportSuccess(`Successfully imported ${entriesToInsert.length} member payment records & updated database ledgers!`);
+      setImportSuccess(`Successfully applied ${entriesToInsert.length} member payment updates & synced all ledgers!`);
       setParseResult(null);
       setIsLoadingModalOpen(false);
 
@@ -765,57 +780,134 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               )}
 
               {/* Matched Records & Detected Changes Preview Table */}
-              {parseResult.matched.length > 0 && (
-                <div className="table-container" style={{ marginBottom: '2rem' }}>
-                  <div style={{ padding: '0.75rem 1rem', background: 'rgba(5, 150, 105, 0.08)', fontWeight: 800, color: '#059669', borderBottom: '1px solid var(--border-color)', fontSize: '0.88rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>✅ Matched Member Records & Detected Dues Increases ({parseResult.matched.length})</span>
-                    <span style={{ fontSize: '0.75rem', opacity: 0.85 }}>Scanned Across All Sheets</span>
-                  </div>
-                  <table className="data-table">
+              {parseResult.matched.length > 0 && (() => {
+                const addCount = parseResult.matched.filter(i => (i.action || (i.changeDetected?.diff < 0 ? 'deduct' : 'add')) === 'add').length;
+                const deductCount = parseResult.matched.filter(i => (i.action || (i.changeDetected?.diff < 0 ? 'deduct' : 'add')) === 'deduct').length;
+                const skipCount = parseResult.matched.filter(i => (i.action || (i.changeDetected?.diff < 0 ? 'deduct' : 'add')) === 'skip').length;
+
+                return (
+                  <div className="table-container" style={{ marginBottom: '2rem' }}>
+                    <div style={{ padding: '0.75rem 1rem', background: 'rgba(5, 150, 105, 0.08)', fontWeight: 800, color: '#059669', borderBottom: '1px solid var(--border-color)', fontSize: '0.88rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <span>✅ Matched Records ({parseResult.matched.length})</span>
+                      <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem' }}>
+                        <span style={{ background: '#059669', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>+ {addCount} Add</span>
+                        <span style={{ background: '#dc2626', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>- {deductCount} Deduct</span>
+                        <span style={{ background: '#6b7280', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>⏸ {skipCount} Skip</span>
+                      </div>
+                    </div>
+                    <table className="data-table">
                     <thead>
                       <tr>
                         <th>Row & Sheet</th>
                         <th>Member Name & ID</th>
                         <th>Phone</th>
                         <th>Category</th>
-                        <th>Parsed Payment Amount</th>
-                        <th>Detected Dues / Payment Change</th>
+                        <th>Parsed Amount</th>
+                        <th>Detected Change</th>
+                        <th>Action Mode</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {parseResult.matched.map((item, index) => (
-                        <tr key={index} style={{ background: item.changeDetected?.hasChange ? 'rgba(16, 185, 129, 0.05)' : 'transparent' }}>
-                          <td style={{ fontWeight: 700 }}>
-                            <div>#{item.rowNum}</div>
-                            <span className="badge" style={{ fontSize: '0.68rem', background: 'rgba(217, 119, 6, 0.12)', color: '#d97706' }}>
-                              {item.sheetName || 'Main'}
-                            </span>
-                          </td>
-                          <td style={{ fontWeight: 800 }}>
-                            {item.member_name}
-                            <div style={{ fontSize: '0.75rem', color: 'var(--primary-600)', fontWeight: 700 }}>{item.excel_member_id}</div>
-                          </td>
-                          <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.phone_number}</td>
-                          <td><span className="badge badge-dues">{item.contribution_type}</span></td>
-                          <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ {parseFloat(item.amount).toFixed(2)}</td>
-                          <td>
-                            {item.changeDetected?.hasChange ? (
-                              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                <Sparkles size={14} color="#059669" />
-                                <span>{item.changeDetected.description}</span>
-                              </div>
-                            ) : (
-                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                {item.changeDetected?.description || 'Matches current store'}
+                      {parseResult.matched.map((item, index) => {
+                        const currentAction = item.action || (item.changeDetected?.diff < 0 ? 'deduct' : 'add');
+
+                        return (
+                          <tr key={index} style={{ background: currentAction === 'skip' ? 'rgba(0,0,0,0.02)' : (currentAction === 'deduct' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(16, 185, 129, 0.05)') }}>
+                            <td style={{ fontWeight: 700 }}>
+                              <div>#{item.rowNum}</div>
+                              <span className="badge" style={{ fontSize: '0.68rem', background: 'rgba(217, 119, 6, 0.12)', color: '#d97706' }}>
+                                {item.sheetName || 'Main'}
                               </span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td style={{ fontWeight: 800 }}>
+                              {item.member_name}
+                              <div style={{ fontSize: '0.75rem', color: 'var(--primary-600)', fontWeight: 700 }}>{item.excel_member_id}</div>
+                            </td>
+                            <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.phone_number}</td>
+                            <td><span className="badge badge-dues">{item.contribution_type}</span></td>
+                            <td style={{ fontWeight: 800, color: currentAction === 'deduct' ? '#dc2626' : '#059669' }}>
+                              GH₵ {parseFloat(item.amount).toFixed(2)}
+                            </td>
+                            <td>
+                              {item.changeDetected?.hasChange ? (
+                                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: currentAction === 'deduct' ? '#dc2626' : '#059669', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                  <Sparkles size={14} color={currentAction === 'deduct' ? '#dc2626' : '#059669'} />
+                                  <span>{item.changeDetected.description}</span>
+                                </div>
+                              ) : (
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                  {item.changeDetected?.description || 'Matches current store'}
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '0.3rem' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...parseResult.matched];
+                                    updated[index].action = 'add';
+                                    setParseResult({ ...parseResult, matched: updated });
+                                  }}
+                                  className="btn"
+                                  style={{
+                                    padding: '0.25rem 0.6rem',
+                                    fontSize: '0.72rem',
+                                    fontWeight: 800,
+                                    background: currentAction === 'add' ? '#059669' : 'var(--bg-main)',
+                                    color: currentAction === 'add' ? '#fff' : 'var(--text-muted)',
+                                    border: '1px solid #059669'
+                                  }}
+                                >
+                                  + Add
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...parseResult.matched];
+                                    updated[index].action = 'deduct';
+                                    setParseResult({ ...parseResult, matched: updated });
+                                  }}
+                                  className="btn"
+                                  style={{
+                                    padding: '0.25rem 0.6rem',
+                                    fontSize: '0.72rem',
+                                    fontWeight: 800,
+                                    background: currentAction === 'deduct' ? '#dc2626' : 'var(--bg-main)',
+                                    color: currentAction === 'deduct' ? '#fff' : 'var(--text-muted)',
+                                    border: '1px solid #dc2626'
+                                  }}
+                                >
+                                  - Deduct
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...parseResult.matched];
+                                    updated[index].action = 'skip';
+                                    setParseResult({ ...parseResult, matched: updated });
+                                  }}
+                                  className="btn"
+                                  style={{
+                                    padding: '0.25rem 0.6rem',
+                                    fontSize: '0.72rem',
+                                    fontWeight: 800,
+                                    background: currentAction === 'skip' ? '#6b7280' : 'var(--bg-main)',
+                                    color: currentAction === 'skip' ? '#fff' : 'var(--text-muted)',
+                                    border: '1px solid #6b7280'
+                                  }}
+                                >
+                                  Skip
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
-              )}
+              ); })()}
 
               {/* Unmatched Rows Section if any */}
               {parseResult.unmatched.length > 0 && (

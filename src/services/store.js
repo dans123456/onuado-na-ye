@@ -1306,11 +1306,13 @@ export const bulkAddContributions = (newContributionsList) => {
   const contributions = getContributions();
   const members = getMembers();
 
-  const formattedNew = newContributionsList.map((c, idx) => ({
-    id: 'c-bulk-' + Date.now() + '-' + idx,
-    payment_date: c.payment_date || new Date().toISOString().split('T')[0],
-    ...c
-  }));
+  const formattedNew = newContributionsList
+    .filter(c => c.action !== 'skip')
+    .map((c, idx) => ({
+      id: 'c-bulk-' + Date.now() + '-' + idx,
+      payment_date: c.payment_date || new Date().toISOString().split('T')[0],
+      ...c
+    }));
 
   const updatedContributions = [...formattedNew, ...contributions];
   localStorage.setItem('ony_contributions', JSON.stringify(updatedContributions));
@@ -1319,17 +1321,24 @@ export const bulkAddContributions = (newContributionsList) => {
     const memberIndex = members.findIndex(m => m.id === c.member_id);
     if (memberIndex !== -1) {
       const amountNum = parseFloat(c.amount) || 0;
+      const action = c.action || 'add';
 
-      if (c.excelDues !== null && c.excelDues !== undefined && c.excelDues > (members[memberIndex].dues_paid || 0)) {
-        members[memberIndex].dues_paid = c.excelDues;
-      } else if (c.contribution_type === 'Monthly Dues' || c.contribution_type === 'Yearly Dues') {
-        members[memberIndex].dues_paid = (members[memberIndex].dues_paid || 0) + amountNum;
-      }
-
-      if (c.excelLevy !== null && c.excelLevy !== undefined && c.excelLevy > (members[memberIndex].levy_paid || 0)) {
-        members[memberIndex].levy_paid = c.excelLevy;
+      if (c.contribution_type === 'Yearly Dues' || c.contribution_type === 'Monthly Dues') {
+        if (c.excelDues !== null && c.excelDues !== undefined) {
+          members[memberIndex].dues_paid = c.excelDues;
+        } else if (action === 'deduct') {
+          members[memberIndex].dues_paid = Math.max(0, (members[memberIndex].dues_paid || 0) - amountNum);
+        } else {
+          members[memberIndex].dues_paid = (members[memberIndex].dues_paid || 0) + amountNum;
+        }
       } else if (c.contribution_type === 'Special Levy') {
-        members[memberIndex].levy_paid = (members[memberIndex].levy_paid || 0) + amountNum;
+        if (c.excelLevy !== null && c.excelLevy !== undefined) {
+          members[memberIndex].levy_paid = c.excelLevy;
+        } else if (action === 'deduct') {
+          members[memberIndex].levy_paid = Math.max(0, (members[memberIndex].levy_paid || 0) - amountNum);
+        } else {
+          members[memberIndex].levy_paid = (members[memberIndex].levy_paid || 0) + amountNum;
+        }
       }
 
       recalculateMemberFinancials(members[memberIndex]);
