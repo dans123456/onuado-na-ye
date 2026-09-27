@@ -319,44 +319,48 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
       let finalType = rawType.toLowerCase().includes('levy') || sNameLower.includes('levy') ? 'Special Levy' : 'Yearly Dues';
       let changeDetected = null;
 
-      // Smart Change Detection: Detect both increases AND reductions/decreases
-      if (excelDues !== null && excelDues !== (member.dues_paid || 0)) {
-        const duesDiff = excelDues - (member.dues_paid || 0);
+      // Smart Change Detection: ONLY flag records that have actual edits/changes (>= 0.01 GHS difference)
+      const currentDuesPaid = parseFloat(member.dues_paid) || 0;
+      const currentLevyPaid = parseFloat(member.levy_paid) || 0;
+      const currentTotalPaid = parseFloat(member.total_payments) || 0;
+
+      if (excelDues !== null && Math.abs(excelDues - currentDuesPaid) >= 0.01) {
+        const duesDiff = excelDues - currentDuesPaid;
         finalAmount = Math.abs(duesDiff);
         finalType = 'Yearly Dues';
         const isIncrease = duesDiff > 0;
         changeDetected = {
           hasChange: true,
           field: 'Dues Paid',
-          oldVal: member.dues_paid || 0,
+          oldVal: currentDuesPaid,
           newVal: excelDues,
           diff: duesDiff,
-          description: `Sheet [${sheetName}]: Yearly Dues updated for ${member.full_name}: ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${(member.dues_paid || 0).toFixed(2)} → GH₵ ${excelDues.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${duesDiff.toFixed(2)})`
+          description: `Sheet [${sheetName}]: Yearly Dues updated for ${member.full_name}: ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${currentDuesPaid.toFixed(2)} → GH₵ ${excelDues.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${duesDiff.toFixed(2)})`
         };
-      } else if (excelLevy !== null && excelLevy !== (member.levy_paid || 0)) {
-        const levyDiff = excelLevy - (member.levy_paid || 0);
+      } else if (excelLevy !== null && Math.abs(excelLevy - currentLevyPaid) >= 0.01) {
+        const levyDiff = excelLevy - currentLevyPaid;
         finalAmount = Math.abs(levyDiff);
         finalType = 'Special Levy';
         const isIncrease = levyDiff > 0;
         changeDetected = {
           hasChange: true,
           field: 'Levy Paid',
-          oldVal: member.levy_paid || 0,
+          oldVal: currentLevyPaid,
           newVal: excelLevy,
           diff: levyDiff,
-          description: `Sheet [${sheetName}]: Special Levy updated for ${member.full_name}: ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${(member.levy_paid || 0).toFixed(2)} → GH₵ ${excelLevy.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${levyDiff.toFixed(2)})`
+          description: `Sheet [${sheetName}]: Special Levy updated for ${member.full_name}: ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${currentLevyPaid.toFixed(2)} → GH₵ ${excelLevy.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${levyDiff.toFixed(2)})`
         };
-      } else if (excelTotal !== null && excelTotal !== (member.total_payments || 0)) {
-        const totalDiff = excelTotal - (member.total_payments || 0);
+      } else if (excelTotal !== null && Math.abs(excelTotal - currentTotalPaid) >= 0.01) {
+        const totalDiff = excelTotal - currentTotalPaid;
         finalAmount = Math.abs(totalDiff);
         const isIncrease = totalDiff > 0;
         changeDetected = {
           hasChange: true,
           field: 'Total Payments',
-          oldVal: member.total_payments || 0,
+          oldVal: currentTotalPaid,
           newVal: excelTotal,
           diff: totalDiff,
-          description: `Sheet [${sheetName}]: Total payments ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${(member.total_payments || 0).toFixed(2)} → GH₵ ${excelTotal.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${totalDiff.toFixed(2)})`
+          description: `Sheet [${sheetName}]: Total payments ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${currentTotalPaid.toFixed(2)} → GH₵ ${excelTotal.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${totalDiff.toFixed(2)})`
         };
       }
 
