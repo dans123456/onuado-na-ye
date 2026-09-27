@@ -25,6 +25,7 @@ const IGNORED_SHEET_KEYWORDS = [
   'fees', 'yearly dues fees', 'special levy fees',
   'shares', 'holding', 'holdings', 'dividend', 'devident', 'treasure bill', 'treasurer bill',
   'monthly dues 20', 'monthly dues 2', 'chrck your levy balance', 'levy balance', 'levy account',
+  'chrck your dues balance', 'dues balance', 'dues account', 'dues trail',
   'levy trail', 'levy disbursement', 'momo', 'fidelity', 'petty cash', 'bank account', 'tema',
   'members list', 'registration forms', 'personal profile', 'personal record', 'records'
 ];
