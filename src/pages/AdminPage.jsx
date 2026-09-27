@@ -3,6 +3,7 @@ import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, 
 import { parseUploadedFile } from '../utils/excelParser';
 import { addContribution, bulkAddContributions, getMembers, getAnnouncement, saveAnnouncement } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
+import LoadingModal from '../components/LoadingModal';
 
 export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'roster', 'manual', 'announcement', 'treasury'
@@ -13,6 +14,11 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   const [parseResult, setParseResult] = useState(null);
   const [isParsing, setIsParsing] = useState(false);
   const [importSuccess, setImportSuccess] = useState('');
+
+  // Loading Modal State for Excel Upload / Import
+  const [isLoadingModalOpen, setIsLoadingModalOpen] = useState(false);
+  const [loadingTitle, setLoadingTitle] = useState('');
+  const [loadingSubtitle, setLoadingSubtitle] = useState('');
 
   // Announcement Ticker Logger State
   const [announcementText, setAnnouncementText] = useState(getAnnouncement());
@@ -130,42 +136,56 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
     setParseResult(null);
     setImportSuccess('');
 
+    setLoadingTitle('Scanning & Analyzing Excel File...');
+    setLoadingSubtitle('Cross-checking member yearly dues & special levy ledgers...');
+    setIsLoadingModalOpen(true);
+
     try {
       const result = await parseUploadedFile(file, members);
       setParseResult(result);
     } catch (err) {
       alert('Error parsing file: ' + err.message);
     } finally {
-      setIsParsing(false);
+      setTimeout(() => {
+        setIsParsing(false);
+        setIsLoadingModalOpen(false);
+      }, 600);
     }
   };
 
   const handleBulkImport = () => {
     if (!parseResult || parseResult.matched.length === 0) return;
 
-    const entriesToInsert = parseResult.matched.map(item => ({
-      member_id: item.member_id,
-      amount: item.amount,
-      contribution_type: item.contribution_type,
-      payment_method: item.payment_method,
-      reference_note: item.reference_note + ` (Excel Row ${item.rowNum})`,
-      payment_date: item.payment_date,
-      received_by_name: currentUser?.full_name || 'Admin',
-      excelDues: item.excelDues,
-      excelLevy: item.excelLevy
-    }));
+    setLoadingTitle('Updating Member Information & Ledgers...');
+    setLoadingSubtitle('Syncing member dues, outstanding balances, shares dividends, and grand total holdings...');
+    setIsLoadingModalOpen(true);
 
-    const updated = bulkAddContributions(entriesToInsert);
-    setContributions(updated);
+    setTimeout(() => {
+      const entriesToInsert = parseResult.matched.map(item => ({
+        member_id: item.member_id,
+        amount: item.amount,
+        contribution_type: item.contribution_type,
+        payment_method: item.payment_method,
+        reference_note: item.reference_note + ` (Excel Row ${item.rowNum})`,
+        payment_date: item.payment_date,
+        received_by_name: currentUser?.full_name || 'Admin',
+        excelDues: item.excelDues,
+        excelLevy: item.excelLevy
+      }));
 
-    if (setMembers) {
-      setMembers(getMembers());
-    }
+      const updated = bulkAddContributions(entriesToInsert);
+      setContributions(updated);
 
-    setImportSuccess(`Successfully imported ${entriesToInsert.length} member payment records & updated database ledgers!`);
-    setParseResult(null);
+      if (setMembers) {
+        setMembers(getMembers());
+      }
 
-    setTimeout(() => setImportSuccess(''), 5000);
+      setImportSuccess(`Successfully imported ${entriesToInsert.length} member payment records & updated database ledgers!`);
+      setParseResult(null);
+      setIsLoadingModalOpen(false);
+
+      setTimeout(() => setImportSuccess(''), 5000);
+    }, 1200);
   };
 
   const handleManualSubmit = (e) => {
@@ -1255,6 +1275,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           </div>
         </div>
       )}
+
+      {/* Loading Modal for Excel Upload / Parsing & Database Ledger Synchronization */}
+      <LoadingModal 
+        isOpen={isLoadingModalOpen} 
+        title={loadingTitle} 
+        subtitle={loadingSubtitle} 
+        type="excel" 
+      />
 
     </div>
   );

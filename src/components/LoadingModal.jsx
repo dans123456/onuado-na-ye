@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Lock, Sparkles, CreditCard, RefreshCw } from 'lucide-react';
+import { ShieldCheck, Lock, Sparkles, CreditCard, RefreshCw, FileSpreadsheet } from 'lucide-react';
 
 export default function LoadingModal({ isOpen, title = 'Loading...', subtitle = 'Processing your request...', type = 'member' }) {
   if (!isOpen) return null;
@@ -47,8 +47,9 @@ export default function LoadingModal({ isOpen, title = 'Loading...', subtitle = 
           {type === 'admin' && <Lock size={13} color="#d97706" />}
           {type === 'member' && <ShieldCheck size={13} color="#059669" />}
           {type === 'payment' && <CreditCard size={13} color="#2563eb" />}
+          {type === 'excel' && <FileSpreadsheet size={13} color="#059669" />}
           <span style={{ marginLeft: '0.3rem' }}>
-            {type === 'admin' ? 'Executive Encryption Active' : type === 'payment' ? 'Secured Gateway Connection' : 'Authenticating Member Token'}
+            {type === 'admin' ? 'Executive Encryption Active' : type === 'payment' ? 'Secured Gateway Connection' : type === 'excel' ? 'Excel Ledger Synchronization Active' : 'Authenticating Member Token'}
           </span>
         </div>
       </div>
