@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
@@ -819,14 +819,17 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                         <th>Member Name & ID</th>
                         <th>Phone</th>
                         <th>Category</th>
-                        <th>Parsed Amount</th>
-                        <th>Detected Change</th>
+                        <th>Financial Impact (Before → After)</th>
                         <th>Action Mode</th>
                       </tr>
                     </thead>
                     <tbody>
                       {parseResult.matched.map((item, index) => {
                         const currentAction = item.action || (item.changeDetected?.diff < 0 ? 'deduct' : 'add');
+                        const oldVal = item.changeDetected?.oldVal ?? 0;
+                        const newVal = item.changeDetected?.newVal ?? item.amount;
+                        const diffVal = item.changeDetected?.diff ?? (newVal - oldVal);
+                        const absDiff = Math.abs(diffVal);
 
                         return (
                           <tr key={index} style={{ background: currentAction === 'skip' ? 'rgba(0,0,0,0.02)' : (currentAction === 'deduct' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(16, 185, 129, 0.05)') }}>
@@ -842,20 +845,34 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                             </td>
                             <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.phone_number}</td>
                             <td><span className="badge badge-dues">{item.contribution_type}</span></td>
-                            <td style={{ fontWeight: 800, color: currentAction === 'deduct' ? '#dc2626' : '#059669' }}>
-                              GH₵ {parseFloat(item.amount).toFixed(2)}
-                            </td>
                             <td>
-                              {item.changeDetected?.hasChange ? (
-                                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: currentAction === 'deduct' ? '#dc2626' : '#059669', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                  <Sparkles size={14} color={currentAction === 'deduct' ? '#dc2626' : '#059669'} />
-                                  <span>{item.changeDetected.description}</span>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                <div style={{ fontSize: '0.85rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                  <span style={{ color: 'var(--text-muted)' }}>GH₵ {oldVal.toFixed(2)}</span>
+                                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>→</span>
+                                  <strong style={{ color: currentAction === 'skip' ? 'var(--text-muted)' : (currentAction === 'deduct' ? '#dc2626' : '#059669') }}>
+                                    GH₵ {currentAction === 'skip' ? oldVal.toFixed(2) : newVal.toFixed(2)}
+                                  </strong>
                                 </div>
-                              ) : (
-                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                  {item.changeDetected?.description || 'Matches current store'}
-                                </span>
-                              )}
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                  {currentAction === 'add' && (
+                                    <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.15)', color: '#059669', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                                      <TrendingUp size={12} /> +GH₵ {absDiff.toFixed(2)} Addition
+                                    </span>
+                                  )}
+                                  {currentAction === 'deduct' && (
+                                    <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(220, 38, 38, 0.15)', color: '#dc2626', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                                      <TrendingDown size={12} /> -GH₵ {absDiff.toFixed(2)} Deduction
+                                    </span>
+                                  )}
+                                  {currentAction === 'skip' && (
+                                    <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(107, 114, 128, 0.15)', color: '#6b7280', fontWeight: 800 }}>
+                                      ⏸ Paused / Skipped
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </td>
                             <td>
                               <div style={{ display: 'flex', gap: '0.3rem' }}>
