@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
-import { addContribution, bulkAddContributions, getMembers, getAnnouncement, saveAnnouncement } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import LoadingModal from '../components/LoadingModal';
 
@@ -321,8 +321,25 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
       {/* 📊 EXCEL MASTER FINANCIAL TOTALS (SHARES TOTAL, TREASURER BILL TOTAL, GRAND AMOUNT) */}
       <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(37, 99, 235, 0.05))', border: '2px solid rgba(220, 38, 38, 0.3)' }}>
-        <div style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: '#dc2626', marginBottom: '1rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Sparkles size={16} /> Fellowship Master Financial Totals (Excel Sync)
+        <div style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: '#dc2626', marginBottom: '1rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Sparkles size={16} /> Fellowship Master Financial Totals (Excel Sync)
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm("Reset all member ledgers back to the exact Excel Master Baseline (GH₵ 66,564.36 Shares / GH₵ 77,067.06 Grand Total)?")) {
+                const resetList = resetMembersToBaseline();
+                if (setMembers) setMembers(resetList);
+                setImportSuccess("Ledgers successfully reset to exact Excel Master Baseline!");
+                setTimeout(() => setImportSuccess(''), 4000);
+              }
+            }}
+            className="btn"
+            style={{ fontSize: '0.72rem', padding: '0.3rem 0.75rem', fontWeight: 800, background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.35)', cursor: 'pointer' }}
+          >
+            <RefreshCw size={12} /> Reset to Excel Baseline
+          </button>
         </div>
 
         {(() => {

@@ -1297,7 +1297,25 @@ export const getMembers = () => {
       memberList = INITIAL_MEMBERS;
     }
   }
-  return memberList.map(m => recalculateMemberFinancials(m));
+
+  memberList = memberList.map(m => {
+    const initMatch = INITIAL_MEMBERS.find(initM => initM.id === m.id || initM.excel_member_id === m.excel_member_id);
+    if (initMatch) {
+      if (m.base_dues_paid === undefined) m.base_dues_paid = initMatch.base_dues_paid || initMatch.dues_paid;
+      if (m.base_shares_value === undefined) m.base_shares_value = initMatch.base_shares_value || initMatch.shares_value;
+    }
+    return recalculateMemberFinancials(m);
+  });
+
+  return memberList;
+};
+
+export const resetMembersToBaseline = () => {
+  localStorage.removeItem('ony_members');
+  localStorage.removeItem('ony_contributions');
+  const fresh = INITIAL_MEMBERS.map(m => recalculateMemberFinancials(m));
+  localStorage.setItem('ony_members', JSON.stringify(fresh));
+  return fresh;
 };
 
 export const saveMembers = (members) => {
