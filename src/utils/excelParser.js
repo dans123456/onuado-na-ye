@@ -21,9 +21,12 @@ export const normalizePhone = (phone) => {
  */
 const IGNORED_SHEET_KEYWORDS = [
   'pictures', 'vehicle', 'pastors', 'elders', 'cash flow', 'trial balance',
-  'disbursement', 'vouchers', 'trading', 'accounts', 'dashboard',
+  'disbursement', 'disbursment', 'vouchers', 'trading', 'accounts', 'dashboard',
   'fees', 'yearly dues fees', 'special levy fees',
-  'shares', 'holding', 'holdings', 'dividend', 'devident', 'treasure bill', 'treasurer bill'
+  'shares', 'holding', 'holdings', 'dividend', 'devident', 'treasure bill', 'treasurer bill',
+  'monthly dues 20', 'monthly dues 2', 'chrck your levy balance', 'levy balance', 'levy account',
+  'levy trail', 'levy disbursement', 'momo', 'fidelity', 'petty cash', 'bank account', 'tema',
+  'members list', 'registration forms', 'personal profile', 'personal record', 'records'
 ];
 
 /**
