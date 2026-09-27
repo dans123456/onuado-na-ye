@@ -309,41 +309,44 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
       let finalType = rawType.toLowerCase().includes('levy') || sNameLower.includes('levy') ? 'Special Levy' : 'Yearly Dues';
       let changeDetected = null;
 
-      // Smart Change Detection: Only trigger if there is an ACTUAL INCREASE over current database values
-      if (excelDues !== null && excelDues > (member.dues_paid || 0)) {
+      // Smart Change Detection: Detect both increases AND reductions/decreases
+      if (excelDues !== null && excelDues !== (member.dues_paid || 0)) {
         const duesDiff = excelDues - (member.dues_paid || 0);
-        finalAmount = duesDiff;
+        finalAmount = Math.abs(duesDiff);
         finalType = 'Yearly Dues';
+        const isIncrease = duesDiff > 0;
         changeDetected = {
           hasChange: true,
           field: 'Dues Paid',
           oldVal: member.dues_paid || 0,
           newVal: excelDues,
           diff: duesDiff,
-          description: `Sheet [${sheetName}]: Yearly Dues updated for ${member.full_name}: increased from GH₵ ${(member.dues_paid || 0).toFixed(2)} → GH₵ ${excelDues.toFixed(2)} (+GH₵ ${duesDiff.toFixed(2)})`
+          description: `Sheet [${sheetName}]: Yearly Dues updated for ${member.full_name}: ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${(member.dues_paid || 0).toFixed(2)} → GH₵ ${excelDues.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${duesDiff.toFixed(2)})`
         };
-      } else if (excelLevy !== null && excelLevy > (member.levy_paid || 0)) {
+      } else if (excelLevy !== null && excelLevy !== (member.levy_paid || 0)) {
         const levyDiff = excelLevy - (member.levy_paid || 0);
-        finalAmount = levyDiff;
+        finalAmount = Math.abs(levyDiff);
         finalType = 'Special Levy';
+        const isIncrease = levyDiff > 0;
         changeDetected = {
           hasChange: true,
           field: 'Levy Paid',
           oldVal: member.levy_paid || 0,
           newVal: excelLevy,
           diff: levyDiff,
-          description: `Sheet [${sheetName}]: Special Levy updated for ${member.full_name}: increased from GH₵ ${(member.levy_paid || 0).toFixed(2)} → GH₵ ${excelLevy.toFixed(2)} (+GH₵ ${levyDiff.toFixed(2)})`
+          description: `Sheet [${sheetName}]: Special Levy updated for ${member.full_name}: ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${(member.levy_paid || 0).toFixed(2)} → GH₵ ${excelLevy.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${levyDiff.toFixed(2)})`
         };
-      } else if (excelTotal !== null && excelTotal > (member.total_payments || 0)) {
+      } else if (excelTotal !== null && excelTotal !== (member.total_payments || 0)) {
         const totalDiff = excelTotal - (member.total_payments || 0);
-        finalAmount = totalDiff;
+        finalAmount = Math.abs(totalDiff);
+        const isIncrease = totalDiff > 0;
         changeDetected = {
           hasChange: true,
           field: 'Total Payments',
           oldVal: member.total_payments || 0,
           newVal: excelTotal,
           diff: totalDiff,
-          description: `Sheet [${sheetName}]: Total payments increased from GH₵ ${(member.total_payments || 0).toFixed(2)} → GH₵ ${excelTotal.toFixed(2)} (+GH₵ ${totalDiff.toFixed(2)})`
+          description: `Sheet [${sheetName}]: Total payments ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${(member.total_payments || 0).toFixed(2)} → GH₵ ${excelTotal.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${totalDiff.toFixed(2)})`
         };
       }
 
