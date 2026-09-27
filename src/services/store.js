@@ -1214,21 +1214,42 @@ const INITIAL_CONTRIBUTIONS = [
   { id: "c-007", member_id: "m-024", amount: 3900, contribution_type: "Monthly Dues", payment_method: "Mobile Money", reference_note: "Dues Settlement", received_by_name: "Jonathan Danso Siaw", payment_date: "2026-01-20" }
 ];
 
+const SHARE_BASE_RATE = 50.58437298165138;
+
+export const recalculateMemberFinancials = (member) => {
+  if (!member) return member;
+  const duesPaid = parseFloat(member.dues_paid) || 0;
+  const levyPaid = parseFloat(member.levy_paid) || 0;
+  const regFees = parseFloat(member.reg_fees) || 200;
+  const duesFeeRequired = parseFloat(member.dues_fee_required) || 3900;
+  
+  member.total_payments = regFees + duesPaid + levyPaid;
+  member.balance_owed = Math.max(0, duesFeeRequired - duesPaid);
+  
+  const sharesDividends = Math.floor(duesPaid / 50);
+  member.shares_dividends = sharesDividends;
+  member.shares_value = sharesDividends * SHARE_BASE_RATE;
+  member.shares_holding = member.shares_value + (parseFloat(member.treasurer_bill) || 0);
+  
+  return member;
+};
+
 export const getMembers = () => {
   const stored = localStorage.getItem('ony_members');
-  if (!stored) {
-    localStorage.setItem('ony_members', JSON.stringify(INITIAL_MEMBERS));
-    return INITIAL_MEMBERS;
+  let memberList = INITIAL_MEMBERS;
+  if (stored) {
+    try {
+      memberList = JSON.parse(stored);
+    } catch (e) {
+      memberList = INITIAL_MEMBERS;
+    }
   }
-  try {
-    return JSON.parse(stored);
-  } catch (e) {
-    return INITIAL_MEMBERS;
-  }
+  return memberList.map(m => recalculateMemberFinancials(m));
 };
 
 export const saveMembers = (members) => {
-  localStorage.setItem('ony_members', JSON.stringify(members));
+  const updatedList = members.map(m => recalculateMemberFinancials(m));
+  localStorage.setItem('ony_members', JSON.stringify(updatedList));
 };
 
 export const updateMemberProfile = (memberId, updatedFields) => {
@@ -1274,8 +1295,7 @@ export const addContribution = (contribution) => {
     } else if (contribution.contribution_type === 'Special Levy') {
       members[memberIndex].levy_paid = (members[memberIndex].levy_paid || 0) + amountNum;
     }
-    members[memberIndex].total_payments = (members[memberIndex].total_payments || 0) + amountNum;
-    members[memberIndex].balance_owed = Math.max(0, (members[memberIndex].dues_fee_required || 3900) - members[memberIndex].dues_paid);
+    recalculateMemberFinancials(members[memberIndex]);
     saveMembers(members);
   }
 
@@ -1312,8 +1332,7 @@ export const bulkAddContributions = (newContributionsList) => {
         members[memberIndex].levy_paid = (members[memberIndex].levy_paid || 0) + amountNum;
       }
 
-      members[memberIndex].total_payments = (members[memberIndex].reg_fees || 200) + (members[memberIndex].dues_paid || 0) + (members[memberIndex].levy_paid || 0);
-      members[memberIndex].balance_owed = Math.max(0, (members[memberIndex].dues_fee_required || 3900) - members[memberIndex].dues_paid);
+      recalculateMemberFinancials(members[memberIndex]);
     }
   });
 
