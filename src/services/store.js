@@ -1492,6 +1492,104 @@ export const updateMemberPin = (memberId, newPin) => {
   return null;
 };
 
+const INITIAL_KEYIN_HISTORY = [
+  {
+    id: 'kh-init-01',
+    timestamp: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+    paymentDate: '2026-09-25',
+    memberId: 'm-001',
+    memberNo: 1,
+    excelMemberId: 'ONY-001',
+    memberName: 'Alex Ackah',
+    branch: 'Takoradi',
+    profilePicture: '/members/ony-001.png',
+    entryType: 'Yearly Dues Key-In',
+    oldDues: 2500,
+    newDues: 3000,
+    delta: 500,
+    amount: 500,
+    action: 'add',
+    paymentMethod: 'Mobile Money',
+    referenceNote: 'Verified 2026 Yearly Dues Top-up at Executive Meeting',
+    recordedBy: 'Moses Oduro (President)',
+    oldShares: 2529.04,
+    newShares: 3034.85,
+    oldGrandTotal: 2531.19,
+    newGrandTotal: 3036.99
+  },
+  {
+    id: 'kh-init-02',
+    timestamp: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+    paymentDate: '2026-09-26',
+    memberId: 'm-002',
+    memberNo: 2,
+    excelMemberId: 'ONY-002',
+    memberName: 'Danso Kingsley',
+    branch: 'Mampong',
+    profilePicture: '/members/ony-002.png',
+    entryType: 'Yearly Dues Key-In',
+    oldDues: 3000,
+    newDues: 3500,
+    delta: 500,
+    amount: 500,
+    action: 'add',
+    paymentMethod: 'Cash',
+    referenceNote: 'Dues installment payment recorded at Mampong branch',
+    recordedBy: 'Jonathan Danso Siaw (Secretary)',
+    oldShares: 3034.85,
+    newShares: 3540.66,
+    oldGrandTotal: 3036.99,
+    newGrandTotal: 3542.80
+  },
+  {
+    id: 'kh-init-03',
+    timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
+    paymentDate: '2026-09-28',
+    memberId: 'm-018',
+    memberNo: 18,
+    excelMemberId: 'ONY-018',
+    memberName: 'Moses Oduro',
+    branch: 'Noyem',
+    profilePicture: '/members/ony-018.png',
+    entryType: 'Yearly Dues Key-In',
+    oldDues: 3300,
+    newDues: 3900,
+    delta: 600,
+    amount: 600,
+    action: 'add',
+    paymentMethod: 'Fidelity Bank',
+    referenceNote: 'Final 2026 Dues clearance paid into Fidelity Bank account',
+    recordedBy: 'Executive Admin Console',
+    oldShares: 3338.33,
+    newShares: 3945.30,
+    oldGrandTotal: 3340.48,
+    newGrandTotal: 3947.45
+  }
+];
+
+export const getKeyInHistory = () => {
+  const stored = localStorage.getItem('ony_keyin_history');
+  if (!stored) {
+    localStorage.setItem('ony_keyin_history', JSON.stringify(INITIAL_KEYIN_HISTORY));
+    return INITIAL_KEYIN_HISTORY;
+  }
+  try {
+    return JSON.parse(stored);
+  } catch (e) {
+    return INITIAL_KEYIN_HISTORY;
+  }
+};
+
+export const saveKeyInHistory = (historyList) => {
+  localStorage.setItem('ony_keyin_history', JSON.stringify(historyList));
+  return historyList;
+};
+
+export const clearKeyInHistory = () => {
+  localStorage.removeItem('ony_keyin_history');
+  return [];
+};
+
 export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMethod = 'Cash', referenceNote = '', paymentDate = '', receivedByName = 'Executive Admin' }) => {
   const members = getMembers();
   const memberIndex = members.findIndex(m => m.id === memberId || m.excel_member_id === memberId);
@@ -1503,6 +1601,8 @@ export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMetho
   const oldDues = parseFloat(member.dues_paid) || 0;
   const targetDues = Math.max(0, parseFloat(newDuesAmount) || 0);
   const delta = targetDues - oldDues;
+  const oldShares = parseFloat(member.shares_value) || 0;
+  const oldGrandTotal = parseFloat(member.shares_holding) || 0;
 
   member.dues_paid = targetDues;
   recalculateMemberFinancials(member);
@@ -1519,12 +1619,42 @@ export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMetho
       action: delta >= 0 ? 'add' : 'deduct',
       contribution_type: 'Yearly Dues',
       payment_method: paymentMethod || 'Cash',
-      reference_note: referenceNote || (delta > 0 ? `Direct Key-In Dues Top-up (+GH₵ ${delta.toFixed(2)})` : `Direct Key-In Dues Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`),
+      referenceNote: referenceNote || (delta > 0 ? `Direct Key-In Dues Top-up (+GH₵ ${delta.toFixed(2)})` : `Direct Key-In Dues Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`),
       payment_date: paymentDate || new Date().toISOString().split('T')[0],
       received_by_name: receivedByName
     };
     updatedContributions = [newContrib, ...updatedContributions];
     localStorage.setItem('ony_contributions', JSON.stringify(updatedContributions));
+
+    // Log in Key-In Audit History Feed
+    const historyEntry = {
+      id: 'kh-' + Date.now(),
+      timestamp: new Date().toISOString(),
+      paymentDate: paymentDate || new Date().toISOString().split('T')[0],
+      memberId: member.id,
+      memberNo: member.member_no,
+      excelMemberId: member.excel_member_id,
+      memberName: member.full_name,
+      branch: member.branch,
+      profilePicture: member.profile_picture,
+      entryType: 'Yearly Dues Key-In',
+      oldDues: oldDues,
+      newDues: targetDues,
+      delta: delta,
+      amount: Math.abs(delta),
+      action: delta >= 0 ? 'add' : 'deduct',
+      paymentMethod: paymentMethod || 'Cash',
+      referenceNote: referenceNote || (delta > 0 ? `Direct Key-In Dues Top-up (+GH₵ ${delta.toFixed(2)})` : `Direct Key-In Dues Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`),
+      recordedBy: receivedByName || 'Executive Admin',
+      oldShares: oldShares,
+      newShares: member.shares_value,
+      oldGrandTotal: oldGrandTotal,
+      newGrandTotal: member.shares_holding
+    };
+
+    const existingHistory = getKeyInHistory();
+    const updatedHistory = [historyEntry, ...existingHistory];
+    saveKeyInHistory(updatedHistory);
   }
 
   return {

@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, calculateDuesImpact } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, calculateDuesImpact, getKeyInHistory } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import LoadingModal from '../components/LoadingModal';
 
 export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
-  const [activeTab, setActiveTab] = useState('roster'); // 'roster', 'manual', 'announcement', 'treasury'
+  const [activeTab, setActiveTab] = useState('roster'); // 'roster', 'history', 'manual', 'announcement', 'treasury'
   const [showAllBranches, setShowAllBranches] = useState(false);
+
+  // Key-In Audit History State
+  const [keyInHistory, setKeyInHistory] = useState(() => getKeyInHistory());
+  const [historySearch, setHistorySearch] = useState('');
+  const [historyFilter, setHistoryFilter] = useState('all'); // 'all', 'add', 'deduct', 'momo', 'cash', 'bank'
 
   // Direct Key-In Member Dues Editor State
   const [isDuesEditorOpen, setIsDuesEditorOpen] = useState(false);
@@ -68,6 +73,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       if (setContributions) {
         setContributions(result.updatedContributions);
       }
+      setKeyInHistory(getKeyInHistory());
 
       const diffLabel = result.delta >= 0 ? `+GH₵ ${result.delta.toFixed(2)}` : `-GH₵ ${Math.abs(result.delta).toFixed(2)}`;
       setImportSuccess(`✅ Successfully updated ${result.affectedMember.full_name}'s Yearly Dues to GH₵ ${result.newDues.toFixed(2)} (${diffLabel})! All Shares, Dividends, and Fellowship Grand Totals recalculated live.`);
@@ -177,6 +183,74 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
     (m.excel_member_id && m.excel_member_id.toLowerCase().includes(rosterSearch.toLowerCase())) ||
     (m.branch && m.branch.toLowerCase().includes(rosterSearch.toLowerCase()))
   );
+
+  // Filtered Key-In Audit History
+  const filteredHistory = keyInHistory.filter(item => {
+    const matchesSearch = 
+      (item.memberName && item.memberName.toLowerCase().includes(historySearch.toLowerCase())) ||
+      (item.excelMemberId && item.excelMemberId.toLowerCase().includes(historySearch.toLowerCase())) ||
+      (item.branch && item.branch.toLowerCase().includes(historySearch.toLowerCase())) ||
+      (item.paymentMethod && item.paymentMethod.toLowerCase().includes(historySearch.toLowerCase())) ||
+      (item.referenceNote && item.referenceNote.toLowerCase().includes(historySearch.toLowerCase())) ||
+      (item.recordedBy && item.recordedBy.toLowerCase().includes(historySearch.toLowerCase()));
+
+    if (!matchesSearch) return false;
+
+    if (historyFilter === 'add') return item.action === 'add' || item.delta > 0;
+    if (historyFilter === 'deduct') return item.action === 'deduct' || item.delta < 0;
+    if (historyFilter === 'momo') return item.paymentMethod?.toLowerCase().includes('momo') || item.paymentMethod?.toLowerCase().includes('mobile money');
+    if (historyFilter === 'cash') return item.paymentMethod?.toLowerCase().includes('cash');
+    if (historyFilter === 'bank') return item.paymentMethod?.toLowerCase().includes('bank') || item.paymentMethod?.toLowerCase().includes('fidelity');
+
+    return true;
+  });
+
+  const handleExportHistoryCSV = () => {
+    const headers = [
+      'Entry ID',
+      'Date & Time',
+      'Member Name',
+      'Member ID',
+      'Branch',
+      'Entry Type',
+      'Payment Method',
+      'Dues Before (GHc)',
+      'Dues After (GHc)',
+      'Delta Amount (GHc)',
+      'Action',
+      'Shares Value After (GHc)',
+      'Grand Total After (GHc)',
+      'Recorded By',
+      'Reference Note'
+    ];
+
+    const rows = filteredHistory.map(h => [
+      `"${h.id}"`,
+      `"${h.paymentDate || h.timestamp}"`,
+      `"${h.memberName}"`,
+      `"${h.excelMemberId || ''}"`,
+      `"${h.branch || ''}"`,
+      `"${h.entryType || 'Yearly Dues Key-In'}"`,
+      `"${h.paymentMethod || 'Cash'}"`,
+      h.oldDues ?? 0,
+      h.newDues ?? 0,
+      h.amount ?? Math.abs(h.delta || 0),
+      `"${h.action || (h.delta >= 0 ? 'add' : 'deduct')}"`,
+      h.newShares ?? 0,
+      h.newGrandTotal ?? 0,
+      `"${h.recordedBy || 'Executive Admin'}"`,
+      `"${(h.referenceNote || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `ONUADO_NA_EYE_KeyIn_History_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Drag and drop handlers
   const handleDrag = (e) => {
@@ -489,6 +563,13 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             <Users size={16} /> Member Master Roster ({members.length})
           </button>
           <button 
+            onClick={() => setActiveTab('history')} 
+            className={`btn ${activeTab === 'history' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <History size={16} color="#2563eb" /> Key-In Entry History ({keyInHistory.length})
+          </button>
+          <button 
             onClick={() => setActiveTab('manual')} 
             className={`btn ${activeTab === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
@@ -788,6 +869,294 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       )}
 
 
+
+      {/* TAB 1: DIRECT KEY-IN AUDIT HISTORY & ENTRY LOG */}
+      {activeTab === 'history' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          {/* Header Card */}
+          <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                  <span className="badge" style={{ background: 'rgba(37, 99, 235, 0.15)', color: '#2563eb', fontWeight: 800 }}>
+                    <History size={13} /> Official Audit Trail
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Real-Time System Log</span>
+                </div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary-700)', margin: 0 }}>
+                  Key-In Entries & Financial Modification History
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
+                  Complete record of all member dues keyed in, top-ups logged, adjustments recorded, and live shares recalculations.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <button 
+                  onClick={handleExportHistoryCSV}
+                  className="btn btn-accent" 
+                  style={{ padding: '0.6rem 1.1rem', fontSize: '0.85rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                >
+                  <Download size={15} /> Export History (.CSV)
+                </button>
+                <button 
+                  onClick={() => {
+                    setEditorMemberId(members[0]?.id || '');
+                    setEditorMode('add');
+                    setEditorAmount('');
+                    setEditorError('');
+                    setIsDuesEditorOpen(true);
+                  }}
+                  className="btn btn-primary" 
+                  style={{ padding: '0.6rem 1.15rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  <Zap size={15} /> ⚡ Key In New Dues
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Metrics */}
+            {(() => {
+              const totalAdditions = keyInHistory
+                .filter(item => item.delta > 0)
+                .reduce((sum, item) => sum + (parseFloat(item.delta) || 0), 0);
+              const uniqueMembersCount = new Set(keyInHistory.map(item => item.memberId || item.excelMemberId)).size;
+
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+                  <div style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Entries Logged</div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2563eb', marginTop: '0.2rem' }}>{keyInHistory.length} Entries</div>
+                  </div>
+
+                  <div style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Dues Top-Ups Keyed In</div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#059669', marginTop: '0.2rem' }}>GH₵ {totalAdditions.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  </div>
+
+                  <div style={{ padding: '1rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Unique Members Modified</div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#d97706', marginTop: '0.2rem' }}>{uniqueMembersCount} Members</div>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Search, Filter Pills & Table Container */}
+          <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+              
+              {/* Search Bar */}
+              <div style={{ position: 'relative', minWidth: '260px', flex: 1, maxWidth: '400px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Search member, ID, note, officer, method..."
+                  className="form-input"
+                  style={{ paddingLeft: '2.2rem', width: '100%' }}
+                  value={historySearch}
+                  onChange={(e) => setHistorySearch(e.target.value)}
+                />
+                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              </div>
+
+              {/* Filter Pills */}
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                {[
+                  { id: 'all', label: 'All Entries' },
+                  { id: 'add', label: '+ Additions' },
+                  { id: 'deduct', label: '- Deductions' },
+                  { id: 'momo', label: 'MTN MoMo' },
+                  { id: 'cash', label: 'Cash' },
+                  { id: 'bank', label: 'Fidelity Bank' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setHistoryFilter(tab.id)}
+                    style={{
+                      padding: '0.4rem 0.75rem',
+                      borderRadius: '20px',
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      border: historyFilter === tab.id ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                      background: historyFilter === tab.id ? '#2563eb' : 'var(--bg-main)',
+                      color: historyFilter === tab.id ? '#fff' : 'var(--text-muted)'
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+            </div>
+
+            {/* History Table */}
+            {filteredHistory.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3.5rem 1rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px dashed var(--border-color)' }}>
+                <Clock size={40} color="var(--text-muted)" style={{ margin: '0 auto 0.75rem auto', opacity: 0.6 }} />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 0.4rem 0' }}>No Key-In Entries Found</h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: '400px', margin: '0 auto 1.25rem auto' }}>
+                  {historySearch ? 'No history matching your search query. Try clearing the search filter.' : 'No dues key-in entries have been recorded yet.'}
+                </p>
+                {historySearch && (
+                  <button onClick={() => { setHistorySearch(''); setHistoryFilter('all'); }} className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>
+                    Clear Search Filter
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="table-container">
+                <table className="data-table" style={{ fontSize: '0.88rem' }}>
+                  <thead>
+                    <tr>
+                      <th>Date & Time</th>
+                      <th>Fellowship Member</th>
+                      <th>Entry Type</th>
+                      <th>Payment Method</th>
+                      <th>Dues Change (Before → After)</th>
+                      <th>Shares & Holding After</th>
+                      <th>Recorded By & Memo</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredHistory.map((item, idx) => {
+                      const deltaVal = parseFloat(item.delta) || 0;
+                      const isPositive = deltaVal >= 0;
+                      const targetMember = members.find(m => m.id === item.memberId || m.excel_member_id === item.excelMemberId);
+
+                      return (
+                        <tr key={item.id || idx} style={{ background: isPositive ? 'rgba(5, 150, 105, 0.02)' : 'rgba(220, 38, 38, 0.02)' }}>
+                          {/* Date & Time */}
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            <div style={{ fontWeight: 800, color: 'var(--text-main)' }}>
+                              {item.paymentDate || (item.timestamp ? item.timestamp.split('T')[0] : '2026-09-28')}
+                            </div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.1rem' }}>
+                              <Clock size={11} /> {item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:00 PM'}
+                            </div>
+                          </td>
+
+                          {/* Member Details */}
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                              <div style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid rgba(5, 150, 105, 0.3)', background: 'var(--bg-main)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {item.profilePicture ? (
+                                  <img src={item.profilePicture} alt={item.memberName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                  <User size={16} color="var(--text-muted)" />
+                                )}
+                              </div>
+                              <div>
+                                <div style={{ fontWeight: 800 }}>{item.memberName}</div>
+                                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                  {item.excelMemberId || (item.memberNo ? `ONY-${String(item.memberNo).padStart(3, '0')}` : '')} • {item.branch}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Entry Type & Delta */}
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                              <span style={{ 
+                                padding: '0.2rem 0.55rem', 
+                                borderRadius: '12px', 
+                                fontSize: '0.72rem', 
+                                fontWeight: 800, 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: '0.25rem',
+                                width: 'fit-content',
+                                background: isPositive ? 'rgba(5, 150, 105, 0.12)' : 'rgba(220, 38, 38, 0.12)',
+                                color: isPositive ? '#059669' : '#dc2626'
+                              }}>
+                                {isPositive ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+                                {isPositive ? `+GH₵ ${deltaVal.toFixed(2)}` : `-GH₵ ${Math.abs(deltaVal).toFixed(2)}`}
+                              </span>
+                              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                {item.entryType || 'Yearly Dues'}
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Payment Method */}
+                          <td>
+                            <span className="badge" style={{ 
+                              fontSize: '0.75rem', 
+                              fontWeight: 700, 
+                              background: item.paymentMethod?.toLowerCase().includes('momo') ? 'rgba(217, 119, 6, 0.12)' : (item.paymentMethod?.toLowerCase().includes('bank') ? 'rgba(37, 99, 235, 0.12)' : 'rgba(5, 150, 105, 0.12)'),
+                              color: item.paymentMethod?.toLowerCase().includes('momo') ? '#d97706' : (item.paymentMethod?.toLowerCase().includes('bank') ? '#2563eb' : '#059669')
+                            }}>
+                              {item.paymentMethod || 'Cash'}
+                            </span>
+                          </td>
+
+                          {/* Dues Change (Before → After) */}
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, fontSize: '0.85rem' }}>
+                              <span style={{ color: 'var(--text-muted)' }}>GH₵ {(item.oldDues ?? 0).toFixed(2)}</span>
+                              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>→</span>
+                              <strong style={{ color: '#059669' }}>GH₵ {(item.newDues ?? 0).toFixed(2)}</strong>
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                              Balance Owed: <strong style={{ color: Math.max(0, 3900 - (item.newDues ?? 0)) > 0 ? '#dc2626' : '#059669' }}>GH₵ {Math.max(0, 3900 - (item.newDues ?? 0)).toFixed(2)}</strong>
+                            </div>
+                          </td>
+
+                          {/* Shares & Grand Total */}
+                          <td>
+                            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#2563eb' }}>
+                              Shares: GH₵ {(item.newShares ?? 0).toFixed(2)}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#7c3aed', marginTop: '0.1rem' }}>
+                              Grand Total: GH₵ {(item.newGrandTotal ?? 0).toFixed(2)}
+                            </div>
+                          </td>
+
+                          {/* Recorded By & Reference Note */}
+                          <td>
+                            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                              👤 {item.recordedBy || 'Executive Admin'}
+                            </div>
+                            {item.referenceNote && (
+                              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.15rem', fontStyle: 'italic', maxWidth: '200px' }}>
+                                "{item.referenceNote}"
+                              </div>
+                            )}
+                          </td>
+
+                          {/* Quick Action Button */}
+                          <td>
+                            <button 
+                              onClick={() => {
+                                if (targetMember) {
+                                  openDuesEditorForMember(targetMember);
+                                } else {
+                                  setEditorMemberId(item.memberId || members[0]?.id);
+                                  setIsDuesEditorOpen(true);
+                                }
+                              }}
+                              className="btn btn-secondary"
+                              style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                              title="Update this member's dues again"
+                            >
+                              <Edit3 size={12} color="#059669" /> Key In
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+        </div>
+      )}
 
       {/* TAB 2: MANUAL ENTRY FORM */}
       {activeTab === 'manual' && (
