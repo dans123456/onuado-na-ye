@@ -180,37 +180,24 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   const handleBulkImport = () => {
     if (!parseResult || parseResult.matched.length === 0) return;
 
-    const activeRecords = parseResult.matched.filter(item => {
-      const act = item.action || (item.changeDetected?.diff < 0 ? 'deduct' : 'add');
-      return act !== 'skip';
-    });
-
-    if (activeRecords.length === 0) {
-      alert("All records are currently set to 'Skip'. No changes will be applied.");
-      return;
-    }
-
     setLoadingTitle('Updating Member Information & Ledgers...');
     setLoadingSubtitle('Syncing member dues, outstanding balances, shares dividends, and grand total holdings...');
     setIsLoadingModalOpen(true);
 
     setTimeout(() => {
-      const entriesToInsert = activeRecords.map(item => {
-        const act = item.action || (item.changeDetected?.diff < 0 ? 'deduct' : 'add');
-        return {
-          member_id: item.member_id,
-          amount: item.amount,
-          action: act,
-          contribution_type: item.contribution_type,
-          payment_method: item.payment_method,
-          reference_note: (act === 'deduct' ? '[Deduction/Correction] ' : '') + item.reference_note + ` (Excel Row ${item.rowNum})`,
-          payment_date: item.payment_date,
-          received_by_name: currentUser?.full_name || 'Admin',
-          excelDues: item.excelDues,
-          excelLevy: item.excelLevy,
-          excelTotal: item.excelTotal
-        };
-      });
+      const entriesToInsert = parseResult.matched.map(item => ({
+        member_id: item.member_id,
+        amount: item.amount,
+        action: 'add',
+        contribution_type: item.contribution_type,
+        payment_method: item.payment_method,
+        reference_note: item.reference_note + ` (Excel Row ${item.rowNum})`,
+        payment_date: item.payment_date,
+        received_by_name: currentUser?.full_name || 'Admin',
+        excelDues: item.excelDues,
+        excelLevy: item.excelLevy,
+        excelTotal: item.excelTotal
+      }));
 
       const updated = bulkAddContributions(entriesToInsert);
       setContributions(updated);
