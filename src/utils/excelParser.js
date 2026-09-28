@@ -66,27 +66,42 @@ export const parseUploadedFile = (file, existingMembers) => {
 
           // Scan sheets in the uploaded workbook
           workbook.SheetNames.forEach((sheetName) => {
-            const sLower = sheetName.toLowerCase();
+            const sLower = sheetName.toLowerCase().trim();
             
             // Skip auxiliary picture / vehicle / internal summary / levy sheets
             const isIgnored = IGNORED_SHEET_KEYWORDS.some(kw => sLower.includes(kw)) || sLower.includes('levy');
             if (isIgnored) return;
 
+            // Skip individual member statement/account sheets (e.g. "ALEX ACKAH", "ASANTE (17)", etc.)
+            const cleanSheetBase = sLower.replace(/\s*\(\d+\)/g, '').trim();
+            const isIndividualMemberSheet = existingMembers.some(m => {
+              const mName = (m.full_name || '').toLowerCase().trim();
+              if (!mName) return false;
+              if (sLower === mName || cleanSheetBase === mName || sLower.includes(mName) || (cleanSheetBase.length >= 4 && mName.includes(cleanSheetBase))) {
+                return true;
+              }
+              const parts = mName.split(/\s+/).filter(p => p.length >= 3);
+              return parts.length >= 2 && parts.every(p => sLower.includes(p));
+            });
+            if (isIndividualMemberSheet) return;
+
             const worksheet = workbook.Sheets[sheetName];
             const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
             if (matrix && matrix.length > 0) {
               const res = processSheetMatrix(matrix, existingMembers, sheetName);
-              sheetReports.push({
-                sheetName,
-                matchedCount: res.matched.length,
-                unmatchedCount: res.unmatched.length,
-                totalRows: res.totalRows,
-                bankUpdates: res.bankUpdates,
-                matched: res.matched
-              });
+              if (res.matched.length > 0 || res.bankUpdates) {
+                sheetReports.push({
+                  sheetName,
+                  matchedCount: res.matched.length,
+                  unmatchedCount: res.unmatched.length,
+                  totalRows: res.totalRows,
+                  bankUpdates: res.bankUpdates,
+                  matched: res.matched
+                });
+                totalRowsCount += res.totalRows;
+              }
 
               allMatched.push(...res.matched);
-              totalRowsCount += res.totalRows;
             }
           });
 

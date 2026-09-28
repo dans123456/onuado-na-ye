@@ -772,175 +772,123 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </div>
               </div>
 
-              {/* Multi-Sheet Reports Summary Badges */}
-              {parseResult.sheetReports && parseResult.sheetReports.length > 0 && (
+              {/* Multi-Sheet Reports Summary Badges (Only shown for sheets with matches or balance updates) */}
+              {parseResult.sheetReports && parseResult.sheetReports.some(r => r.matchedCount > 0 || r.bankUpdates) && (
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-                  {parseResult.sheetReports.map((report, idx) => (
-                    <div 
-                      key={idx} 
-                      style={{ 
-                        padding: '0.4rem 0.75rem', 
-                        borderRadius: '8px', 
-                        fontSize: '0.78rem', 
-                        fontWeight: 700, 
-                        background: report.matchedCount > 0 ? 'rgba(5, 150, 105, 0.1)' : 'var(--bg-main)', 
-                        border: report.matchedCount > 0 ? '1px solid rgba(5, 150, 105, 0.3)' : '1px solid var(--border-color)',
-                        color: report.matchedCount > 0 ? '#059669' : 'var(--text-muted)'
-                      }}
-                    >
-                      📊 <strong>{report.sheetName}</strong>: {report.matchedCount} Matched ({report.totalRows} rows)
-                      {report.bankUpdates && <span style={{ color: '#2563eb', marginLeft: '0.4rem' }}>[Ending Balance Scanned]</span>}
-                    </div>
+                  {parseResult.sheetReports
+                    .filter(report => report.matchedCount > 0 || report.bankUpdates)
+                    .map((report, idx) => (
+                      <div 
+                        key={idx} 
+                        style={{ 
+                          padding: '0.4rem 0.75rem', 
+                          borderRadius: '8px', 
+                          fontSize: '0.78rem', 
+                          fontWeight: 700, 
+                          background: 'rgba(5, 150, 105, 0.1)', 
+                          border: '1px solid rgba(5, 150, 105, 0.3)',
+                          color: '#059669'
+                        }}
+                      >
+                        📊 <strong>{report.sheetName}</strong>: {report.matchedCount} Matched ({report.totalRows} rows)
+                        {report.bankUpdates && <span style={{ color: '#2563eb', marginLeft: '0.4rem' }}>[Ending Balance Scanned]</span>}
+                      </div>
                   ))}
                 </div>
               )}
 
-              {/* Matched Records & Detected Changes Preview Table */}
-              {parseResult.matched.length > 0 && (() => {
-                const addCount = parseResult.matched.filter(i => (i.action || (i.changeDetected?.diff < 0 ? 'deduct' : 'add')) === 'add').length;
-                const deductCount = parseResult.matched.filter(i => (i.action || (i.changeDetected?.diff < 0 ? 'deduct' : 'add')) === 'deduct').length;
-                const skipCount = parseResult.matched.filter(i => (i.action || (i.changeDetected?.diff < 0 ? 'deduct' : 'add')) === 'skip').length;
-
-                return (
-                  <div className="table-container" style={{ marginBottom: '2rem' }}>
-                    <div style={{ padding: '0.75rem 1rem', background: 'rgba(5, 150, 105, 0.08)', fontWeight: 800, color: '#059669', borderBottom: '1px solid var(--border-color)', fontSize: '0.88rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      <span>✅ Matched Records ({parseResult.matched.length})</span>
-                      <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem' }}>
-                        <span style={{ background: '#059669', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>+ {addCount} Add</span>
-                        <span style={{ background: '#dc2626', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>- {deductCount} Deduct</span>
-                        <span style={{ background: '#6b7280', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 800 }}>⏸ {skipCount} Skip</span>
-                      </div>
+              {/* Informative notice when all records are already in sync (0 detected changes) */}
+              {parseResult.matched.length === 0 && (
+                <div style={{ 
+                  padding: '1.25rem 1.5rem', 
+                  borderRadius: '10px', 
+                  background: 'rgba(59, 130, 246, 0.08)', 
+                  border: '1px solid rgba(59, 130, 246, 0.25)', 
+                  color: 'var(--text-main)', 
+                  marginBottom: '1.5rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '1rem' 
+                }}>
+                  <Info size={28} color="#2563eb" style={{ flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontWeight: 800, color: '#2563eb', fontSize: '1rem', marginBottom: '0.2rem' }}>
+                      All Member Ledgers are Up to Date
                     </div>
-                    <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Row & Sheet</th>
-                        <th>Member Name & ID</th>
-                        <th>Phone</th>
-                        <th>Category</th>
-                        <th>Financial Impact (Before → After)</th>
-                        <th>Action Mode</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {parseResult.matched.map((item, index) => {
-                        const currentAction = item.action || (item.changeDetected?.diff < 0 ? 'deduct' : 'add');
-                        const oldVal = item.changeDetected?.oldVal ?? 0;
-                        const newVal = item.changeDetected?.newVal ?? item.amount;
-                        const diffVal = item.changeDetected?.diff ?? (newVal - oldVal);
-                        const absDiff = Math.abs(diffVal);
-
-                        return (
-                          <tr key={index} style={{ background: currentAction === 'skip' ? 'rgba(0,0,0,0.02)' : (currentAction === 'deduct' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(16, 185, 129, 0.05)') }}>
-                            <td style={{ fontWeight: 700 }}>
-                              <div>#{item.rowNum}</div>
-                              <span className="badge" style={{ fontSize: '0.68rem', background: 'rgba(217, 119, 6, 0.12)', color: '#d97706' }}>
-                                {item.sheetName || 'Main'}
-                              </span>
-                            </td>
-                            <td style={{ fontWeight: 800 }}>
-                              {item.member_name}
-                              <div style={{ fontSize: '0.75rem', color: 'var(--primary-600)', fontWeight: 700 }}>{item.excel_member_id}</div>
-                            </td>
-                            <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.phone_number}</td>
-                            <td><span className="badge badge-dues">{item.contribution_type}</span></td>
-                            <td>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                <div style={{ fontSize: '0.85rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                  <span style={{ color: 'var(--text-muted)' }}>GH₵ {oldVal.toFixed(2)}</span>
-                                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>→</span>
-                                  <strong style={{ color: currentAction === 'skip' ? 'var(--text-muted)' : (currentAction === 'deduct' ? '#dc2626' : '#059669') }}>
-                                    GH₵ {currentAction === 'skip' ? oldVal.toFixed(2) : newVal.toFixed(2)}
-                                  </strong>
-                                </div>
-
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                  {currentAction === 'add' && (
-                                    <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.15)', color: '#059669', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                                      <TrendingUp size={12} /> +GH₵ {absDiff.toFixed(2)} Addition
-                                    </span>
-                                  )}
-                                  {currentAction === 'deduct' && (
-                                    <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(220, 38, 38, 0.15)', color: '#dc2626', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                                      <TrendingDown size={12} /> -GH₵ {absDiff.toFixed(2)} Deduction
-                                    </span>
-                                  )}
-                                  {currentAction === 'skip' && (
-                                    <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(107, 114, 128, 0.15)', color: '#6b7280', fontWeight: 800 }}>
-                                      ⏸ Paused / Skipped
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <div style={{ display: 'flex', gap: '0.3rem' }}>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const updated = [...parseResult.matched];
-                                    updated[index].action = 'add';
-                                    setParseResult({ ...parseResult, matched: updated });
-                                  }}
-                                  className="btn"
-                                  style={{
-                                    padding: '0.25rem 0.6rem',
-                                    fontSize: '0.72rem',
-                                    fontWeight: 800,
-                                    background: currentAction === 'add' ? '#059669' : 'var(--bg-main)',
-                                    color: currentAction === 'add' ? '#fff' : 'var(--text-muted)',
-                                    border: '1px solid #059669'
-                                  }}
-                                >
-                                  + Add
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const updated = [...parseResult.matched];
-                                    updated[index].action = 'deduct';
-                                    setParseResult({ ...parseResult, matched: updated });
-                                  }}
-                                  className="btn"
-                                  style={{
-                                    padding: '0.25rem 0.6rem',
-                                    fontSize: '0.72rem',
-                                    fontWeight: 800,
-                                    background: currentAction === 'deduct' ? '#dc2626' : 'var(--bg-main)',
-                                    color: currentAction === 'deduct' ? '#fff' : 'var(--text-muted)',
-                                    border: '1px solid #dc2626'
-                                  }}
-                                >
-                                  - Deduct
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const updated = [...parseResult.matched];
-                                    updated[index].action = 'skip';
-                                    setParseResult({ ...parseResult, matched: updated });
-                                  }}
-                                  className="btn"
-                                  style={{
-                                    padding: '0.25rem 0.6rem',
-                                    fontSize: '0.72rem',
-                                    fontWeight: 800,
-                                    background: currentAction === 'skip' ? '#6b7280' : 'var(--bg-main)',
-                                    color: currentAction === 'skip' ? '#fff' : 'var(--text-muted)',
-                                    border: '1px solid #6b7280'
-                                  }}
-                                >
-                                  Skip
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                    <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+                      All dues and records in this Excel file match the database records. When a dues increase is entered in Excel and re-uploaded, the system will automatically detect the delta, highlight the increase, and recalculate Shares and Grand Totals upon import.
+                    </div>
+                  </div>
                 </div>
-              ); })()}
+              )}
+
+              {/* Matched Records & Detected Changes Preview Table */}
+              {parseResult.matched.length > 0 && (
+                <div className="table-container" style={{ marginBottom: '2rem' }}>
+                  <div style={{ padding: '0.75rem 1rem', background: 'rgba(5, 150, 105, 0.08)', fontWeight: 800, color: '#059669', borderBottom: '1px solid var(--border-color)', fontSize: '0.88rem' }}>
+                    <span>✅ Matched Records ({parseResult.matched.length})</span>
+                  </div>
+                  <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Row & Sheet</th>
+                      <th>Member Name & ID</th>
+                      <th>Phone</th>
+                      <th>Category</th>
+                      <th>Financial Impact (Before → After)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {parseResult.matched.map((item, index) => {
+                      const oldVal = item.changeDetected?.oldVal ?? 0;
+                      const newVal = item.changeDetected?.newVal ?? item.amount;
+                      const diffVal = item.changeDetected?.diff ?? (newVal - oldVal);
+                      const absDiff = Math.abs(diffVal);
+
+                      return (
+                        <tr key={index} style={{ background: diffVal < 0 ? 'rgba(239, 68, 68, 0.05)' : 'rgba(16, 185, 129, 0.05)' }}>
+                          <td style={{ fontWeight: 700 }}>
+                            <div>#{item.rowNum}</div>
+                            <span className="badge" style={{ fontSize: '0.68rem', background: 'rgba(217, 119, 6, 0.12)', color: '#d97706' }}>
+                              {item.sheetName || 'Main'}
+                            </span>
+                          </td>
+                          <td style={{ fontWeight: 800 }}>
+                            {item.member_name}
+                            <div style={{ fontSize: '0.75rem', color: 'var(--primary-600)', fontWeight: 700 }}>{item.excel_member_id}</div>
+                          </td>
+                          <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.phone_number}</td>
+                          <td><span className="badge badge-dues">{item.contribution_type}</span></td>
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                              <div style={{ fontSize: '0.85rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <span style={{ color: 'var(--text-muted)' }}>GH₵ {oldVal.toFixed(2)}</span>
+                                <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>→</span>
+                                <strong style={{ color: diffVal < 0 ? '#dc2626' : '#059669' }}>
+                                  GH₵ {newVal.toFixed(2)}
+                                </strong>
+                              </div>
+
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                {diffVal >= 0 ? (
+                                  <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.15)', color: '#059669', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                                    <TrendingUp size={12} /> +GH₵ {absDiff.toFixed(2)} Addition
+                                  </span>
+                                ) : (
+                                  <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(220, 38, 38, 0.15)', color: '#dc2626', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                                    <TrendingDown size={12} /> -GH₵ {absDiff.toFixed(2)} Deduction
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
               {/* Unmatched Rows Section if any */}
               {parseResult.unmatched.length > 0 && (
