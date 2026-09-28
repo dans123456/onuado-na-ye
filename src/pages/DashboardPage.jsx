@@ -56,7 +56,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const userContributions = contributions.filter(c => c.member_id === currentUser?.id);
 
   // Live sync with members array so admin key-in edits immediately reflect for this specific member!
-  const currentMember = members?.find(m => m.id === currentUser?.id) || currentUser;
+  const currentMember = members?.find(m => m.id === currentUser?.id || m.excel_member_id === currentUser?.excel_member_id) || currentUser;
 
   // Values from live member record
   const regFees = currentMember?.reg_fees || 200.00;
@@ -186,10 +186,10 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <div style={{ width: '75px', height: '75px', borderRadius: '50%', border: '3px solid #fef08a', overflow: 'hidden', background: '#3b0764', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', fontWeight: 900, color: '#fef08a', boxShadow: '0 4px 14px rgba(0,0,0,0.4)' }}>
-                {currentUser.profile_picture ? (
-                  <img src={currentUser.profile_picture} alt={currentUser.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {(currentMember?.profile_picture || currentUser?.profile_picture) ? (
+                  <img src={currentMember?.profile_picture || currentUser?.profile_picture} alt={currentMember?.full_name || currentUser?.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  getInitials(currentUser.full_name)
+                  getInitials(currentMember?.full_name || currentUser?.full_name)
                 )}
               </div>
             </div>

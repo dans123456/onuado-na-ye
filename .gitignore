@@ -25,5 +25,5 @@ constitution_text.txt
 *.njsproj
 *.sln
 *.sw?
-~$*
-
+# Scratch scripts
+scratch/

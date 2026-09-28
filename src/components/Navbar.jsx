@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy, Megaphone } from 'lucide-react';
-import { getAnnouncement } from '../services/store';
+import { getAnnouncement, getMembers } from '../services/store';
 
 export default function Navbar({ activePage, setActivePage, currentUser, setCurrentUser, isDarkMode, setIsDarkMode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -159,18 +159,23 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
               )}
 
               {/* Avatar Pill Button (Click to go to My Member Portal) */}
-              <div 
-                onClick={() => handleNav('dashboard')}
-                title="Go to My Personal Member Portal"
-                style={{ width: '34px', height: '34px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg, #059669, #d97706)', color: '#fff', fontSize: '0.78rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '2px solid #059669', cursor: 'pointer', flexShrink: 0 }}
-              >
-                {currentUser.profile_picture ? (
-                  <img src={currentUser.profile_picture} alt={currentUser.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  getInitials(currentUser.full_name)
-                )}
-                <span style={{ position: 'absolute', bottom: '1px', right: '1px', width: '8px', height: '8px', borderRadius: '50%', background: currentUser.status === 'ACTIVE' ? '#10b981' : '#f59e0b', border: '1.5px solid #fff' }}></span>
-              </div>
+              {(() => {
+                const userPhoto = currentUser.profile_picture || getMembers().find(m => m.id === currentUser.id || m.excel_member_id === currentUser.excel_member_id)?.profile_picture;
+                return (
+                  <div 
+                    onClick={() => handleNav('dashboard')}
+                    title="Go to My Personal Member Portal"
+                    style={{ width: '34px', height: '34px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg, #059669, #d97706)', color: '#fff', fontSize: '0.78rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '2px solid #059669', cursor: 'pointer', flexShrink: 0 }}
+                  >
+                    {userPhoto ? (
+                      <img src={userPhoto} alt={currentUser.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      getInitials(currentUser.full_name)
+                    )}
+                    <span style={{ position: 'absolute', bottom: '1px', right: '1px', width: '8px', height: '8px', borderRadius: '50%', background: currentUser.status === 'ACTIVE' ? '#10b981' : '#f59e0b', border: '1.5px solid #fff' }}></span>
+                  </div>
+                );
+              })()}
 
               {/* Top Bar Log Out Button (Prominent Red Icon/Button) */}
               <button 
@@ -217,14 +222,23 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
       {mobileMenuOpen && (
         <div style={{ padding: '1.1rem 1.25rem', borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.65rem', background: isDarkMode ? '#0f172a' : '#ffffff' }}>
           
-          {currentUser && (
-            <div style={{ padding: '0.6rem 0.85rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.2)', fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary-700)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-              <User size={15} color="#059669" />
-              <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                Signed in as: <strong>{currentUser.full_name}</strong>
+          {currentUser && (() => {
+            const userPhoto = currentUser.profile_picture || getMembers().find(m => m.id === currentUser.id || m.excel_member_id === currentUser.excel_member_id)?.profile_picture;
+            return (
+              <div style={{ padding: '0.6rem 0.85rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.2)', fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary-700)', display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.25rem' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', overflow: 'hidden', border: '1.5px solid #059669', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {userPhoto ? (
+                    <img src={userPhoto} alt={currentUser.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <User size={15} color="#059669" />
+                  )}
+                </div>
+                <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  Signed in as: <strong>{currentUser.full_name}</strong>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
           <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>

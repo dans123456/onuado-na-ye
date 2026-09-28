@@ -23,7 +23,13 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('ony_current_user');
-      return saved ? JSON.parse(saved) : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const membersList = getMembers();
+        const matched = membersList.find(m => m.id === parsed.id || m.excel_member_id === parsed.excel_member_id);
+        return matched ? { ...parsed, ...matched } : parsed;
+      }
+      return null;
     } catch {
       return null;
     }
@@ -56,17 +62,21 @@ export default function App() {
     setContributions(getContributions());
   }, []);
 
-  // Keep currentUser automatically synchronized with members list updates
+  // Keep currentUser automatically synchronized with members list updates (including photos & ledgers)
   useEffect(() => {
     if (currentUser && members && members.length > 0) {
-      const liveUser = members.find(m => m.id === currentUser.id);
-      if (liveUser && (
-        liveUser.dues_paid !== currentUser.dues_paid || 
-        liveUser.shares_value !== currentUser.shares_value ||
-        liveUser.balance_owed !== currentUser.balance_owed ||
-        liveUser.total_payments !== currentUser.total_payments
-      )) {
-        setCurrentUser(liveUser);
+      const liveUser = members.find(m => m.id === currentUser.id || m.excel_member_id === currentUser.excel_member_id);
+      if (liveUser) {
+        if (
+          liveUser.profile_picture !== currentUser.profile_picture ||
+          liveUser.dues_paid !== currentUser.dues_paid || 
+          liveUser.shares_value !== currentUser.shares_value ||
+          liveUser.balance_owed !== currentUser.balance_owed ||
+          liveUser.total_payments !== currentUser.total_payments ||
+          liveUser.shares_holding !== currentUser.shares_holding
+        ) {
+          setCurrentUser(liveUser);
+        }
       }
     }
   }, [members]);
