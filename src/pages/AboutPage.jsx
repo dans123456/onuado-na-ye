@@ -145,41 +145,71 @@ export default function AboutPage({ setActivePage }) {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Elected Executive Officers holding administrative authority under Article 8 & 9 of the Constitution.</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
-          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #059669' }}>
-            <div style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--text-main)' }}>Moses Oduro</div>
-            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#059669', marginTop: '0.1rem' }}>President</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Noyem Branch • Phone: 020 354 1966</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #059669', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #059669' }}>
+              <img src="/members/ony-018.png" alt="Moses Oduro" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '1.05rem', color: 'var(--text-main)' }}>Moses Oduro</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#059669' }}>President</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Noyem Branch • 020 354 1966</div>
+            </div>
           </div>
 
-          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #d97706' }}>
-            <div style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--text-main)' }}>Osei Kwame</div>
-            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#d97706', marginTop: '0.1rem' }}>Vice President</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Kasoa Branch • Phone: 024 428 3224</div>
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #d97706', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #d97706' }}>
+              <img src="/members/ony-019.png" alt="Osei Kwame" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '1.05rem', color: 'var(--text-main)' }}>Osei Kwame</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#d97706' }}>Vice President</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Kasoa Branch • 024 428 3224</div>
+            </div>
           </div>
 
-          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #3b82f6' }}>
-            <div style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--text-main)' }}>Mark-Just Quansah</div>
-            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.1rem' }}>PRO & Liaison Officer</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Ashaiman Branch • Phone: 026 746 1029</div>
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #3b82f6', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #3b82f6' }}>
+              <img src="/members/ony-016.png" alt="Mark-Just Quansah" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '1.05rem', color: 'var(--text-main)' }}>Mark-Just Quansah</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#3b82f6' }}>PRO & Liaison Officer</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Ashaiman Branch • 026 746 1029</div>
+            </div>
           </div>
 
-          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #8b5cf6' }}>
-            <div style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--text-main)' }}>Jonathan Danso Siaw</div>
-            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#8b5cf6', marginTop: '0.1rem' }}>General Secretary</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Aburi Branch • Phone: 024 214 5516</div>
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #8b5cf6', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #8b5cf6' }}>
+              <img src="/members/ony-013.png" alt="Jonathan Danso Siaw" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '1.05rem', color: 'var(--text-main)' }}>Jonathan Danso Siaw</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#8b5cf6' }}>General Secretary</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Aburi Branch • 024 214 5516</div>
+            </div>
           </div>
 
-          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #10b981' }}>
-            <div style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--text-main)' }}>William Kojo Anane</div>
-            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#10b981', marginTop: '0.1rem' }}>Executive Board Member</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Ashaiman Branch • Phone: 026 956 3876</div>
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #10b981', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #10b981' }}>
+              <img src="/members/ony-024.png" alt="William Kojo Anane" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '1.05rem', color: 'var(--text-main)' }}>William Kojo Anane</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#10b981' }}>Executive Board Member</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Ashaiman Branch • 026 956 3876</div>
+            </div>
           </div>
 
-          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #f59e0b' }}>
-            <div style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--text-main)' }}>John Ofosuhene Asare</div>
-            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f59e0b', marginTop: '0.1rem' }}>Executive Board Member</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>Kotobabi Branch • Phone: 024 292 7915</div>
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', borderLeft: '4px solid #f59e0b', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #f59e0b' }}>
+              <img src="/members/ony-010.png" alt="John Ofosuhene Asare" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '1.05rem', color: 'var(--text-main)' }}>John Ofosuhene Asare</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f59e0b' }}>Executive Board Member</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Kotobabi Branch • 024 292 7915</div>
+            </div>
           </div>
         </div>
       </div>

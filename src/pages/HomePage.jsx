@@ -125,8 +125,8 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
           
           <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #059669' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #059669, #064e3b)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              MO
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', overflow: 'hidden', border: '2.5px solid #059669', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)', margin: '0 auto 1rem auto', background: 'var(--bg-main)' }}>
+              <img src="/members/ony-018.png" alt="Moses Oduro" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Moses Oduro</h4>
             <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 800 }}>President</div>
@@ -134,8 +134,8 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
           </div>
 
           <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #d97706' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #d97706, #b45309)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              OK
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', overflow: 'hidden', border: '2.5px solid #d97706', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.25)', margin: '0 auto 1rem auto', background: 'var(--bg-main)' }}>
+              <img src="/members/ony-019.png" alt="Osei Kwame" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Osei Kwame</h4>
             <div style={{ fontSize: '0.82rem', color: '#d97706', fontWeight: 800 }}>Vice President</div>
@@ -143,8 +143,8 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
           </div>
 
           <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #3b82f6' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              JQ
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', overflow: 'hidden', border: '2.5px solid #3b82f6', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)', margin: '0 auto 1rem auto', background: 'var(--bg-main)' }}>
+              <img src="/members/ony-016.png" alt="Mark-Just Quansah" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Mark-Just Quansah</h4>
             <div style={{ fontSize: '0.82rem', color: '#3b82f6', fontWeight: 800 }}>PRO & Liaison Officer</div>
@@ -152,8 +152,8 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
           </div>
 
           <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #8b5cf6' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              JS
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', overflow: 'hidden', border: '2.5px solid #8b5cf6', boxShadow: '0 4px 12px rgba(139, 92, 246, 0.25)', margin: '0 auto 1rem auto', background: 'var(--bg-main)' }}>
+              <img src="/members/ony-013.png" alt="Jonathan Danso Siaw" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>Jonathan Danso Siaw</h4>
             <div style={{ fontSize: '0.82rem', color: '#8b5cf6', fontWeight: 800 }}>General Secretary</div>
@@ -161,8 +161,8 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
           </div>
 
           <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #10b981' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #047857)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              WA
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', overflow: 'hidden', border: '2.5px solid #10b981', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)', margin: '0 auto 1rem auto', background: 'var(--bg-main)' }}>
+              <img src="/members/ony-024.png" alt="William Kojo Anane" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>William Kojo Anane</h4>
             <div style={{ fontSize: '0.82rem', color: '#10b981', fontWeight: 800 }}>Executive Member</div>
@@ -170,8 +170,8 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
           </div>
 
           <div className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '14px', borderTop: '4px solid #f59e0b' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #f59e0b, #b45309)', color: '#fff', fontSize: '1.2rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-              JA
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', overflow: 'hidden', border: '2.5px solid #f59e0b', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)', margin: '0 auto 1rem auto', background: 'var(--bg-main)' }}>
+              <img src="/members/ony-010.png" alt="John Ofosuhene Asare" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <h4 style={{ fontWeight: 800, fontSize: '1.05rem', marginBottom: '0.2rem' }}>John Ofosuhene Asare</h4>
             <div style={{ fontSize: '0.82rem', color: '#f59e0b', fontWeight: 800 }}>Executive Member</div>

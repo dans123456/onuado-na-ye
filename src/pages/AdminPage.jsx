@@ -7,7 +7,7 @@ import { getMemberLevyDetails } from '../utils/levyData';
 import LoadingModal from '../components/LoadingModal';
 
 export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
-  const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'roster', 'manual', 'announcement', 'treasury'
+  const [activeTab, setActiveTab] = useState('roster'); // 'roster', 'manual', 'announcement', 'treasury'
   const [showAllBranches, setShowAllBranches] = useState(false);
 
   // Direct Key-In Member Dues Editor State
@@ -482,13 +482,6 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             <Zap size={16} /> ⚡ Key In Member Dues
           </button>
           <button 
-            onClick={() => setActiveTab('uploader')} 
-            className={`btn ${activeTab === 'uploader' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
-          >
-            <UploadCloud size={16} /> Excel / CSV Bulk Uploader
-          </button>
-          <button 
             onClick={() => setActiveTab('roster')} 
             className={`btn ${activeTab === 'roster' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
@@ -794,233 +787,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         </div>
       )}
 
-      {/* TAB 1: EXCEL / CSV BULK UPLOADER */}
-      {activeTab === 'uploader' && (
-        <div className="glass-card" style={{ padding: '2.5rem' }}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.4rem', color: 'var(--accent-600)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <FileSpreadsheet size={24} /> Drag & Drop Excel / MoMo Bulk Ledger Uploader
-            </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginTop: '0.25rem' }}>
-              Upload your Excel sheet (`.xlsx`, `.xls`) or CSV statement from your MoMo ledger. The system auto-matches rows to the 24 fellowship members by phone or name!
-            </p>
-          </div>
 
-          <div 
-            className={`dropzone ${dragActive ? 'active' : ''}`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-            onClick={() => document.getElementById('excel-file-input').click()}
-          >
-            <input 
-              id="excel-file-input"
-              type="file" 
-              accept=".xlsx,.xls,.csv" 
-              style={{ display: 'none' }}
-              onChange={handleFileChange}
-            />
-            <UploadCloud size={48} color="#d97706" style={{ margin: '0 auto 1rem auto' }} />
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Drop your Excel or CSV File Here</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Supports `.xlsx`, `.xls`, and `.csv` files</p>
-            <button type="button" className="btn btn-secondary" style={{ marginTop: '1rem', pointerEvents: 'none' }}>
-              Browse File on Computer
-            </button>
-          </div>
-
-          {isParsing && (
-            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-              <RefreshCw size={24} className="spin" style={{ margin: '0 auto 0.5rem auto' }} />
-              <div>Parsing rows and matching phone numbers against 24 member records...</div>
-            </div>
-          )}
-
-          {parseResult && (
-            <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-                <div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary-600)' }}>Multi-Sheet Excel Parse & Dues Delta Summary</h3>
-                  <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                    Total Rows Analyzed Across All Sheets: <strong>{parseResult.totalRows}</strong> | Matched Records: <span style={{ color: '#059669', fontWeight: 800 }}>{parseResult.matched.length}</span> | Unmatched: <span style={{ color: '#dc2626', fontWeight: 800 }}>{parseResult.unmatched.length}</span>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <button 
-                    onClick={() => {
-                      setParseResult(null);
-                      setIsParsing(false);
-                      setImportSuccess('');
-                    }} 
-                    className="btn btn-secondary" 
-                    style={{ padding: '0.75rem 1.25rem', fontSize: '0.92rem', fontWeight: 700, color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.35)', background: 'rgba(220, 38, 38, 0.05)' }}
-                  >
-                    <X size={16} /> Cancel Upload
-                  </button>
-
-                  {parseResult.matched.length > 0 && (
-                    <button onClick={handleBulkImport} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: 800 }}>
-                      <CheckCircle2 size={18} /> Import & Apply {parseResult.matched.length} Records to Ledgers
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Multi-Sheet Reports Summary Badges (Only shown for sheets with matches or balance updates) */}
-              {parseResult.sheetReports && parseResult.sheetReports.some(r => r.matchedCount > 0 || r.bankUpdates) && (
-                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-                  {parseResult.sheetReports
-                    .filter(report => report.matchedCount > 0 || report.bankUpdates)
-                    .map((report, idx) => (
-                      <div 
-                        key={idx} 
-                        style={{ 
-                          padding: '0.4rem 0.75rem', 
-                          borderRadius: '8px', 
-                          fontSize: '0.78rem', 
-                          fontWeight: 700, 
-                          background: 'rgba(5, 150, 105, 0.1)', 
-                          border: '1px solid rgba(5, 150, 105, 0.3)',
-                          color: '#059669'
-                        }}
-                      >
-                        📊 <strong>{report.sheetName}</strong>: {report.matchedCount} Matched ({report.totalRows} rows)
-                        {report.bankUpdates && <span style={{ color: '#2563eb', marginLeft: '0.4rem' }}>[Ending Balance Scanned]</span>}
-                      </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Informative notice when all records are already in sync (0 detected changes) */}
-              {parseResult.matched.length === 0 && (
-                <div style={{ 
-                  padding: '1.25rem 1.5rem', 
-                  borderRadius: '10px', 
-                  background: 'rgba(59, 130, 246, 0.08)', 
-                  border: '1px solid rgba(59, 130, 246, 0.25)', 
-                  color: 'var(--text-main)', 
-                  marginBottom: '1.5rem', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '1rem' 
-                }}>
-                  <Info size={28} color="#2563eb" style={{ flexShrink: 0 }} />
-                  <div>
-                    <div style={{ fontWeight: 800, color: '#2563eb', fontSize: '1rem', marginBottom: '0.2rem' }}>
-                      All Member Ledgers are Up to Date
-                    </div>
-                    <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-                      All dues and records in this Excel file match the database records. When a dues increase is entered in Excel and re-uploaded, the system will automatically detect the delta, highlight the increase, and recalculate Shares and Grand Totals upon import.
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Matched Records & Detected Changes Preview Table */}
-              {parseResult.matched.length > 0 && (
-                <div className="table-container" style={{ marginBottom: '2rem' }}>
-                  <div style={{ padding: '0.75rem 1rem', background: 'rgba(5, 150, 105, 0.08)', fontWeight: 800, color: '#059669', borderBottom: '1px solid var(--border-color)', fontSize: '0.88rem' }}>
-                    <span>✅ Matched Records ({parseResult.matched.length})</span>
-                  </div>
-                  <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Row & Sheet</th>
-                      <th>Member Name & ID</th>
-                      <th>Phone</th>
-                      <th>Category</th>
-                      <th>Financial Impact (Before → After)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {parseResult.matched.map((item, index) => {
-                      const oldVal = item.changeDetected?.oldVal ?? 0;
-                      const newVal = item.changeDetected?.newVal ?? item.amount;
-                      const diffVal = item.changeDetected?.diff ?? (newVal - oldVal);
-                      const absDiff = Math.abs(diffVal);
-
-                      return (
-                        <tr key={index} style={{ background: diffVal < 0 ? 'rgba(239, 68, 68, 0.05)' : 'rgba(16, 185, 129, 0.05)' }}>
-                          <td style={{ fontWeight: 700 }}>
-                            <div>#{item.rowNum}</div>
-                            <span className="badge" style={{ fontSize: '0.68rem', background: 'rgba(217, 119, 6, 0.12)', color: '#d97706' }}>
-                              {item.sheetName || 'Main'}
-                            </span>
-                          </td>
-                          <td style={{ fontWeight: 800 }}>
-                            {item.member_name}
-                            <div style={{ fontSize: '0.75rem', color: 'var(--primary-600)', fontWeight: 700 }}>{item.excel_member_id}</div>
-                          </td>
-                          <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.phone_number}</td>
-                          <td><span className="badge badge-dues">{item.contribution_type}</span></td>
-                          <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                              <div style={{ fontSize: '0.85rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>GH₵ {oldVal.toFixed(2)}</span>
-                                <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>→</span>
-                                <strong style={{ color: diffVal < 0 ? '#dc2626' : '#059669' }}>
-                                  GH₵ {newVal.toFixed(2)}
-                                </strong>
-                              </div>
-
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                {diffVal >= 0 ? (
-                                  <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.15)', color: '#059669', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                                    <TrendingUp size={12} /> +GH₵ {absDiff.toFixed(2)} Addition
-                                  </span>
-                                ) : (
-                                  <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '12px', background: 'rgba(220, 38, 38, 0.15)', color: '#dc2626', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                                    <TrendingDown size={12} /> -GH₵ {absDiff.toFixed(2)} Deduction
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-              {/* Unmatched Rows Section if any */}
-              {parseResult.unmatched.length > 0 && (
-                <div className="table-container">
-                  <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.08)', fontWeight: 800, color: '#dc2626', borderBottom: '1px solid var(--border-color)', fontSize: '0.88rem' }}>
-                    ⚠️ Unmatched Rows Across Sheets ({parseResult.unmatched.length})
-                  </div>
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Row & Sheet</th>
-                        <th>Extracted Name</th>
-                        <th>Extracted Phone</th>
-                        <th>Reason</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {parseResult.unmatched.map((item, idx) => (
-                        <tr key={idx}>
-                          <td>
-                            #{item.rowNum}
-                            <span className="badge" style={{ fontSize: '0.68rem', marginLeft: '0.4rem' }}>{item.sheetName || 'Sheet'}</span>
-                          </td>
-                          <td>{item.rawName || '—'}</td>
-                          <td>{item.rawPhone || '—'}</td>
-                          <td style={{ color: '#dc2626', fontWeight: 600 }}>{item.reason}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-            </div>
-          )}
-        </div>
-      )}
 
       {/* TAB 2: MANUAL ENTRY FORM */}
       {activeTab === 'manual' && (
@@ -1143,9 +910,20 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                         #{m.member_no || m.id.replace('m-', '')} ({m.excel_member_id})
                       </td>
                       <td style={{ fontWeight: 800 }}>
-                        {m.full_name}
-                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                          {m.title} • {m.position}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div style={{ width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid rgba(5, 150, 105, 0.35)', background: 'var(--bg-main)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {m.profile_picture ? (
+                              <img src={m.profile_picture} alt={m.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <User size={18} color="var(--text-muted)" />
+                            )}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.92rem' }}>{m.full_name}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                              {m.title} • {m.position}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{m.branch}</td>
@@ -1282,30 +1060,39 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           }}>
             
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem', gap: '1rem' }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
-                  <span className="badge badge-admin" style={{ fontWeight: 800 }}>
-                    Member #{selectedDossierMember.member_no} • {selectedDossierMember.excel_member_id}
-                  </span>
-                  <span style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '12px', background: selectedDossierMember.status === 'ACTIVE' ? '#10b981' : '#f59e0b', color: '#fff', fontWeight: 800 }}>
-                    {selectedDossierMember.status || 'ACTIVE'}
-                  </span>
-                  {/* Outstanding Dues Balance Badge */}
-                  {(() => {
-                    const bal = selectedDossierMember.balance_owed !== undefined ? selectedDossierMember.balance_owed : Math.max(0, (selectedDossierMember.dues_fee_required || 3900) - (selectedDossierMember.dues_paid || 0));
-                    return (
-                      <span style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem5rem', borderRadius: '12px', background: bal > 0 ? 'rgba(220, 38, 38, 0.15)' : 'rgba(5, 150, 105, 0.15)', color: bal > 0 ? '#dc2626' : '#059669', border: '1px solid currentColor', fontWeight: 800 }}>
-                        {bal > 0 ? `Outstanding: GH₵ ${bal.toFixed(2)} ⚠️` : 'Dues Settled ✓'}
-                      </span>
-                    );
-                  })()}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1, minWidth: '260px' }}>
+                <div style={{ width: '74px', height: '74px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '3px solid #059669', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.25)', background: 'var(--bg-main)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {selectedDossierMember.profile_picture ? (
+                    <img src={selectedDossierMember.profile_picture} alt={selectedDossierMember.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <User size={36} color="var(--text-muted)" />
+                  )}
                 </div>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'var(--font-heading)', color: 'var(--primary-700)', margin: 0, lineHeight: 1.2 }}>
-                  {selectedDossierMember.title} {selectedDossierMember.full_name}
-                </h2>
-                <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-                  {selectedDossierMember.position} • Branch: <strong>{selectedDossierMember.branch}</strong> • Date Joined: <strong>{selectedDossierMember.date_joined}</strong>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
+                    <span className="badge badge-admin" style={{ fontWeight: 800 }}>
+                      Member #{selectedDossierMember.member_no} • {selectedDossierMember.excel_member_id}
+                    </span>
+                    <span style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '12px', background: selectedDossierMember.status === 'ACTIVE' ? '#10b981' : '#f59e0b', color: '#fff', fontWeight: 800 }}>
+                      {selectedDossierMember.status || 'ACTIVE'}
+                    </span>
+                    {/* Outstanding Dues Balance Badge */}
+                    {(() => {
+                      const bal = selectedDossierMember.balance_owed !== undefined ? selectedDossierMember.balance_owed : Math.max(0, (selectedDossierMember.dues_fee_required || 3900) - (selectedDossierMember.dues_paid || 0));
+                      return (
+                        <span style={{ fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '12px', background: bal > 0 ? 'rgba(220, 38, 38, 0.15)' : 'rgba(5, 150, 105, 0.15)', color: bal > 0 ? '#dc2626' : '#059669', border: '1px solid currentColor', fontWeight: 800 }}>
+                          {bal > 0 ? `Outstanding: GH₵ ${bal.toFixed(2)} ⚠️` : 'Dues Settled ✓'}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <h2 style={{ fontSize: '1.6rem', fontWeight: 900, fontFamily: 'var(--font-heading)', color: 'var(--primary-700)', margin: 0, lineHeight: 1.2 }}>
+                    {selectedDossierMember.title} {selectedDossierMember.full_name}
+                  </h2>
+                  <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+                    {selectedDossierMember.position} • Branch: <strong>{selectedDossierMember.branch}</strong> • Date Joined: <strong>{selectedDossierMember.date_joined}</strong>
+                  </div>
                 </div>
               </div>
 
@@ -1573,27 +1360,36 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 {/* 2. Snapshot of Current Standing */}
                 {activeEditorMember && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                    <div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Current Dues Paid</div>
-                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#059669' }}>GH₵ {curDues.toFixed(2)}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2.5px solid #059669', background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                      {activeEditorMember.profile_picture ? (
+                        <img src={activeEditorMember.profile_picture} alt={activeEditorMember.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <User size={26} color="var(--text-muted)" />
+                      )}
                     </div>
-                    <div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Outstanding Owed</div>
-                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: Math.max(0, 3900 - curDues) > 0 ? '#dc2626' : '#059669' }}>
-                        GH₵ {Math.max(0, 3900 - curDues).toFixed(2)}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(115px, 1fr))', gap: '0.6rem', flex: 1, minWidth: '220px' }}>
+                      <div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Current Dues Paid</div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#059669' }}>GH₵ {curDues.toFixed(2)}</div>
                       </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div>
-                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#2563eb' }}>
-                        GH₵ {(parseFloat(activeEditorMember.shares_value) || 0).toFixed(2)}
+                      <div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Outstanding Owed</div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: Math.max(0, 3900 - curDues) > 0 ? '#dc2626' : '#059669' }}>
+                          GH₵ {Math.max(0, 3900 - curDues).toFixed(2)}
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Grand Holding</div>
-                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#7c3aed' }}>
-                        GH₵ {(parseFloat(activeEditorMember.shares_holding) || 0).toFixed(2)}
+                      <div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#2563eb' }}>
+                          GH₵ {(parseFloat(activeEditorMember.shares_value) || 0).toFixed(2)}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Grand Holding</div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#7c3aed' }}>
+                          GH₵ {(parseFloat(activeEditorMember.shares_holding) || 0).toFixed(2)}
+                        </div>
                       </div>
                     </div>
                   </div>

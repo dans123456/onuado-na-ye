@@ -7,6 +7,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-001",
     "member_no": 1,
     "full_name": "Alex Ackah",
+    "profile_picture": "/members/ony-001.png",
     "name_in_capitals": "ALEX ACKAH",
     "title": "Elder",
     "position": "Youth Chairman",
@@ -60,6 +61,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-002",
     "member_no": 2,
     "full_name": "Danso Kingsley",
+    "profile_picture": "/members/ony-002.png",
     "name_in_capitals": "DANSO KINGSLEY",
     "title": "Elder",
     "position": "Men's Fellowship Chairman",
@@ -113,6 +115,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-003",
     "member_no": 3,
     "full_name": "Fanuel Hagan",
+    "profile_picture": "/members/ony-003.png",
     "name_in_capitals": "FANUEL HAGAN",
     "title": "Elder",
     "position": "Secretary",
@@ -166,6 +169,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-004",
     "member_no": 4,
     "full_name": "Frederick Wortey Tawiah",
+    "profile_picture": "/members/ony-004.png",
     "name_in_capitals": "FREDERICK WORTEY TAWIAH",
     "title": "Elder",
     "position": "Church Elder",
@@ -272,6 +276,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-006",
     "member_no": 6,
     "full_name": "Isaac Darko",
+    "profile_picture": "/members/ony-006.png",
     "name_in_capitals": "ISAAC DARKO",
     "title": "Elder",
     "position": "Secretary",
@@ -325,6 +330,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-007",
     "member_no": 7,
     "full_name": "Isaac Donkor",
+    "profile_picture": "/members/ony-007.png",
     "name_in_capitals": "ISAAC DONKOR",
     "title": "Elder",
     "position": "Secretary",
@@ -378,6 +384,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-008",
     "member_no": 8,
     "full_name": "John Aidoo",
+    "profile_picture": "/members/ony-008.png",
     "name_in_capitals": "JOHN AIDOO",
     "title": "Mr.",
     "position": "Chourester",
@@ -484,6 +491,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-010",
     "member_no": 10,
     "full_name": "John Ofosuhene Asare",
+    "profile_picture": "/members/ony-010.png",
     "name_in_capitals": "JOHN OFOSUHENE ASARE",
     "title": "Elder",
     "position": "Executive Board Member",
@@ -537,6 +545,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-011",
     "member_no": 11,
     "full_name": "Johnson Wood",
+    "profile_picture": "/members/ony-011.png",
     "name_in_capitals": "JOHNSON WOOD",
     "title": "Elder",
     "position": "Secretary",
@@ -643,6 +652,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-013",
     "member_no": 13,
     "full_name": "Jonathan Danso Siaw",
+    "profile_picture": "/members/ony-013.png",
     "name_in_capitals": "JONATHAN DANSO SIAW",
     "title": "Elder",
     "position": "Secretary (Executive Board)",
@@ -749,6 +759,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-015",
     "member_no": 15,
     "full_name": "Justice Kojo Acheampong",
+    "profile_picture": "/members/ony-015.png",
     "name_in_capitals": "JUSTICE KOJO ACHEAMPONG",
     "title": "Elder",
     "position": "Youth Chairman",
@@ -802,6 +813,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-016",
     "member_no": 16,
     "full_name": "Just-Mark Kwabena Quansah",
+    "profile_picture": "/members/ony-016.png",
     "name_in_capitals": "JUST-MARK KWABENA QUANSAH",
     "title": "Elder",
     "position": "P.R.O. (Executive Board)",
@@ -855,6 +867,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-017",
     "member_no": 17,
     "full_name": "Maxwell Ofei Siaw",
+    "profile_picture": "/members/ony-017.png",
     "name_in_capitals": "MAXWELL OFEI SIAW",
     "title": "Elder",
     "position": "Secretary",
@@ -908,6 +921,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-018",
     "member_no": 18,
     "full_name": "Moses Oduro",
+    "profile_picture": "/members/ony-018.png",
     "name_in_capitals": "MOSES ODURO",
     "title": "Elder",
     "position": "President (Executive Board)",
@@ -961,6 +975,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-019",
     "member_no": 19,
     "full_name": "Osei Kwame",
+    "profile_picture": "/members/ony-019.png",
     "name_in_capitals": "OSEI KWAME",
     "title": "Elder",
     "position": "Vice President (Executive Board)",
@@ -1014,6 +1029,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-020",
     "member_no": 20,
     "full_name": "Peter Kingsford Nkrumah",
+    "profile_picture": "/members/ony-020.png",
     "name_in_capitals": "PETER KINGSFORD NKRUMAH",
     "title": "Elder",
     "position": "Secretary",
@@ -1067,6 +1083,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-021",
     "member_no": 21,
     "full_name": "Prince Asante Ahwireng",
+    "profile_picture": "/members/ony-021.png",
     "name_in_capitals": "PRINCE ASANTE AHWIRENG",
     "title": "Elder",
     "position": "Treasurer",
@@ -1173,6 +1190,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-023",
     "member_no": 23,
     "full_name": "Vincent Agamatey",
+    "profile_picture": "/members/ony-023.png",
     "name_in_capitals": "VINCENT AGAMATEY",
     "title": "Elder",
     "position": "Treasurer",
@@ -1226,6 +1244,7 @@ const INITIAL_MEMBERS = [
     "excel_member_id": "ONY-024",
     "member_no": 24,
     "full_name": "William Kojo Anane",
+    "profile_picture": "/members/ony-024.png",
     "name_in_capitals": "WILLIAM KOJO ANANE",
     "title": "Elder",
     "position": "Executive Board Member",
@@ -1311,7 +1330,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-09-28-v5-personal-record-excel-sync';
+const DATA_VERSION = '2026-09-28-v6-official-member-photos-sync';
 
 export const getMembers = () => {
   try {
@@ -1343,6 +1362,7 @@ export const getMembers = () => {
     if (initMatch) {
       if (m.base_dues_paid === undefined) m.base_dues_paid = initMatch.base_dues_paid || initMatch.dues_paid;
       if (m.base_shares_value === undefined) m.base_shares_value = initMatch.base_shares_value || initMatch.shares_value;
+      if (!m.profile_picture && initMatch.profile_picture) m.profile_picture = initMatch.profile_picture;
     }
     return recalculateMemberFinancials(m);
   });
