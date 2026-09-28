@@ -12,13 +12,40 @@ import ExecutiveAuthModal from './components/ExecutiveAuthModal';
 import { getMembers, getContributions } from './services/store';
 
 export default function App() {
-  const [activePage, setActivePage] = useState('home'); // 'home', 'about', 'contact', 'login', 'dashboard', 'admin'
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [activePage, setActivePage] = useState(() => {
+    try {
+      return localStorage.getItem('ony_active_page') || 'home';
+    } catch {
+      return 'home';
+    }
+  });
+
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ony_current_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      return localStorage.getItem('ony_dark_mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
   
   // Executive Re-Authentication State
   const [showExecutiveAuthModal, setShowExecutiveAuthModal] = useState(false);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    try {
+      return sessionStorage.getItem('ony_admin_auth') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   // Live state from store
   const [members, setMembers] = useState([]);
@@ -29,19 +56,33 @@ export default function App() {
     setContributions(getContributions());
   }, []);
 
-  // Reset admin session authentication when user logs out or changes
+  // Save auth & page state to localStorage
   useEffect(() => {
-    setIsAdminAuthenticated(false);
+    if (currentUser) {
+      localStorage.setItem('ony_current_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('ony_current_user');
+      sessionStorage.removeItem('ony_admin_auth');
+      setIsAdminAuthenticated(false);
+    }
   }, [currentUser]);
 
-  // Update root dark class
   useEffect(() => {
+    localStorage.setItem('ony_active_page', activePage);
+  }, [activePage]);
+
+  useEffect(() => {
+    localStorage.setItem('ony_dark_mode', isDarkMode ? 'true' : 'false');
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  useEffect(() => {
+    sessionStorage.setItem('ony_admin_auth', isAdminAuthenticated ? 'true' : 'false');
+  }, [isAdminAuthenticated]);
 
   // Guarded Navigation Handler
   const handleNavigate = (page) => {
@@ -54,6 +95,7 @@ export default function App() {
 
   const handleExecutiveAuthSuccess = () => {
     setIsAdminAuthenticated(true);
+    sessionStorage.setItem('ony_admin_auth', 'true');
     setShowExecutiveAuthModal(false);
     setActivePage('admin');
   };
