@@ -1330,7 +1330,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-09-28-v6-official-member-photos-sync';
+const DATA_VERSION = '2026-09-28-v7-clean-keyin-history';
 
 export const getMembers = () => {
   try {
@@ -1338,6 +1338,7 @@ export const getMembers = () => {
     if (currentVersion !== DATA_VERSION) {
       localStorage.removeItem('ony_members');
       localStorage.removeItem('association_members');
+      localStorage.removeItem('ony_keyin_history');
       localStorage.setItem('ony_data_version', DATA_VERSION);
       const fresh = INITIAL_MEMBERS.map(m => recalculateMemberFinancials({ ...m }));
       localStorage.setItem('ony_members', JSON.stringify(fresh));
@@ -1492,80 +1493,7 @@ export const updateMemberPin = (memberId, newPin) => {
   return null;
 };
 
-const INITIAL_KEYIN_HISTORY = [
-  {
-    id: 'kh-init-01',
-    timestamp: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
-    paymentDate: '2026-09-25',
-    memberId: 'm-001',
-    memberNo: 1,
-    excelMemberId: 'ONY-001',
-    memberName: 'Alex Ackah',
-    branch: 'Takoradi',
-    profilePicture: '/members/ony-001.png',
-    entryType: 'Yearly Dues Key-In',
-    oldDues: 2500,
-    newDues: 3000,
-    delta: 500,
-    amount: 500,
-    action: 'add',
-    paymentMethod: 'Mobile Money',
-    referenceNote: 'Verified 2026 Yearly Dues Top-up at Executive Meeting',
-    recordedBy: 'Moses Oduro (President)',
-    oldShares: 2529.04,
-    newShares: 3034.85,
-    oldGrandTotal: 2531.19,
-    newGrandTotal: 3036.99
-  },
-  {
-    id: 'kh-init-02',
-    timestamp: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
-    paymentDate: '2026-09-26',
-    memberId: 'm-002',
-    memberNo: 2,
-    excelMemberId: 'ONY-002',
-    memberName: 'Danso Kingsley',
-    branch: 'Mampong',
-    profilePicture: '/members/ony-002.png',
-    entryType: 'Yearly Dues Key-In',
-    oldDues: 3000,
-    newDues: 3500,
-    delta: 500,
-    amount: 500,
-    action: 'add',
-    paymentMethod: 'Cash',
-    referenceNote: 'Dues installment payment recorded at Mampong branch',
-    recordedBy: 'Jonathan Danso Siaw (Secretary)',
-    oldShares: 3034.85,
-    newShares: 3540.66,
-    oldGrandTotal: 3036.99,
-    newGrandTotal: 3542.80
-  },
-  {
-    id: 'kh-init-03',
-    timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
-    paymentDate: '2026-09-28',
-    memberId: 'm-018',
-    memberNo: 18,
-    excelMemberId: 'ONY-018',
-    memberName: 'Moses Oduro',
-    branch: 'Noyem',
-    profilePicture: '/members/ony-018.png',
-    entryType: 'Yearly Dues Key-In',
-    oldDues: 3300,
-    newDues: 3900,
-    delta: 600,
-    amount: 600,
-    action: 'add',
-    paymentMethod: 'Fidelity Bank',
-    referenceNote: 'Final 2026 Dues clearance paid into Fidelity Bank account',
-    recordedBy: 'Executive Admin Console',
-    oldShares: 3338.33,
-    newShares: 3945.30,
-    oldGrandTotal: 3340.48,
-    newGrandTotal: 3947.45
-  }
-];
+const INITIAL_KEYIN_HISTORY = [];
 
 export const getKeyInHistory = () => {
   const stored = localStorage.getItem('ony_keyin_history');
@@ -1574,7 +1502,16 @@ export const getKeyInHistory = () => {
     return INITIAL_KEYIN_HISTORY;
   }
   try {
-    return JSON.parse(stored);
+    const list = JSON.parse(stored);
+    if (Array.isArray(list)) {
+      // Filter out any older mock demo seed entries if present
+      const cleaned = list.filter(item => item && !String(item.id).startsWith('kh-init-'));
+      if (cleaned.length !== list.length) {
+        localStorage.setItem('ony_keyin_history', JSON.stringify(cleaned));
+      }
+      return cleaned;
+    }
+    return INITIAL_KEYIN_HISTORY;
   } catch (e) {
     return INITIAL_KEYIN_HISTORY;
   }

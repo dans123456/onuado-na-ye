@@ -995,14 +995,32 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             {/* History Table */}
             {filteredHistory.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '3.5rem 1rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px dashed var(--border-color)' }}>
-                <Clock size={40} color="var(--text-muted)" style={{ margin: '0 auto 0.75rem auto', opacity: 0.6 }} />
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 0.4rem 0' }}>No Key-In Entries Found</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: '400px', margin: '0 auto 1.25rem auto' }}>
-                  {historySearch ? 'No history matching your search query. Try clearing the search filter.' : 'No dues key-in entries have been recorded yet.'}
+                <Clock size={42} color="var(--text-muted)" style={{ margin: '0 auto 0.75rem auto', opacity: 0.6 }} />
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: '0 0 0.4rem 0' }}>
+                  {historySearch ? 'No Matching Key-In Entries Found' : 'No Key-In Entries Recorded Yet'}
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto 1.25rem auto' }}>
+                  {historySearch 
+                    ? 'No history matching your search query. Try clearing your search or filter pills.' 
+                    : 'This audit history is clean and ready. Whenever you key in dues payments or adjustments for members, they will appear here with full timestamps and details.'}
                 </p>
-                {historySearch && (
-                  <button onClick={() => { setHistorySearch(''); setHistoryFilter('all'); }} className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>
+                {historySearch ? (
+                  <button onClick={() => { setHistorySearch(''); setHistoryFilter('all'); }} className="btn btn-secondary" style={{ padding: '0.5rem 1.1rem', fontSize: '0.82rem' }}>
                     Clear Search Filter
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      setEditorMemberId(members[0]?.id || '');
+                      setEditorMode('add');
+                      setEditorAmount('');
+                      setEditorError('');
+                      setIsDuesEditorOpen(true);
+                    }}
+                    className="btn btn-primary" 
+                    style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    <Zap size={15} /> ⚡ Key In First Dues Entry
                   </button>
                 )}
               </div>
