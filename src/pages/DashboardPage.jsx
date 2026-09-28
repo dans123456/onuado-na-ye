@@ -55,19 +55,22 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   // Filter user's specific contributions
   const userContributions = contributions.filter(c => c.member_id === currentUser?.id);
 
-  // Values from Excel Record or Store Fallbacks
-  const regFees = currentUser?.reg_fees || 200.00;
-  const duesPaid = currentUser?.dues_paid || 3000.00;
-  const levyPaid = currentUser?.levy_paid || 1000.00;
-  const totalPayments = currentUser?.total_payments || (duesPaid + levyPaid + regFees);
-  const duesFeeRequired = currentUser?.dues_fee_required || 3900.00;
-  const sharesDividends = currentUser?.shares_dividends || 60;
-  const sharesValue = currentUser?.shares_value || 3035.06;
-  const treasurerBill = currentUser?.treasurer_bill || 828.36;
-  const sharesHolding = currentUser?.shares_holding || 3863.42;
-  const balanceOwed = currentUser?.balance_owed !== undefined ? currentUser.balance_owed : Math.max(0, duesFeeRequired - duesPaid);
+  // Live sync with members array so admin key-in edits immediately reflect for this specific member!
+  const currentMember = members?.find(m => m.id === currentUser?.id) || currentUser;
+
+  // Values from live member record
+  const regFees = currentMember?.reg_fees || 200.00;
+  const duesPaid = currentMember?.dues_paid !== undefined ? currentMember.dues_paid : 3000.00;
+  const levyPaid = currentMember?.levy_paid !== undefined ? currentMember.levy_paid : 1000.00;
+  const totalPayments = currentMember?.total_payments !== undefined ? currentMember.total_payments : (duesPaid + levyPaid + regFees);
+  const duesFeeRequired = currentMember?.dues_fee_required || 3900.00;
+  const sharesDividends = currentMember?.shares_dividends !== undefined ? currentMember.shares_dividends : 60;
+  const sharesValue = currentMember?.shares_value !== undefined ? currentMember.shares_value : 3035.06;
+  const treasurerBill = currentMember?.treasurer_bill !== undefined ? currentMember.treasurer_bill : 828.36;
+  const sharesHolding = currentMember?.shares_holding !== undefined ? currentMember.shares_holding : 3863.42;
+  const balanceOwed = currentMember?.balance_owed !== undefined ? currentMember.balance_owed : Math.max(0, duesFeeRequired - duesPaid);
   const netPayoutValue = Math.max(0, sharesHolding - balanceOwed);
-  const memberLevyList = getMemberLevyDetails(currentUser);
+  const memberLevyList = getMemberLevyDetails(currentMember);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];

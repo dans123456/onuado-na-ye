@@ -56,6 +56,21 @@ export default function App() {
     setContributions(getContributions());
   }, []);
 
+  // Keep currentUser automatically synchronized with members list updates
+  useEffect(() => {
+    if (currentUser && members && members.length > 0) {
+      const liveUser = members.find(m => m.id === currentUser.id);
+      if (liveUser && (
+        liveUser.dues_paid !== currentUser.dues_paid || 
+        liveUser.shares_value !== currentUser.shares_value ||
+        liveUser.balance_owed !== currentUser.balance_owed ||
+        liveUser.total_payments !== currentUser.total_payments
+      )) {
+        setCurrentUser(liveUser);
+      }
+    }
+  }, [members]);
+
   // Save auth & page state to localStorage
   useEffect(() => {
     if (currentUser) {
