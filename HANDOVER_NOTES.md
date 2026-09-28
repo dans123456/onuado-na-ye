@@ -20,6 +20,24 @@ The application is **100% built, fully mobile-responsive, connected to live Supa
 
 ## 🛠️ Key Work Completed Today
 
+0. **Direct Member Dues Key-In & Real-Time Calculation Engine**:
+   - Replaced unreliable Excel file upload dependency with a direct, real-time key-in editor for Executive Admins.
+   - Accessible via:
+     - ⚡ **"Key In Member Dues"** top header button
+     - ⚡ **"Key In Member Dues"** navigation toolbar tab
+     - ✏️ **"Update Dues"** quick button on every member row in the Master Roster
+     - ⚡ **"Key In Dues"** button inside the 45-field member dossier modal
+   - Supports two intuitive entry modes:
+     - **+ Add Payment to Dues** (top-up existing dues by an amount)
+     - **✏️ Set Exact Total Dues** (manually set new cumulative total)
+   - Live recalculation preview on screen:
+     - Dues Paid (Before → After & Delta)
+     - Outstanding Balance Owed
+     - Shares Value & Dividends
+     - Grand Holding
+     - Fellowship Master Financial Totals (Shares Total & Grand Total)
+   - One-click immediate persistence to state and `localStorage` with automatic receipt creation in contributions history.
+
 1. **Rebranding to Official Title**:
    - Updated all application titles, logos, navbars, footers, headers, receipts, and pages to **ONUADO NA EYE MENS' FELLOWSHIP**.
 
