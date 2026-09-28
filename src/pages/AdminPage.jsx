@@ -349,21 +349,6 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 style={{ display: 'none' }}
               />
             </label>
-            <button
-              type="button"
-              onClick={() => {
-                if (window.confirm("Reset all member ledgers back to the exact Excel Master Baseline (GH₵ 66,564.36 Shares / GH₵ 77,067.06 Grand Total)?")) {
-                  const resetList = resetMembersToBaseline();
-                  if (setMembers) setMembers(resetList);
-                  setImportSuccess("Ledgers successfully reset to exact Excel Master Baseline!");
-                  setTimeout(() => setImportSuccess(''), 4000);
-                }
-              }}
-              className="btn"
-              style={{ fontSize: '0.72rem', padding: '0.3rem 0.75rem', fontWeight: 800, background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.35)', cursor: 'pointer' }}
-            >
-              <RefreshCw size={12} /> Reset to Excel Baseline
-            </button>
           </div>
         </div>
 
