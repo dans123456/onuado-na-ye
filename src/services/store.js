@@ -1287,7 +1287,23 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
+const DATA_VERSION = '2026-09-28-v4-maxwell-deduction-sync';
+
 export const getMembers = () => {
+  try {
+    const currentVersion = localStorage.getItem('ony_data_version');
+    if (currentVersion !== DATA_VERSION) {
+      localStorage.removeItem('ony_members');
+      localStorage.removeItem('association_members');
+      localStorage.setItem('ony_data_version', DATA_VERSION);
+      const fresh = INITIAL_MEMBERS.map(m => recalculateMemberFinancials({ ...m }));
+      localStorage.setItem('ony_members', JSON.stringify(fresh));
+      return fresh;
+    }
+  } catch (e) {
+    console.warn('Storage check failed:', e);
+  }
+
   const stored = localStorage.getItem('ony_members');
   let memberList = INITIAL_MEMBERS;
   if (stored) {
