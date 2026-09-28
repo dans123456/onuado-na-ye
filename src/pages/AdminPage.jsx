@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
+import { handleExcelUpload } from '../utils/excelHandler';
 import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import LoadingModal from '../components/LoadingModal';
@@ -151,6 +152,29 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         setIsLoadingModalOpen(false);
       }, 600);
     }
+  };
+
+  const handleDirectDuesUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    setLoadingTitle('Processing Updated Excel Dues...');
+    setLoadingSubtitle('Matching members, updating yearly dues & recalculating shares total...');
+    setIsLoadingModalOpen(true);
+
+    setTimeout(() => {
+      handleExcelUpload(file, members, setMembers, ({ success, updatedCount, error }) => {
+        setIsLoadingModalOpen(false);
+        if (success) {
+          setImportSuccess(`Dues updated and totals recalculated successfully! (${updatedCount} member(s) updated)`);
+          setTimeout(() => setImportSuccess(''), 5000);
+        } else {
+          alert('Excel Upload Error: ' + (error || 'Unknown error'));
+        }
+      });
+    }, 500);
+
+    e.target.value = '';
   };
 
   const handleBulkImport = () => {
@@ -325,21 +349,35 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Sparkles size={16} /> Fellowship Master Financial Totals (Excel Sync)
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              if (window.confirm("Reset all member ledgers back to the exact Excel Master Baseline (GH₵ 66,564.36 Shares / GH₵ 77,067.06 Grand Total)?")) {
-                const resetList = resetMembersToBaseline();
-                if (setMembers) setMembers(resetList);
-                setImportSuccess("Ledgers successfully reset to exact Excel Master Baseline!");
-                setTimeout(() => setImportSuccess(''), 4000);
-              }
-            }}
-            className="btn"
-            style={{ fontSize: '0.72rem', padding: '0.3rem 0.75rem', fontWeight: 800, background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.35)', cursor: 'pointer' }}
-          >
-            <RefreshCw size={12} /> Reset to Excel Baseline
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <label
+              className="btn"
+              style={{ fontSize: '0.72rem', padding: '0.3rem 0.75rem', fontWeight: 800, background: 'rgba(5, 150, 105, 0.1)', color: '#059669', border: '1px solid rgba(5, 150, 105, 0.35)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              <UploadCloud size={12} /> Upload Updated Excel
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleDirectDuesUpload}
+                style={{ display: 'none' }}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm("Reset all member ledgers back to the exact Excel Master Baseline (GH₵ 66,564.36 Shares / GH₵ 77,067.06 Grand Total)?")) {
+                  const resetList = resetMembersToBaseline();
+                  if (setMembers) setMembers(resetList);
+                  setImportSuccess("Ledgers successfully reset to exact Excel Master Baseline!");
+                  setTimeout(() => setImportSuccess(''), 4000);
+                }
+              }}
+              className="btn"
+              style={{ fontSize: '0.72rem', padding: '0.3rem 0.75rem', fontWeight: 800, background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.35)', cursor: 'pointer' }}
+            >
+              <RefreshCw size={12} /> Reset to Excel Baseline
+            </button>
+          </div>
         </div>
 
         {(() => {
