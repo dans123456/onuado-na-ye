@@ -1,14 +1,83 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, calculateDuesImpact } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import LoadingModal from '../components/LoadingModal';
 
 export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('uploader'); // 'uploader', 'roster', 'manual', 'announcement', 'treasury'
   const [showAllBranches, setShowAllBranches] = useState(false);
+
+  // Direct Key-In Member Dues Editor State
+  const [isDuesEditorOpen, setIsDuesEditorOpen] = useState(false);
+  const [editorMemberId, setEditorMemberId] = useState(members[0]?.id || '');
+  const [editorMode, setEditorMode] = useState('add'); // 'add' (top up) or 'set' (exact new total)
+  const [editorAmount, setEditorAmount] = useState('');
+  const [editorMethod, setEditorMethod] = useState('Mobile Money');
+  const [editorDate, setEditorDate] = useState(new Date().toISOString().split('T')[0]);
+  const [editorNote, setEditorNote] = useState('');
+  const [editorError, setEditorError] = useState('');
+
+  const openDuesEditorForMember = (member) => {
+    if (!member) return;
+    setEditorMemberId(member.id);
+    setEditorMode('add');
+    setEditorAmount('');
+    setEditorMethod('Mobile Money');
+    setEditorDate(new Date().toISOString().split('T')[0]);
+    setEditorNote('');
+    setEditorError('');
+    setIsDuesEditorOpen(true);
+  };
+
+  const handleDirectDuesSubmit = (e) => {
+    e.preventDefault();
+    setEditorError('');
+
+    const targetMember = members.find(m => m.id === editorMemberId);
+    if (!targetMember) {
+      setEditorError('Please select a member.');
+      return;
+    }
+
+    const currentDues = parseFloat(targetMember.dues_paid) || 0;
+    const inputVal = parseFloat(editorAmount);
+
+    if (isNaN(inputVal) || inputVal < 0) {
+      setEditorError('Please enter a valid amount.');
+      return;
+    }
+
+    const targetDues = editorMode === 'add' ? (currentDues + inputVal) : inputVal;
+
+    try {
+      const result = updateMemberDuesDirectly({
+        memberId: targetMember.id,
+        newDuesAmount: targetDues,
+        paymentMethod: editorMethod,
+        referenceNote: editorNote || (editorMode === 'add' ? `Direct Key-In Dues Top-up (+GH₵ ${inputVal.toFixed(2)})` : `Direct Key-In Set Total (GH₵ ${targetDues.toFixed(2)})`),
+        paymentDate: editorDate,
+        receivedByName: currentUser?.full_name || 'Executive Admin'
+      });
+
+      if (setMembers) {
+        setMembers(result.updatedMembers);
+      }
+      if (setContributions) {
+        setContributions(result.updatedContributions);
+      }
+
+      const diffLabel = result.delta >= 0 ? `+GH₵ ${result.delta.toFixed(2)}` : `-GH₵ ${Math.abs(result.delta).toFixed(2)}`;
+      setImportSuccess(`✅ Successfully updated ${result.affectedMember.full_name}'s Yearly Dues to GH₵ ${result.newDues.toFixed(2)} (${diffLabel})! All Shares, Dividends, and Fellowship Grand Totals recalculated live.`);
+      
+      setIsDuesEditorOpen(false);
+      setTimeout(() => setImportSuccess(''), 6000);
+    } catch (err) {
+      setEditorError(err.message || 'Error updating member dues.');
+    }
+  };
 
   // Uploader State
   const [dragActive, setDragActive] = useState(false);
@@ -337,8 +406,21 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(37, 99, 235, 0.05))', border: '2px solid rgba(220, 38, 38, 0.3)' }}>
         <div style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: '#dc2626', marginBottom: '1rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Sparkles size={16} /> Fellowship Master Financial Totals (Excel Sync)
+            <Sparkles size={16} /> Fellowship Master Financial Totals (Live Sync)
           </div>
+          <button 
+            onClick={() => {
+              setEditorMemberId(members[0]?.id || '');
+              setEditorMode('add');
+              setEditorAmount('');
+              setEditorError('');
+              setIsDuesEditorOpen(true);
+            }} 
+            className="btn btn-primary"
+            style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}
+          >
+            <Zap size={14} /> ⚡ Key In Member Dues
+          </button>
         </div>
 
         {(() => {
@@ -386,6 +468,19 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       {/* Navigation Tabs & Actions */}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => {
+              setEditorMemberId(members[0]?.id || '');
+              setEditorMode('add');
+              setEditorAmount('');
+              setEditorError('');
+              setIsDuesEditorOpen(true);
+            }} 
+            className="btn"
+            style={{ padding: '0.6rem 1.15rem', fontWeight: 800, fontSize: '0.88rem', background: '#059669', color: '#fff', border: '1px solid #059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.2)' }}
+          >
+            <Zap size={16} /> ⚡ Key In Member Dues
+          </button>
           <button 
             onClick={() => setActiveTab('uploader')} 
             className={`btn ${activeTab === 'uploader' ? 'btn-primary' : 'btn-secondary'}`}
@@ -1032,14 +1127,16 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <th>Full Name</th>
                   <th>Branch</th>
                   <th>Primary Phone</th>
+                  <th>Yearly Dues Paid</th>
                   <th>Outstanding Balance</th>
                   <th>Status</th>
-                  <th>Action (Inspect Dossier)</th>
+                  <th>Quick Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredRoster.map(m => {
-                  const balanceOwed = m.balance_owed !== undefined ? m.balance_owed : Math.max(0, (m.dues_fee_required || 3900) - (m.dues_paid || 0));
+                  const duesPaid = parseFloat(m.dues_paid) || 0;
+                  const balanceOwed = m.balance_owed !== undefined ? m.balance_owed : Math.max(0, (m.dues_fee_required || 3900) - duesPaid);
                   return (
                     <tr key={m.id}>
                       <td style={{ fontWeight: 800, color: 'var(--accent-600)' }}>
@@ -1053,6 +1150,10 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       </td>
                       <td style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{m.branch}</td>
                       <td>{m.phone_number}</td>
+                      <td style={{ fontWeight: 800, color: '#059669' }}>
+                        GH₵ {duesPaid.toFixed(2)}
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>of GH₵ 3,900</span>
+                      </td>
                       <td style={{ fontWeight: 800, color: balanceOwed > 0 ? '#dc2626' : '#059669' }}>
                         GH₵ {balanceOwed.toFixed(2)}
                         {balanceOwed > 0 && <span style={{ fontSize: '0.7rem', color: '#dc2626', display: 'block', fontWeight: 600 }}>Owed ⚠️</span>}
@@ -1063,13 +1164,23 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                         </span>
                       </td>
                       <td>
-                        <button 
-                          onClick={() => setSelectedDossierMember(m)}
-                          className="btn btn-secondary"
-                          style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: 'var(--primary-700)', border: '1px solid rgba(5, 150, 105, 0.4)' }}
-                        >
-                          <Eye size={14} color="#059669" /> Inspect 45 Fields &rarr;
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                          <button 
+                            onClick={() => openDuesEditorForMember(m)}
+                            className="btn btn-primary"
+                            style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#059669', borderColor: '#059669' }}
+                            title="Key in dues changes directly"
+                          >
+                            <Edit3 size={13} /> Update Dues
+                          </button>
+                          <button 
+                            onClick={() => setSelectedDossierMember(m)}
+                            className="btn btn-secondary"
+                            style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--primary-700)', border: '1px solid rgba(5, 150, 105, 0.4)' }}
+                          >
+                            <Eye size={13} color="#059669" /> Dossier
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1198,25 +1309,38 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </div>
               </div>
 
-              <button 
-                onClick={() => setSelectedDossierMember(null)} 
-                aria-label="Close Master Dossier"
-                style={{ 
-                  background: 'var(--bg-main)', 
-                  border: '1px solid var(--border-color)', 
-                  borderRadius: '50%', 
-                  width: '38px', 
-                  height: '38px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  cursor: 'pointer', 
-                  flexShrink: 0, 
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)' 
-                }}
-              >
-                <X size={20} />
-              </button>
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexShrink: 0 }}>
+                <button 
+                  onClick={() => {
+                    const m = selectedDossierMember;
+                    setSelectedDossierMember(null);
+                    openDuesEditorForMember(m);
+                  }}
+                  className="btn btn-primary"
+                  style={{ padding: '0.45rem 0.95rem', fontSize: '0.82rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  <Zap size={14} /> Key In Dues
+                </button>
+                <button 
+                  onClick={() => setSelectedDossierMember(null)} 
+                  aria-label="Close Master Dossier"
+                  style={{ 
+                    background: 'var(--bg-main)', 
+                    border: '1px solid var(--border-color)', 
+                    borderRadius: '50%', 
+                    width: '38px', 
+                    height: '38px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    cursor: 'pointer', 
+                    flexShrink: 0, 
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)' 
+                  }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             {/* 45 FIELDS DOSSIER CONTENT GRID */}
@@ -1356,6 +1480,316 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         subtitle={loadingSubtitle} 
         type="excel" 
       />
+
+      {/* ⚡ DIRECT KEY-IN MEMBER DUES EDITOR MODAL */}
+      {isDuesEditorOpen && (() => {
+        const activeEditorMember = members.find(m => m.id === editorMemberId) || members[0];
+        const curDues = parseFloat(activeEditorMember?.dues_paid) || 0;
+        const inputNum = parseFloat(editorAmount) || 0;
+        const targetDues = editorMode === 'add' ? (curDues + inputNum) : (editorAmount !== '' ? inputNum : curDues);
+        const impact = calculateDuesImpact(activeEditorMember, targetDues);
+        const hasChange = impact && Math.abs(impact.duesDelta) >= 0.01;
+
+        return (
+          <div style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            background: 'rgba(0,0,0,0.82)', 
+            backdropFilter: 'blur(8px)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            zIndex: 100000, 
+            padding: '1.25rem', 
+            overflowY: 'auto' 
+          }}>
+            <div className="glass-card" style={{ 
+              maxWidth: '680px', 
+              width: '100%', 
+              margin: 'auto', 
+              padding: '2.25rem', 
+              borderRadius: '20px', 
+              background: 'var(--bg-card)', 
+              maxHeight: '92vh', 
+              overflowY: 'auto', 
+              boxShadow: '0 25px 60px -15px rgba(0,0,0,0.6)',
+              border: '2px solid rgba(5, 150, 105, 0.4)'
+            }}>
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                    <span style={{ background: '#059669', color: '#fff', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <Zap size={12} /> Direct Key-In
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Live Instant Calculation</span>
+                  </div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--primary-700)', margin: 0 }}>
+                    Key In Member Dues & Instant Recalculation
+                  </h2>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.35rem 0 0 0' }}>
+                    Directly key in dues payments or adjust yearly totals. Formulas update Shares, Dividends, and Fellowship Master Totals immediately upon saving.
+                  </p>
+                </div>
+
+                <button 
+                  onClick={() => setIsDuesEditorOpen(false)}
+                  style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {editorError && (
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, marginBottom: '1rem', border: '1px solid rgba(220, 38, 38, 0.3)' }}>
+                  ⚠️ {editorError}
+                </div>
+              )}
+
+              <form onSubmit={handleDirectDuesSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {/* 1. Select Member */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>
+                    1. Select Fellowship Member
+                  </label>
+                  <select 
+                    className="form-select"
+                    value={editorMemberId}
+                    onChange={(e) => setEditorMemberId(e.target.value)}
+                    style={{ fontWeight: 700, padding: '0.7rem' }}
+                  >
+                    {members.map(m => (
+                      <option key={m.id} value={m.id}>
+                        {m.excel_member_id} • {m.full_name} ({m.branch}) — Dues Paid: GH₵ {(m.dues_paid || 0).toFixed(2)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. Snapshot of Current Standing */}
+                {activeEditorMember && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Current Dues Paid</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#059669' }}>GH₵ {curDues.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Outstanding Owed</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: Math.max(0, 3900 - curDues) > 0 ? '#dc2626' : '#059669' }}>
+                        GH₵ {Math.max(0, 3900 - curDues).toFixed(2)}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#2563eb' }}>
+                        GH₵ {(parseFloat(activeEditorMember.shares_value) || 0).toFixed(2)}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Grand Holding</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#7c3aed' }}>
+                        GH₵ {(parseFloat(activeEditorMember.shares_holding) || 0).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. Choose Entry Mode */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>
+                    2. Choose Entry Mode
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => setEditorMode('add')}
+                      style={{
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: '8px',
+                        fontSize: '0.85rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.4rem',
+                        background: editorMode === 'add' ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-main)',
+                        border: editorMode === 'add' ? '2px solid #059669' : '1px solid var(--border-color)',
+                        color: editorMode === 'add' ? '#059669' : 'var(--text-main)'
+                      }}
+                    >
+                      <PlusCircle size={15} /> + Add Payment to Dues
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setEditorMode('set')}
+                      style={{
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: '8px',
+                        fontSize: '0.85rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.4rem',
+                        background: editorMode === 'set' ? 'rgba(37, 99, 235, 0.15)' : 'var(--bg-main)',
+                        border: editorMode === 'set' ? '2px solid #2563eb' : '1px solid var(--border-color)',
+                        color: editorMode === 'set' ? '#2563eb' : 'var(--text-main)'
+                      }}
+                    >
+                      <Edit3 size={15} /> ✏️ Set Exact Total Dues
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. Amount Input */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>
+                    {editorMode === 'add' ? '3. Payment Amount to Add (GH₵)' : '3. Exact New Yearly Dues Amount (GH₵)'}
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 800, color: 'var(--text-muted)' }}>
+                      GH₵
+                    </span>
+                    <input 
+                      type="number"
+                      step="0.01"
+                      required
+                      placeholder={editorMode === 'add' ? 'e.g. 500.00' : 'e.g. 3500.00'}
+                      className="form-input"
+                      style={{ paddingLeft: '3.2rem', fontSize: '1.15rem', fontWeight: 800, height: '48px' }}
+                      value={editorAmount}
+                      onChange={(e) => setEditorAmount(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                {/* 5. Payment Details */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.3rem' }}>Payment Method</label>
+                    <select 
+                      className="form-select"
+                      value={editorMethod}
+                      onChange={(e) => setEditorMethod(e.target.value)}
+                      style={{ fontSize: '0.85rem', padding: '0.55rem' }}
+                    >
+                      <option value="Mobile Money">Mobile Money (0530486443)</option>
+                      <option value="Cash">Cash at Meeting</option>
+                      <option value="Fidelity Bank">Fidelity Bank (2090182444410)</option>
+                      <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.3rem' }}>Payment Date</label>
+                    <input 
+                      type="date"
+                      className="form-input"
+                      value={editorDate}
+                      onChange={(e) => setEditorDate(e.target.value)}
+                      style={{ fontSize: '0.85rem', padding: '0.55rem' }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.3rem' }}>Reference / Receipt Note (Optional)</label>
+                  <input 
+                    type="text"
+                    placeholder="e.g. Dues payment recorded at meeting"
+                    className="form-input"
+                    value={editorNote}
+                    onChange={(e) => setEditorNote(e.target.value)}
+                    style={{ fontSize: '0.85rem' }}
+                  />
+                </div>
+
+                {/* 6. LIVE BEFORE & AFTER IMPACT PREVIEW */}
+                {impact && (
+                  <div style={{ padding: '1.25rem', borderRadius: '12px', background: hasChange ? 'rgba(5, 150, 105, 0.06)' : 'var(--bg-main)', border: hasChange ? '1.5px solid rgba(5, 150, 105, 0.35)' : '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 800, color: hasChange ? '#059669' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>⚡ Live Financial Calculation Preview</span>
+                      {hasChange && (
+                        <span className="badge" style={{ background: impact.duesDelta >= 0 ? '#059669' : '#dc2626', color: '#fff', fontSize: '0.72rem' }}>
+                          {impact.duesDelta >= 0 ? `+GH₵ ${impact.duesDelta.toFixed(2)} Increase` : `-GH₵ ${Math.abs(impact.duesDelta).toFixed(2)} Deduction`}
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', fontSize: '0.85rem' }}>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Yearly Dues Paid</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>GH₵ {impact.oldDues.toFixed(2)}</span>
+                          <span>→</span>
+                          <strong style={{ color: '#059669' }}>GH₵ {impact.newDues.toFixed(2)}</strong>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Outstanding Balance</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>GH₵ {impact.oldBalanceOwed.toFixed(2)}</span>
+                          <span>→</span>
+                          <strong style={{ color: impact.newBalanceOwed > 0 ? '#dc2626' : '#059669' }}>
+                            GH₵ {impact.newBalanceOwed.toFixed(2)}
+                          </strong>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Shares Value</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>GH₵ {impact.oldShares.toFixed(2)}</span>
+                          <span>→</span>
+                          <strong style={{ color: '#2563eb' }}>GH₵ {impact.newShares.toFixed(2)}</strong>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Grand Total Holding</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>GH₵ {impact.oldGrandTotal.toFixed(2)}</span>
+                          <span>→</span>
+                          <strong style={{ color: '#7c3aed' }}>GH₵ {impact.newGrandTotal.toFixed(2)}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 7. Action Buttons */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                  <button 
+                    type="button"
+                    onClick={() => setIsDuesEditorOpen(false)}
+                    className="btn btn-secondary"
+                    style={{ padding: '0.75rem 1.25rem', fontWeight: 700 }}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ padding: '0.75rem 1.75rem', fontWeight: 800, fontSize: '0.95rem', background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    <CheckCircle2 size={18} /> Save & Apply Changes Immediately
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+      })()}
 
 
 

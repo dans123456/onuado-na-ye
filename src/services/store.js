@@ -1448,6 +1448,76 @@ export const updateMemberPin = (memberId, newPin) => {
   return null;
 };
 
+export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMethod = 'Cash', referenceNote = '', paymentDate = '', receivedByName = 'Executive Admin' }) => {
+  const members = getMembers();
+  const memberIndex = members.findIndex(m => m.id === memberId || m.excel_member_id === memberId);
+  if (memberIndex === -1) {
+    throw new Error('Member not found in database.');
+  }
+
+  const member = members[memberIndex];
+  const oldDues = parseFloat(member.dues_paid) || 0;
+  const targetDues = Math.max(0, parseFloat(newDuesAmount) || 0);
+  const delta = targetDues - oldDues;
+
+  member.dues_paid = targetDues;
+  recalculateMemberFinancials(member);
+
+  saveMembers(members);
+
+  // If there is a payment or adjustment delta, log an official contribution receipt
+  let updatedContributions = getContributions();
+  if (Math.abs(delta) >= 0.01) {
+    const newContrib = {
+      id: 'c-direct-' + Date.now(),
+      member_id: member.id,
+      amount: Math.abs(delta),
+      action: delta >= 0 ? 'add' : 'deduct',
+      contribution_type: 'Yearly Dues',
+      payment_method: paymentMethod || 'Cash',
+      reference_note: referenceNote || (delta > 0 ? `Direct Key-In Dues Top-up (+GH₵ ${delta.toFixed(2)})` : `Direct Key-In Dues Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`),
+      payment_date: paymentDate || new Date().toISOString().split('T')[0],
+      received_by_name: receivedByName
+    };
+    updatedContributions = [newContrib, ...updatedContributions];
+    localStorage.setItem('ony_contributions', JSON.stringify(updatedContributions));
+  }
+
+  return {
+    updatedMembers: members,
+    updatedContributions,
+    affectedMember: member,
+    oldDues,
+    newDues: targetDues,
+    delta
+  };
+};
+
+export const calculateDuesImpact = (member, newDues) => {
+  if (!member) return null;
+  const oldDues = parseFloat(member.dues_paid) || 0;
+  const targetDues = Math.max(0, parseFloat(newDues) || 0);
+  const duesDelta = targetDues - oldDues;
+
+  // Clone member and recalculate simulated financials
+  const simulated = { ...member, dues_paid: targetDues };
+  recalculateMemberFinancials(simulated);
+
+  return {
+    oldDues,
+    newDues: targetDues,
+    duesDelta,
+    oldShares: parseFloat(member.shares_value) || 0,
+    newShares: simulated.shares_value,
+    sharesDelta: simulated.shares_value - (parseFloat(member.shares_value) || 0),
+    oldGrandTotal: parseFloat(member.shares_holding) || 0,
+    newGrandTotal: simulated.shares_holding,
+    grandTotalDelta: simulated.shares_holding - (parseFloat(member.shares_holding) || 0),
+    oldBalanceOwed: parseFloat(member.balance_owed) || Math.max(0, 3900 - oldDues),
+    newBalanceOwed: simulated.balance_owed
+  };
+};
+
 const DEFAULT_ANNOUNCEMENT = "Welcome to ONUADO NA EYE MENS' FELLOWSHIP • \"Brotherly Love & Solidarity in Action\"";
 
 export const getAnnouncement = () => {
