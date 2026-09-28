@@ -40,19 +40,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "055 621 2318",
     "reg_fees": 200,
     "base_dues_paid": 3000,
-    "base_shares_value": 3435.062385321101,
+    "base_shares_value": 3034.8492401215804,
     "dues_paid": 3000,
     "levy_paid": 700,
     "total_payments": 3900,
     "dues_fee_required": 3300,
     "shares_dividends": 60,
-    "shares_value": 3435.062385321101,
+    "shares_value": 3034.8492401215804,
     "treasurer_bill": 2.1460892049127342,
-    "shares_holding": 3437.2084745260136,
+    "shares_holding": 3036.995329326493,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 300
   },
   {
     "id": "m-002",
@@ -92,19 +93,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "020 477 7999",
     "reg_fees": 200,
     "base_dues_paid": 1500,
-    "base_shares_value": 1517.5311926605505,
+    "base_shares_value": 1517.4246200607902,
     "dues_paid": 1500,
     "levy_paid": 100,
     "total_payments": 1800,
     "dues_fee_required": 2400,
     "shares_dividends": 30,
-    "shares_value": 1517.5311926605505,
+    "shares_value": 1517.4246200607902,
     "treasurer_bill": 56.1690815971359,
-    "shares_holding": 1573.7002742576863,
+    "shares_holding": 1573.593701657926,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "PROBATION",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 900
   },
   {
     "id": "m-003",
@@ -144,19 +146,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "055 510 2666",
     "reg_fees": 200,
     "base_dues_paid": 3400,
-    "base_shares_value": 3439.7373700305807,
+    "base_shares_value": 3439.4958054711246,
     "dues_paid": 3400,
     "levy_paid": 1000,
     "total_payments": 4600,
     "dues_fee_required": 3900,
     "shares_dividends": 68,
-    "shares_value": 3439.7373700305807,
+    "shares_value": 3439.4958054711246,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 4268.092628053198,
+    "shares_holding": 4267.851063493741,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 500
   },
   {
     "id": "m-004",
@@ -196,19 +199,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "",
     "reg_fees": 200,
     "base_dues_paid": 3400,
-    "base_shares_value": 3439.7373700305807,
+    "base_shares_value": 3439.4958054711246,
     "dues_paid": 3400,
     "levy_paid": 1000,
     "total_payments": 4600,
     "dues_fee_required": 3900,
     "shares_dividends": 68,
-    "shares_value": 3439.7373700305807,
+    "shares_value": 3439.4958054711246,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 4268.092628053198,
+    "shares_holding": 4267.851063493741,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 500
   },
   {
     "id": "m-005",
@@ -260,7 +264,8 @@ const INITIAL_MEMBERS = [
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "PROBATION",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 2200
   },
   {
     "id": "m-006",
@@ -300,19 +305,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "",
     "reg_fees": 200,
     "base_dues_paid": 3900,
-    "base_shares_value": 3945.581100917431,
+    "base_shares_value": 3945.304012158055,
     "dues_paid": 3900,
     "levy_paid": 800,
     "total_payments": 4900,
     "dues_fee_required": 3900,
     "shares_dividends": 78,
-    "shares_value": 3945.581100917431,
+    "shares_value": 3945.304012158055,
     "treasurer_bill": 2.1460892049127342,
-    "shares_holding": 3947.7271901223435,
+    "shares_holding": 3947.4501013629674,
     "father_state": "Alive",
     "mother_state": "Diseased",
     "status": "ACTIVE",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 0
   },
   {
     "id": "m-007",
@@ -352,19 +358,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "024 327 5855",
     "reg_fees": 200,
     "base_dues_paid": 3300,
-    "base_shares_value": 3338.5686238532107,
+    "base_shares_value": 3338.3341641337383,
     "dues_paid": 3300,
     "levy_paid": 100,
     "total_payments": 3600,
     "dues_fee_required": 3300,
     "shares_dividends": 66,
-    "shares_value": 3338.5686238532107,
+    "shares_value": 3338.3341641337383,
     "treasurer_bill": 56.1690815971359,
-    "shares_holding": 3394.7377054503468,
+    "shares_holding": 3394.5032457308744,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 0
   },
   {
     "id": "m-008",
@@ -404,19 +411,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "055 153 0777",
     "reg_fees": 200,
     "base_dues_paid": 900,
-    "base_shares_value": 910.5187155963303,
+    "base_shares_value": 910.4547720364742,
     "dues_paid": 900,
     "levy_paid": 0,
     "total_payments": 1100,
     "dues_fee_required": 1200,
     "shares_dividends": 18,
-    "shares_value": 910.5187155963303,
+    "shares_value": 910.4547720364742,
     "treasurer_bill": 0,
-    "shares_holding": 910.5187155963303,
+    "shares_holding": 910.4547720364742,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 300
   },
   {
     "id": "m-009",
@@ -468,7 +476,8 @@ const INITIAL_MEMBERS = [
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "REMOVED",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 2050
   },
   {
     "id": "m-010",
@@ -508,19 +517,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "054 328 3970",
     "reg_fees": 200,
     "base_dues_paid": 3400,
-    "base_shares_value": 3439.7373700305807,
+    "base_shares_value": 3439.4958054711246,
     "dues_paid": 3400,
     "levy_paid": 800,
     "total_payments": 4400,
     "dues_fee_required": 3900,
     "shares_dividends": 68,
-    "shares_value": 3439.7373700305807,
+    "shares_value": 3439.4958054711246,
     "treasurer_bill": 499.8287815126051,
-    "shares_holding": 3939.5661515431857,
+    "shares_holding": 3939.3245869837297,
     "father_state": "Diseased",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "admin"
+    "role": "admin",
+    "balance_owed": 500
   },
   {
     "id": "m-011",
@@ -560,19 +570,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "050 258 3546",
     "reg_fees": 200,
     "base_dues_paid": 3500,
-    "base_shares_value": 3540.906116207951,
+    "base_shares_value": 3540.6574468085105,
     "dues_paid": 3500,
     "levy_paid": 1000,
     "total_payments": 4700,
     "dues_fee_required": 3900,
     "shares_dividends": 70,
-    "shares_value": 3540.906116207951,
+    "shares_value": 3540.6574468085105,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 4369.2613742305675,
+    "shares_holding": 4369.012704831127,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 400
   },
   {
     "id": "m-012",
@@ -612,19 +623,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "",
     "reg_fees": 200,
     "base_dues_paid": 3600,
-    "base_shares_value": 3642.074862385321,
+    "base_shares_value": 3641.819088145897,
     "dues_paid": 3600,
     "levy_paid": 1000,
     "total_payments": 4800,
     "dues_fee_required": 3900,
     "shares_dividends": 72,
-    "shares_value": 3642.074862385321,
+    "shares_value": 3641.819088145897,
     "treasurer_bill": 2.1460892049127342,
-    "shares_holding": 3644.2209515902337,
+    "shares_holding": 3643.9651773508094,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 300
   },
   {
     "id": "m-013",
@@ -664,19 +676,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "024 314 3124",
     "reg_fees": 200,
     "base_dues_paid": 3900,
-    "base_shares_value": 5968.956024464832,
+    "base_shares_value": 5968.536838905775,
     "dues_paid": 3900,
     "levy_paid": 800,
     "total_payments": 4900,
     "dues_fee_required": 3900,
     "shares_dividends": 118,
-    "shares_value": 5968.956024464832,
+    "shares_value": 5968.536838905775,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 6797.311282487449,
+    "shares_holding": 6796.892096928392,
     "father_state": "Diseased",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "admin"
+    "role": "admin",
+    "balance_owed": 0
   },
   {
     "id": "m-014",
@@ -728,7 +741,8 @@ const INITIAL_MEMBERS = [
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "REMOVED",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 2900
   },
   {
     "id": "m-015",
@@ -768,19 +782,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "055 504 6416",
     "reg_fees": 200,
     "base_dues_paid": 3000,
-    "base_shares_value": 3035.062385321101,
+    "base_shares_value": 3034.8492401215804,
     "dues_paid": 3000,
     "levy_paid": 1000,
     "total_payments": 4200,
     "dues_fee_required": 3900,
     "shares_dividends": 60,
-    "shares_value": 3035.062385321101,
+    "shares_value": 3034.8492401215804,
     "treasurer_bill": 772.1861764254808,
-    "shares_holding": 3807.248561746582,
+    "shares_holding": 3807.0354165470612,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "PROBATION",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 900
   },
   {
     "id": "m-016",
@@ -820,19 +835,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "054 152 4008",
     "reg_fees": 200,
     "base_dues_paid": 3000,
-    "base_shares_value": 3035.062385321101,
+    "base_shares_value": 3034.8492401215804,
     "dues_paid": 3000,
     "levy_paid": 1000,
     "total_payments": 4200,
     "dues_fee_required": 3900,
     "shares_dividends": 60,
-    "shares_value": 3035.062385321101,
+    "shares_value": 3034.8492401215804,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 3863.417643343718,
+    "shares_holding": 3863.204498144197,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "PROBATION",
-    "role": "admin"
+    "role": "admin",
+    "balance_owed": 900
   },
   {
     "id": "m-017",
@@ -871,20 +887,21 @@ const INITIAL_MEMBERS = [
     "mother_name": "Leticia Oye Siaw",
     "mother_contact": "020 477 7999",
     "reg_fees": 200,
-    "base_dues_paid": 2900,
-    "base_shares_value": 2933.8992660550456,
-    "dues_paid": 2900,
+    "base_dues_paid": 3700,
+    "base_shares_value": 3742.9807294832826,
+    "dues_paid": 3700,
     "levy_paid": 1000,
-    "total_payments": 4100,
+    "total_payments": 4900,
     "dues_fee_required": 3900,
-    "shares_dividends": 58,
-    "shares_value": 2933.8992660550456,
+    "shares_dividends": 74,
+    "shares_value": 3742.9807294832826,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 3762.2545240776623,
+    "shares_holding": 4571.3359875058995,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "PROBATION",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 200
   },
   {
     "id": "m-018",
@@ -924,19 +941,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "",
     "reg_fees": 200,
     "base_dues_paid": 3900,
-    "base_shares_value": 3945.581100917431,
+    "base_shares_value": 3945.304012158055,
     "dues_paid": 3900,
     "levy_paid": 1000,
     "total_payments": 5100,
     "dues_fee_required": 3900,
     "shares_dividends": 78,
-    "shares_value": 3945.581100917431,
+    "shares_value": 3945.304012158055,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 4773.936358940047,
+    "shares_holding": 4773.659270180671,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "admin"
+    "role": "admin",
+    "balance_owed": 0
   },
   {
     "id": "m-019",
@@ -976,19 +994,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "",
     "reg_fees": 200,
     "base_dues_paid": 3500,
-    "base_shares_value": 5564.281039755351,
+    "base_shares_value": 5563.890273556231,
     "dues_paid": 3500,
     "levy_paid": 1000,
     "total_payments": 4700,
     "dues_fee_required": 3900,
     "shares_dividends": 110,
-    "shares_value": 5564.281039755351,
+    "shares_value": 5563.890273556231,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 6392.636297777968,
+    "shares_holding": 6392.2455315788475,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "admin"
+    "role": "admin",
+    "balance_owed": 400
   },
   {
     "id": "m-020",
@@ -1040,7 +1059,8 @@ const INITIAL_MEMBERS = [
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "REMOVED",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 3000
   },
   {
     "id": "m-021",
@@ -1080,19 +1100,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "054 501 5197",
     "reg_fees": 200,
     "base_dues_paid": 3300,
-    "base_shares_value": 3338.5686238532107,
+    "base_shares_value": 3338.3341641337383,
     "dues_paid": 3300,
     "levy_paid": 900,
     "total_payments": 4400,
     "dues_fee_required": 3900,
     "shares_dividends": 66,
-    "shares_value": 3338.5686238532107,
+    "shares_value": 3338.3341641337383,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 4166.923881875828,
+    "shares_holding": 4166.689422156355,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "PROBATION",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 600
   },
   {
     "id": "m-022",
@@ -1144,7 +1165,8 @@ const INITIAL_MEMBERS = [
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "REMOVED",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 2200
   },
   {
     "id": "m-023",
@@ -1184,19 +1206,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "054 509 4585",
     "reg_fees": 200,
     "base_dues_paid": 3700,
-    "base_shares_value": 3743.243608562691,
+    "base_shares_value": 3742.9807294832826,
     "dues_paid": 3700,
     "levy_paid": 1000,
     "total_payments": 4900,
     "dues_fee_required": 3900,
     "shares_dividends": 74,
-    "shares_value": 3743.243608562691,
+    "shares_value": 3742.9807294832826,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 4571.598866585307,
+    "shares_holding": 4571.3359875058995,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "member"
+    "role": "member",
+    "balance_owed": 200
   },
   {
     "id": "m-024",
@@ -1236,19 +1259,20 @@ const INITIAL_MEMBERS = [
     "mother_contact": "024 255 4607",
     "reg_fees": 200,
     "base_dues_paid": 3900,
-    "base_shares_value": 3945.581100917431,
+    "base_shares_value": 3945.304012158055,
     "dues_paid": 3900,
     "levy_paid": 1000,
     "total_payments": 5100,
     "dues_fee_required": 3900,
     "shares_dividends": 78,
-    "shares_value": 3945.581100917431,
+    "shares_value": 3945.304012158055,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 4773.936358940047,
+    "shares_holding": 4773.659270180671,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
-    "role": "admin"
+    "role": "admin",
+    "balance_owed": 0
   }
 ];
 
@@ -1262,7 +1286,7 @@ const INITIAL_CONTRIBUTIONS = [
   { id: "c-007", member_id: "m-024", amount: 3900, contribution_type: "Monthly Dues", payment_method: "Mobile Money", reference_note: "Dues Settlement", received_by_name: "Jonathan Danso Siaw", payment_date: "2026-01-20" }
 ];
 
-const SHARE_BASE_RATE = 50.584373088685016;
+const SHARE_BASE_RATE = 50.58082066869301;
 
 export const recalculateMemberFinancials = (member) => {
   if (!member) return member;
@@ -1287,7 +1311,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-09-28-v4-maxwell-deduction-sync';
+const DATA_VERSION = '2026-09-28-v5-personal-record-excel-sync';
 
 export const getMembers = () => {
   try {
