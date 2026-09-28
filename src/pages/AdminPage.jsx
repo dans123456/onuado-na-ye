@@ -330,11 +330,58 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706', marginTop: '0.2rem' }}>
             {new Set(members.map(m => m.branch || 'Takoradi')).size} Branches
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Aburi, Ashaiman, Atensu, Dansoman, Darkoman, Kasoa...</div>
         </div>
       </div>
 
+      {/* 📊 EXCEL MASTER FINANCIAL TOTALS (SHARES TOTAL, TREASURER BILL TOTAL, GRAND AMOUNT) */}
+      <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(37, 99, 235, 0.05))', border: '2px solid rgba(220, 38, 38, 0.3)' }}>
+        <div style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: '#dc2626', marginBottom: '1rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Sparkles size={16} /> Fellowship Master Financial Totals (Excel Sync)
+          </div>
+        </div>
 
+        {(() => {
+          const sharesTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.shares_value) || 0), 0);
+          const treasBillTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.treasurer_bill) || 0), 0);
+          const grandMasterTotalVal = sharesTotalVal + treasBillTotalVal;
+
+          return (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+              <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(37, 99, 235, 0.3)', borderTop: '4px solid #2563eb' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  SHARES TOTAL
+                </div>
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
+                  GH₵ {sharesTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Sum of All Member Shares Values</div>
+              </div>
+
+              <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(217, 119, 6, 0.3)', borderTop: '4px solid #d97706' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  TREASURER BILL TOTAL
+                </div>
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
+                  GH₵ {treasBillTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Sum of All Treasurer Bills</div>
+              </div>
+
+              <div style={{ padding: '1.25rem', background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(124, 58, 237, 0.1))', borderRadius: '12px', border: '2px solid #dc2626', borderTop: '5px solid #dc2626' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>GRAND AMOUNT</span>
+                  <span className="badge badge-welfare" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem' }}>Master Total</span>
+                </div>
+                <div style={{ fontSize: '2.05rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
+                  GH₵ {grandMasterTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Shares Total + Treasurer Bill Total</div>
+              </div>
+            </div>
+          );
+        })()}
+      </div>
 
       {/* Navigation Tabs & Actions */}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -373,13 +420,6 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             style={{ padding: '0.6rem 1.1rem', fontWeight: 800, fontSize: '0.88rem' }}
           >
             <Building2 size={16} color="#059669" /> Treasury & Bank Balances
-          </button>
-          <button 
-            onClick={() => setIsTotalsModalOpen(true)} 
-            className="btn btn-secondary"
-            style={{ padding: '0.6rem 1.1rem', fontWeight: 800, fontSize: '0.88rem', color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.35)', background: 'rgba(220, 38, 38, 0.05)' }}
-          >
-            <Sparkles size={16} color="#dc2626" /> Master Financial Totals
           </button>
         </div>
 
@@ -1369,201 +1409,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         type="excel" 
       />
 
-      {/* 📊 MASTER FINANCIAL TOTALS MODAL (SHARES TOTAL, TREASURER BILL TOTAL, GRAND AMOUNT) */}
-      {isTotalsModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.75)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '1.5rem',
-          animation: 'fadeIn 0.2s ease-out'
-        }}>
-          <div style={{
-            background: 'var(--bg-main)',
-            border: '2px solid rgba(220, 38, 38, 0.4)',
-            borderRadius: '20px',
-            maxWidth: '900px',
-            width: '100%',
-            maxHeight: '90vh',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-          }}>
-            {/* Modal Header */}
-            <div style={{
-              padding: '1.25rem 1.75rem',
-              background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(37, 99, 235, 0.1))',
-              borderBottom: '1px solid var(--border-color)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                  <Sparkles size={22} color="#dc2626" /> Fellowship Master Financial Totals
-                </h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.2rem', margin: 0 }}>
-                  Live aggregated totals across all 24 member ledgers
-                </p>
-              </div>
-              <button
-                onClick={() => setIsTotalsModalOpen(false)}
-                className="btn btn-secondary"
-                style={{ padding: '0.4rem 0.6rem', borderRadius: '50%', color: 'var(--text-muted)' }}
-              >
-                <X size={20} />
-              </button>
-            </div>
 
-            {/* Modal Body */}
-            <div style={{ padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              
-              {/* 3 Summary Cards */}
-              {(() => {
-                const sharesTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.shares_value) || 0), 0);
-                const treasBillTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.treasurer_bill) || 0), 0);
-                const grandMasterTotalVal = sharesTotalVal + treasBillTotalVal;
-
-                return (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
-                    <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1.5px solid rgba(37, 99, 235, 0.3)', borderTop: '5px solid #2563eb' }}>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        SHARES TOTAL
-                      </div>
-                      <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                        GH₵ {sharesTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Sum of All Member Shares Values</div>
-                    </div>
-
-                    <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1.5px solid rgba(217, 119, 6, 0.3)', borderTop: '5px solid #d97706' }}>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        TREASURER BILL TOTAL
-                      </div>
-                      <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                        GH₵ {treasBillTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Sum of All Treasurer Bills</div>
-                    </div>
-
-                    <div style={{ padding: '1.25rem', background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.12), rgba(124, 58, 237, 0.12))', borderRadius: '14px', border: '2px solid #dc2626', borderTop: '5px solid #dc2626' }}>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>GRAND AMOUNT</span>
-                        <span className="badge badge-welfare" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem' }}>Master Total</span>
-                      </div>
-                      <div style={{ fontSize: '2.05rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                        GH₵ {grandMasterTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Shares Total + Treasurer Bill Total</div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Detailed Member Shares & Holdings Table */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-                    Member-by-Member Breakdown ({members.length})
-                  </h3>
-
-                  <div className="search-box" style={{ maxWidth: '280px', width: '100%' }}>
-                    <Search size={16} className="search-icon" />
-                    <input
-                      type="text"
-                      placeholder="Search by name or ID..."
-                      value={totalsModalSearch}
-                      onChange={(e) => setTotalsModalSearch(e.target.value)}
-                      style={{ padding: '0.45rem 0.75rem 0.45rem 2.2rem', fontSize: '0.85rem' }}
-                    />
-                  </div>
-                </div>
-
-                <div className="table-container" style={{ maxHeight: '360px', overflowY: 'auto' }}>
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>ID & Member</th>
-                        <th>Branch</th>
-                        <th>Shares Value</th>
-                        <th>Treasurer Bill</th>
-                        <th>Grand Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {members
-                        .filter(m => 
-                          (m.full_name && m.full_name.toLowerCase().includes(totalsModalSearch.toLowerCase())) ||
-                          (m.excel_member_id && m.excel_member_id.toLowerCase().includes(totalsModalSearch.toLowerCase())) ||
-                          (m.branch && m.branch.toLowerCase().includes(totalsModalSearch.toLowerCase()))
-                        )
-                        .map(m => {
-                          const sharesVal = parseFloat(m.shares_value) || 0;
-                          const treasBill = parseFloat(m.treasurer_bill) || 0;
-                          const grandTot = sharesVal + treasBill;
-
-                          return (
-                            <tr key={m.id}>
-                              <td style={{ fontWeight: 800 }}>
-                                {m.full_name}
-                                <div style={{ fontSize: '0.75rem', color: 'var(--primary-600)', fontWeight: 700 }}>{m.excel_member_id}</div>
-                              </td>
-                              <td><span className="badge badge-branch">{m.branch || 'Takoradi'}</span></td>
-                              <td style={{ fontWeight: 700, color: '#2563eb' }}>GH₵ {sharesVal.toFixed(2)}</td>
-                              <td style={{ fontWeight: 700, color: '#d97706' }}>GH₵ {treasBill.toFixed(2)}</td>
-                              <td style={{ fontWeight: 900, color: '#dc2626' }}>GH₵ {grandTot.toFixed(2)}</td>
-                            </tr>
-                          );
-                        })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Modal Footer */}
-            <div style={{
-              padding: '1rem 1.75rem',
-              background: 'var(--bg-main)',
-              borderTop: '1px solid var(--border-color)',
-              display: 'flex',
-              justify: 'space-between',
-              alignItems: 'center'
-            }}>
-              <label
-                className="btn btn-primary"
-                style={{ fontSize: '0.85rem', padding: '0.55rem 1.25rem', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-              >
-                <UploadCloud size={16} /> Upload Updated Excel
-                <input
-                  type="file"
-                  accept=".xlsx,.xls"
-                  onChange={handleDirectDuesUpload}
-                  style={{ display: 'none' }}
-                />
-              </label>
-
-              <button
-                onClick={() => setIsTotalsModalOpen(false)}
-                className="btn btn-secondary"
-                style={{ padding: '0.55rem 1.5rem', fontWeight: 800 }}
-              >
-                Close Modal
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );

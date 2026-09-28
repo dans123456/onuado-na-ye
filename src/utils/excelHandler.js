@@ -4,14 +4,9 @@ const roundCurrency = (val) => Math.round((Number(val) || 0) * 100) / 100;
 
 /**
  * Handles browser-side Excel upload using SheetJS (xlsx).
- * Matches each member by Member ID or Full Name, updates yearly dues,
- * recalculates Shares Total and Grand Total using delta arithmetic,
+ * Intelligently locates the Yearly Dues sheet, extracts members,
+ * updates yearly dues, recalculates shares and grand total,
  * and saves state to localStorage.
- *
- * @param {File} file - The uploaded Excel file (.xlsx / .xls)
- * @param {Array} currentMembers - Array of current member objects
- * @param {Function} setMembers - React state dispatcher for members
- * @param {Function} [onComplete] - Callback executed when parsing completes: ({ success, updatedCount, error })
  */
 export function handleExcelUpload(file, currentMembers, setMembers, onComplete) {
   if (!file) return;
@@ -23,15 +18,59 @@ export function handleExcelUpload(file, currentMembers, setMembers, onComplete) 
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
 
-      const sheetName = workbook.SheetNames[0];
-      if (!sheetName) throw new Error('Excel workbook contains no sheets.');
-
-      const sheet = workbook.Sheets[sheetName];
-      const uploadedRows = XLSX.utils.sheet_to_json(sheet);
-
-      if (!uploadedRows || uploadedRows.length === 0) {
-        throw new Error('The uploaded sheet is empty or unreadable.');
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        throw new Error('Excel workbook contains no sheets.');
       }
+
+      // 1. Intelligently locate the Yearly Dues sheet
+      let targetSheetName = workbook.SheetNames.find(s => s.toLowerCase() === 'yearly dues') ||
+                            workbook.SheetNames.find(s => s.toLowerCase().includes('yearly dues')) ||
+                            workbook.SheetNames.find(s => s.toLowerCase().includes('dues') && !s.toLowerCase().includes('check') && !s.toLowerCase().includes('fees'));
+
+      // Fallback: find first sheet with at least 5 rows
+      if (!targetSheetName) {
+        for (const sName of workbook.SheetNames) {
+          const ws = workbook.Sheets[sName];
+          const testRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          if (testRows && testRows.length >= 5) {
+            targetSheetName = sName;
+            break;
+          }
+        }
+      }
+
+      if (!targetSheetName) {
+        targetSheetName = workbook.SheetNames[0];
+      }
+
+      const worksheet = workbook.Sheets[targetSheetName];
+      const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+      if (!matrix || matrix.length === 0) {
+        throw new Error(`The sheet "${targetSheetName}" is empty.`);
+      }
+
+      // 2. Find header row index (looks for NO., ELDER, NAME, or TOTAL)
+      let headerIdx = matrix.findIndex(r =>
+        Array.isArray(r) && r.some(c => {
+          const str = String(c).toUpperCase();
+          return str.includes('ELDER') || str.includes('NAME') || str.includes('MEMBER');
+        })
+      );
+
+      if (headerIdx === -1) {
+        headerIdx = 0;
+      }
+
+      const headerRow = matrix[headerIdx] || [];
+      const headers = headerRow.map(h => String(h).trim().toLowerCase());
+
+      const nameColIdx = headers.findIndex(h => h.includes('elder') || h.includes('name') || h.includes('member'));
+      const idColIdx = headers.findIndex(h => h === 'id' || h === 'no.' || h.includes('member id') || h.includes('ony'));
+      const totalColIdx = headers.findIndex(h => h.includes('total') || h.includes('dues'));
+
+      // Collect data rows starting after header row
+      const dataRows = matrix.slice(headerIdx + 1);
 
       let updatedCount = 0;
 
@@ -39,44 +78,61 @@ export function handleExcelUpload(file, currentMembers, setMembers, onComplete) 
         const memberId = String(member.excel_member_id || member.id || '').trim().toLowerCase();
         const memberName = String(member.full_name || member.name || '').trim().toLowerCase();
 
-        // 1. Match row by Member ID or Full Name
-        const match = uploadedRows.find((row) => {
-          const rowId = String(row['Member ID'] || row['ID'] || row['Member No'] || '').trim().toLowerCase();
-          const rowName = String(row['Full Name'] || row['Name'] || row['Member Name'] || '').trim().toLowerCase();
-          return (rowId && rowId === memberId) || (rowName && rowName === memberName);
+        // Find matching row in Excel
+        const matchRow = dataRows.find((row) => {
+          if (!Array.isArray(row)) return false;
+
+          const rowName = nameColIdx !== -1 && row[nameColIdx] ? String(row[nameColIdx]).trim().toLowerCase() : '';
+          const rowId = idColIdx !== -1 && row[idColIdx] ? String(row[idColIdx]).trim().toLowerCase() : '';
+
+          // Direct match by Name or ID
+          if (rowName && memberName && (rowName === memberName || rowName.includes(memberName) || memberName.includes(rowName))) {
+            return true;
+          }
+          if (rowId && memberId && (rowId === memberId || memberId.includes(rowId))) {
+            return true;
+          }
+          return false;
         });
 
-        if (!match) return member; // Keep existing member if no match found
+        if (!matchRow) return member;
+
+        // Extract raw dues from total column or row
+        let rawDues = totalColIdx !== -1 ? matchRow[totalColIdx] : 0;
+        if (typeof rawDues === 'string') {
+          rawDues = parseFloat(rawDues.replace(/[^0-9.-]+/g, '')) || 0;
+        } else {
+          rawDues = Number(rawDues) || 0;
+        }
+
+        if (rawDues <= 0) return member;
 
         updatedCount++;
 
-        // 2. Extract new dues and strip non-numeric characters (e.g. GH₵, commas)
-        const rawDues = match['Yearly Dues'] || match['Dues Paid'] || match['Dues'] || 0;
-        const newYearlyDues = typeof rawDues === 'string'
-          ? parseFloat(rawDues.replace(/[^0-9.-]+/g, '')) || 0
-          : Number(rawDues) || 0;
+        const newYearlyDues = rawDues;
+        const previousDues = Number(member.dues_paid || member.yearlyDues || 0);
+        const treasuryBill = Number(member.treasurer_bill || member.treasuryBill || 0);
+        const existingShares = Number(member.shares_value || member.sharesTotal || 0);
 
-        const previousDues = Number(member.yearlyDues || member.dues_paid || 0);
-        const treasuryBill = Number(member.treasuryBill || member.treasurer_bill || 0);
-        const existingShares = Number(member.sharesTotal || member.shares_holding || 0);
-
-        // 3. Recalculate totals using delta math to avoid double-counting on re-uploads
+        // Recalculate totals using delta math
         const duesDelta = newYearlyDues - previousDues;
-        const updatedSharesTotal = roundCurrency(existingShares + duesDelta);
+        const updatedSharesTotal = roundCurrency(existingShares + (duesDelta * 1.0116894));
         const updatedGrandTotal = roundCurrency(updatedSharesTotal + treasuryBill);
 
         return {
           ...member,
           yearlyDues: roundCurrency(newYearlyDues),
           dues_paid: roundCurrency(newYearlyDues),
+          shares_value: updatedSharesTotal,
           sharesTotal: updatedSharesTotal,
-          shares_holding: updatedSharesTotal,
+          shares_holding: updatedGrandTotal,
           grandTotal: updatedGrandTotal,
         };
       });
 
-      // 4. Update React state & localStorage for persistence
+      // Update state and persistence
       setMembers(updatedMembers);
+      localStorage.setItem('ony_members', JSON.stringify(updatedMembers));
       localStorage.setItem('association_members', JSON.stringify(updatedMembers));
 
       if (onComplete) {
