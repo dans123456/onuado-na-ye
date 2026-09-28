@@ -20,7 +20,20 @@ The application is **100% built, fully mobile-responsive, connected to live Supa
 
 ## 🛠️ Key Work Completed Today
 
-0. **Direct Member Dues Key-In & Real-Time Calculation Engine**:
+0. **Complete Synchronization from New Excel Personal Record / Members List**:
+   - Re-extracted and verified all 8 core financial columns for all 24 fellowship members from the new Excel file (`ONUADO NA EYE ACCOUNT.xlsx`):
+     - **Registration Fees**: GH₵ 200.00 each (Total: GH₵ 4,800.00)
+     - **Dues Paid**: Total GH₵ 65,950.00
+     - **Levy Paid**: Total GH₵ 18,100.00
+     - **Total Payments**: Total GH₵ 88,850.00
+     - **Shares Dividends**: Exact share allocations (Total: 1,316 Shares)
+     - **Shares Base Value**: Total GH₵ 66,564.36 (Rate: 50.58082066869301)
+     - **Treasurer Bill**: Total GH₵ 10,502.70
+     - **Grand Total Shares**: Total GH₵ 77,067.06
+   - All 8 metrics mapped 1-to-1 to each member's personal dashboard portal (`DashboardPage.jsx`).
+   - Auto cache-invalidation version updated to `2026-09-28-v5-personal-record-excel-sync` to ensure instant browser updates for all members.
+
+0.1. **Direct Member Dues Key-In & Real-Time Calculation Engine**:
    - Replaced unreliable Excel file upload dependency with a direct, real-time key-in editor for Executive Admins.
    - Accessible via:
      - ⚡ **"Key In Member Dues"** top header button
