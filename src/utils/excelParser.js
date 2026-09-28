@@ -22,7 +22,7 @@ export const normalizePhone = (phone) => {
 const IGNORED_SHEET_KEYWORDS = [
   'pictures', 'vehicle', 'pastors', 'elders', 'cash flow', 'trial balance',
   'disbursement', 'disbursment', 'vouchers', 'trading', 'accounts', 'dashboard',
-  'fees', 'yearly dues fees', 'special levy fees',
+  'fees', 'yearly dues fees', 'special levy fees', 'special levy', 'levy', 'levies',
   'shares', 'holding', 'holdings', 'dividend', 'devident', 'treasure bill', 'treasurer bill',
   'monthly dues 20', 'monthly dues 2', 'chrck your levy balance', 'levy balance', 'levy account',
   'chrck your dues balance', 'dues balance', 'dues account', 'dues trail',
@@ -68,8 +68,8 @@ export const parseUploadedFile = (file, existingMembers) => {
           workbook.SheetNames.forEach((sheetName) => {
             const sLower = sheetName.toLowerCase();
             
-            // Skip auxiliary picture / vehicle / internal summary sheets
-            const isIgnored = IGNORED_SHEET_KEYWORDS.some(kw => sLower.includes(kw));
+            // Skip auxiliary picture / vehicle / internal summary / levy sheets
+            const isIgnored = IGNORED_SHEET_KEYWORDS.some(kw => sLower.includes(kw)) || sLower.includes('levy');
             if (isIgnored) return;
 
             const worksheet = workbook.Sheets[sheetName];
@@ -317,16 +317,15 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
 
     if (member) {
       let finalAmount = 0;
-      let finalType = rawType.toLowerCase().includes('levy') || sNameLower.includes('levy') ? 'Special Levy' : 'Yearly Dues';
+      let finalType = 'Yearly Dues';
       let changeDetected = null;
 
-      // Smart Change Detection: ONLY flag records that have actual edits/changes (>= 0.01 GHS difference)
+      // Smart Change Detection: Compare extracted dues against member.dues_paid ONLY (not total_payments)
       const currentDuesPaid = parseFloat(member.dues_paid) || 0;
-      const currentLevyPaid = parseFloat(member.levy_paid) || 0;
-      const currentTotalPaid = parseFloat(member.total_payments) || 0;
+      const targetDues = excelDues !== null ? excelDues : excelTotal;
 
-      if (excelDues !== null && Math.abs(excelDues - currentDuesPaid) >= 0.01) {
-        const duesDiff = excelDues - currentDuesPaid;
+      if (targetDues !== null && Math.abs(targetDues - currentDuesPaid) >= 0.01) {
+        const duesDiff = targetDues - currentDuesPaid;
         finalAmount = Math.abs(duesDiff);
         finalType = 'Yearly Dues';
         const isIncrease = duesDiff > 0;
@@ -334,34 +333,9 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
           hasChange: true,
           field: 'Dues Paid',
           oldVal: currentDuesPaid,
-          newVal: excelDues,
+          newVal: targetDues,
           diff: duesDiff,
-          description: `Sheet [${sheetName}]: Yearly Dues updated for ${member.full_name}: ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${currentDuesPaid.toFixed(2)} → GH₵ ${excelDues.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${duesDiff.toFixed(2)})`
-        };
-      } else if (excelLevy !== null && Math.abs(excelLevy - currentLevyPaid) >= 0.01) {
-        const levyDiff = excelLevy - currentLevyPaid;
-        finalAmount = Math.abs(levyDiff);
-        finalType = 'Special Levy';
-        const isIncrease = levyDiff > 0;
-        changeDetected = {
-          hasChange: true,
-          field: 'Levy Paid',
-          oldVal: currentLevyPaid,
-          newVal: excelLevy,
-          diff: levyDiff,
-          description: `Sheet [${sheetName}]: Special Levy updated for ${member.full_name}: ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${currentLevyPaid.toFixed(2)} → GH₵ ${excelLevy.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${levyDiff.toFixed(2)})`
-        };
-      } else if (excelTotal !== null && Math.abs(excelTotal - currentTotalPaid) >= 0.01) {
-        const totalDiff = excelTotal - currentTotalPaid;
-        finalAmount = Math.abs(totalDiff);
-        const isIncrease = totalDiff > 0;
-        changeDetected = {
-          hasChange: true,
-          field: 'Total Payments',
-          oldVal: currentTotalPaid,
-          newVal: excelTotal,
-          diff: totalDiff,
-          description: `Sheet [${sheetName}]: Total payments ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${currentTotalPaid.toFixed(2)} → GH₵ ${excelTotal.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${totalDiff.toFixed(2)})`
+          description: `Sheet [${sheetName}]: Yearly Dues updated for ${member.full_name}: ${isIncrease ? 'increased' : 'adjusted/decreased'} from GH₵ ${currentDuesPaid.toFixed(2)} → GH₵ ${targetDues.toFixed(2)} (${isIncrease ? '+' : ''}GH₵ ${duesDiff.toFixed(2)})`
         };
       }
 
@@ -380,9 +354,9 @@ const processSheetMatrix = (matrix, existingMembers, sheetName = '') => {
           reference_note: `${finalType} Update [Sheet: ${sheetName || 'Main'}]`,
           payment_date: rawDate,
           changeDetected: changeDetected,
-          excelDues: excelDues,
-          excelLevy: excelLevy,
-          excelTotal: excelTotal,
+          excelDues: targetDues,
+          excelLevy: null,
+          excelTotal: targetDues,
           action: changeDetected.diff < 0 ? 'deduct' : 'add'
         });
       }
