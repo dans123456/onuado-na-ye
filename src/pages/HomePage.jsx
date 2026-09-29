@@ -25,7 +25,7 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => setActivePage('login')} className="btn btn-primary" style={{ padding: '0.9rem 1.75rem', fontSize: '1.02rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(5, 150, 105, 0.3)' }}>
-            Access Member Portal <ArrowRight size={18} />
+            Login to Portal <ArrowRight size={18} />
           </button>
           <button onClick={() => setActivePage('contact')} className="btn btn-accent" style={{ padding: '0.9rem 1.75rem', fontSize: '1.02rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(217, 119, 6, 0.3)' }}>
             Fidelity Bank & MoMo Details <Wallet size={18} />

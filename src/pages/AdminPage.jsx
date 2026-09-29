@@ -1669,57 +1669,32 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         const hasChange = impact && Math.abs(impact.duesDelta) >= 0.01;
 
         return (
-          <div style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0, 
-            width: '100vw', 
-            height: '100vh', 
-            background: 'rgba(0,0,0,0.82)', 
-            backdropFilter: 'blur(8px)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            zIndex: 100000, 
-            padding: '1.25rem', 
-            overflowY: 'auto' 
-          }}>
-            <div className="glass-card" style={{ 
-              maxWidth: '680px', 
-              width: '100%', 
-              margin: 'auto', 
-              padding: '2.25rem', 
-              borderRadius: '20px', 
-              background: 'var(--bg-card)', 
-              maxHeight: '92vh', 
-              overflowY: 'auto', 
-              boxShadow: '0 25px 60px -15px rgba(0,0,0,0.6)',
-              border: '2px solid rgba(5, 150, 105, 0.4)'
-            }}>
+          <div className="modal-overlay">
+            <div className="glass-card modal-responsive-card">
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-                    <span style={{ background: '#059669', color: '#fff', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.9rem', gap: '0.75rem' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+                    <span style={{ background: '#059669', color: '#fff', padding: '0.2rem 0.55rem', borderRadius: '10px', fontSize: '0.72rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                       <Zap size={12} /> Direct Key-In
                     </span>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Live Instant Calculation</span>
+                    <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>Live Instant Recalculation</span>
                   </div>
-                  <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--primary-700)', margin: 0 }}>
-                    Key In Member Dues & Instant Recalculation
+                  <h2 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--primary-700)', margin: 0, lineHeight: 1.25 }}>
+                    Key In Member Dues
                   </h2>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.35rem 0 0 0' }}>
-                    Directly key in dues payments or adjust yearly totals. Formulas update Shares, Dividends, and Fellowship Master Totals immediately upon saving.
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0', lineHeight: 1.4 }}>
+                    Key in dues payments or adjustments. Shares, Dividends, and Master Totals update instantly.
                   </p>
                 </div>
 
                 <button 
+                  type="button"
                   onClick={() => setIsDuesEditorOpen(false)}
-                  style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                  className="modal-close-btn"
+                  aria-label="Close Dues Key-In Editor"
                 >
-                  <X size={18} />
+                  <X size={20} />
                 </button>
               </div>
 
@@ -1729,7 +1704,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </div>
               )}
 
-              <form onSubmit={handleDirectDuesSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <form onSubmit={handleDirectDuesSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
                 {/* 1. Select Member */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>
@@ -1739,11 +1714,11 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                     className="form-select"
                     value={editorMemberId}
                     onChange={(e) => setEditorMemberId(e.target.value)}
-                    style={{ fontWeight: 700, padding: '0.7rem' }}
+                    style={{ fontWeight: 700, padding: '0.65rem 0.8rem', fontSize: '0.9rem' }}
                   >
                     {members.map(m => (
                       <option key={m.id} value={m.id}>
-                        {m.excel_member_id} • {m.full_name} ({m.branch}) — Dues Paid: GH₵ {(m.dues_paid || 0).toFixed(2)}
+                        {m.excel_member_id}: {m.full_name} ({m.branch})
                       </option>
                     ))}
                   </select>
@@ -1751,34 +1726,34 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 {/* 2. Snapshot of Current Standing */}
                 {activeEditorMember && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
-                    <div style={{ width: '52px', height: '52px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2.5px solid #059669', background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2.5px solid #059669', background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
                       {activeEditorMember.profile_picture ? (
                         <img src={activeEditorMember.profile_picture} alt={activeEditorMember.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <User size={26} color="var(--text-muted)" />
+                        <User size={24} color="var(--text-muted)" />
                       )}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(115px, 1fr))', gap: '0.6rem', flex: 1, minWidth: '220px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))', gap: '0.5rem', flex: 1, minWidth: '200px' }}>
                       <div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Current Dues Paid</div>
-                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#059669' }}>GH₵ {curDues.toFixed(2)}</div>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Current Dues</div>
+                        <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#059669' }}>GH₵ {curDues.toFixed(2)}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Outstanding Owed</div>
-                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: Math.max(0, 3900 - curDues) > 0 ? '#dc2626' : '#059669' }}>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Outstanding</div>
+                        <div style={{ fontSize: '0.92rem', fontWeight: 800, color: Math.max(0, 3900 - curDues) > 0 ? '#dc2626' : '#059669' }}>
                           GH₵ {Math.max(0, 3900 - curDues).toFixed(2)}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div>
-                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#2563eb' }}>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div>
+                        <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#2563eb' }}>
                           GH₵ {(parseFloat(activeEditorMember.shares_value) || 0).toFixed(2)}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>Grand Holding</div>
-                        <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#7c3aed' }}>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Grand Holding</div>
+                        <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#7c3aed' }}>
                           GH₵ {(parseFloat(activeEditorMember.shares_holding) || 0).toFixed(2)}
                         </div>
                       </div>
@@ -1788,57 +1763,59 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 {/* 3. Choose Entry Mode */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                     2. Choose Entry Mode
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem' }}>
                     <button
                       type="button"
                       onClick={() => setEditorMode('add')}
                       style={{
-                        padding: '0.65rem 0.85rem',
-                        borderRadius: '8px',
+                        padding: '0.65rem 0.6rem',
+                        borderRadius: '10px',
                         fontSize: '0.85rem',
                         fontWeight: 800,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.4rem',
+                        gap: '0.35rem',
                         background: editorMode === 'add' ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-main)',
                         border: editorMode === 'add' ? '2px solid #059669' : '1px solid var(--border-color)',
-                        color: editorMode === 'add' ? '#059669' : 'var(--text-main)'
+                        color: editorMode === 'add' ? '#059669' : 'var(--text-main)',
+                        textAlign: 'center'
                       }}
                     >
-                      <PlusCircle size={15} /> + Add Payment to Dues
+                      <PlusCircle size={15} /> + Add Payment
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setEditorMode('set')}
                       style={{
-                        padding: '0.65rem 0.85rem',
-                        borderRadius: '8px',
+                        padding: '0.65rem 0.6rem',
+                        borderRadius: '10px',
                         fontSize: '0.85rem',
                         fontWeight: 800,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.4rem',
+                        gap: '0.35rem',
                         background: editorMode === 'set' ? 'rgba(37, 99, 235, 0.15)' : 'var(--bg-main)',
                         border: editorMode === 'set' ? '2px solid #2563eb' : '1px solid var(--border-color)',
-                        color: editorMode === 'set' ? '#2563eb' : 'var(--text-main)'
+                        color: editorMode === 'set' ? '#2563eb' : 'var(--text-main)',
+                        textAlign: 'center'
                       }}
                     >
-                      <Edit3 size={15} /> ✏️ Set Exact Total Dues
+                      <Edit3 size={15} /> ✏️ Set Total Dues
                     </button>
                   </div>
                 </div>
 
                 {/* 4. Amount Input */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                     {editorMode === 'add' ? '3. Payment Amount to Add (GH₵)' : '3. Exact New Yearly Dues Amount (GH₵)'}
                   </label>
                   <div style={{ position: 'relative' }}>
@@ -1851,7 +1828,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       required
                       placeholder={editorMode === 'add' ? 'e.g. 500.00' : 'e.g. 3500.00'}
                       className="form-input"
-                      style={{ paddingLeft: '3.2rem', fontSize: '1.15rem', fontWeight: 800, height: '48px' }}
+                      style={{ paddingLeft: '3.2rem', fontSize: '1.1rem', fontWeight: 800, height: '46px' }}
                       value={editorAmount}
                       onChange={(e) => setEditorAmount(e.target.value)}
                       autoFocus
@@ -1860,14 +1837,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </div>
 
                 {/* 5. Payment Details */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.3rem' }}>Payment Method</label>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem' }}>Payment Method</label>
                     <select 
                       className="form-select"
                       value={editorMethod}
                       onChange={(e) => setEditorMethod(e.target.value)}
-                      style={{ fontSize: '0.85rem', padding: '0.55rem' }}
+                      style={{ fontSize: '0.82rem', padding: '0.55rem' }}
                     >
                       <option value="Mobile Money">Mobile Money (0530486443)</option>
                       <option value="Cash">Cash at Meeting</option>
@@ -1877,45 +1854,45 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.3rem' }}>Payment Date</label>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem' }}>Payment Date</label>
                     <input 
                       type="date"
                       className="form-input"
                       value={editorDate}
                       onChange={(e) => setEditorDate(e.target.value)}
-                      style={{ fontSize: '0.85rem', padding: '0.55rem' }}
+                      style={{ fontSize: '0.82rem', padding: '0.55rem' }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.3rem' }}>Reference / Receipt Note (Optional)</label>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem' }}>Reference / Receipt Note (Optional)</label>
                   <input 
                     type="text"
                     placeholder="e.g. Dues payment recorded at meeting"
                     className="form-input"
                     value={editorNote}
                     onChange={(e) => setEditorNote(e.target.value)}
-                    style={{ fontSize: '0.85rem' }}
+                    style={{ fontSize: '0.82rem' }}
                   />
                 </div>
 
                 {/* 6. LIVE BEFORE & AFTER IMPACT PREVIEW */}
                 {impact && (
-                  <div style={{ padding: '1.25rem', borderRadius: '12px', background: hasChange ? 'rgba(5, 150, 105, 0.06)' : 'var(--bg-main)', border: hasChange ? '1.5px solid rgba(5, 150, 105, 0.35)' : '1px solid var(--border-color)' }}>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 800, color: hasChange ? '#059669' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ padding: '1rem', borderRadius: '12px', background: hasChange ? 'rgba(5, 150, 105, 0.06)' : 'var(--bg-main)', border: hasChange ? '1.5px solid rgba(5, 150, 105, 0.35)' : '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: hasChange ? '#059669' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.65rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem' }}>
                       <span>⚡ Live Financial Calculation Preview</span>
                       {hasChange && (
-                        <span className="badge" style={{ background: impact.duesDelta >= 0 ? '#059669' : '#dc2626', color: '#fff', fontSize: '0.72rem' }}>
+                        <span className="badge" style={{ background: impact.duesDelta >= 0 ? '#059669' : '#dc2626', color: '#fff', fontSize: '0.7rem' }}>
                           {impact.duesDelta >= 0 ? `+GH₵ ${impact.duesDelta.toFixed(2)} Increase` : `-GH₵ ${Math.abs(impact.duesDelta).toFixed(2)} Deduction`}
                         </span>
                       )}
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', fontSize: '0.85rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.65rem', fontSize: '0.82rem' }}>
                       <div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Yearly Dues Paid</div>
-                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Yearly Dues Paid</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.1rem' }}>
                           <span style={{ color: 'var(--text-muted)' }}>GH₵ {impact.oldDues.toFixed(2)}</span>
                           <span>→</span>
                           <strong style={{ color: '#059669' }}>GH₵ {impact.newDues.toFixed(2)}</strong>
@@ -1923,8 +1900,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       </div>
 
                       <div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Outstanding Balance</div>
-                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Outstanding Balance</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.1rem' }}>
                           <span style={{ color: 'var(--text-muted)' }}>GH₵ {impact.oldBalanceOwed.toFixed(2)}</span>
                           <span>→</span>
                           <strong style={{ color: impact.newBalanceOwed > 0 ? '#dc2626' : '#059669' }}>
@@ -1934,8 +1911,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       </div>
 
                       <div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Shares Value</div>
-                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Shares Value</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.1rem' }}>
                           <span style={{ color: 'var(--text-muted)' }}>GH₵ {impact.oldShares.toFixed(2)}</span>
                           <span>→</span>
                           <strong style={{ color: '#2563eb' }}>GH₵ {impact.newShares.toFixed(2)}</strong>
@@ -1943,8 +1920,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       </div>
 
                       <div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Grand Total Holding</div>
-                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem' }}>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Grand Total Holding</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.1rem' }}>
                           <span style={{ color: 'var(--text-muted)' }}>GH₵ {impact.oldGrandTotal.toFixed(2)}</span>
                           <span>→</span>
                           <strong style={{ color: '#7c3aed' }}>GH₵ {impact.newGrandTotal.toFixed(2)}</strong>
@@ -1955,21 +1932,21 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 )}
 
                 {/* 7. Action Buttons */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.65rem', justifyContent: 'flex-end', flexWrap: 'wrap', marginTop: '0.5rem' }}>
                   <button 
                     type="button"
                     onClick={() => setIsDuesEditorOpen(false)}
                     className="btn btn-secondary"
-                    style={{ padding: '0.75rem 1.25rem', fontWeight: 700 }}
+                    style={{ padding: '0.7rem 1.25rem', fontWeight: 700, flex: '1 1 90px' }}
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit"
                     className="btn btn-primary"
-                    style={{ padding: '0.75rem 1.75rem', fontWeight: 800, fontSize: '0.95rem', background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                    style={{ padding: '0.75rem 1.5rem', fontWeight: 800, fontSize: '0.92rem', background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', flex: '2 1 180px' }}
                   >
-                    <CheckCircle2 size={18} /> Save & Apply Changes Immediately
+                    <CheckCircle2 size={18} /> Save & Apply Dues
                   </button>
                 </div>
               </form>
