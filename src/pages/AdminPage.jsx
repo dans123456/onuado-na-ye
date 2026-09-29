@@ -379,6 +379,10 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
     });
 
     setContributions(updated);
+    if (setMembers) {
+      setMembers(getMembers());
+    }
+    setKeyInHistory(getKeyInHistory());
     setManualSuccess(`Transaction of GH₵ ${parseFloat(manualForm.amount).toFixed(2)} recorded successfully!`);
     setManualForm({
       member_id: members[0]?.id || '',

@@ -1411,7 +1411,7 @@ export const addContribution = (contribution) => {
   const contributions = getContributions();
   const newRecord = {
     id: 'c-' + String(contributions.length + 1).padStart(3, '0'),
-    payment_date: new Date().toISOString().split('T')[0],
+    payment_date: contribution.payment_date || new Date().toISOString().split('T')[0],
     ...contribution
   };
   const updated = [newRecord, ...contributions];
@@ -1419,16 +1419,51 @@ export const addContribution = (contribution) => {
 
   // Also update total payments on member
   const members = getMembers();
-  const memberIndex = members.findIndex(m => m.id === contribution.member_id);
+  const memberIndex = members.findIndex(m => m.id === contribution.member_id || m.excel_member_id === contribution.member_id);
   if (memberIndex !== -1) {
+    const member = members[memberIndex];
     const amountNum = parseFloat(contribution.amount) || 0;
+    const oldDues = parseFloat(member.dues_paid) || 0;
+    const oldShares = parseFloat(member.shares_value) || 0;
+    const oldGrandTotal = parseFloat(member.shares_holding) || 0;
+
     if (contribution.contribution_type === 'Monthly Dues' || contribution.contribution_type === 'Yearly Dues') {
-      members[memberIndex].dues_paid = (members[memberIndex].dues_paid || 0) + amountNum;
+      member.dues_paid = oldDues + amountNum;
     } else if (contribution.contribution_type === 'Special Levy') {
-      members[memberIndex].levy_paid = (members[memberIndex].levy_paid || 0) + amountNum;
+      member.levy_paid = (parseFloat(member.levy_paid) || 0) + amountNum;
     }
-    recalculateMemberFinancials(members[memberIndex]);
+    recalculateMemberFinancials(member);
     saveMembers(members);
+
+    // If dues payment, also record to key-in history for complete audit trail
+    if (contribution.contribution_type === 'Monthly Dues' || contribution.contribution_type === 'Yearly Dues') {
+      const historyEntry = {
+        id: 'kh-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        timestamp: new Date().toISOString(),
+        paymentDate: contribution.payment_date || new Date().toISOString().split('T')[0],
+        memberId: member.id,
+        memberNo: member.member_no,
+        excelMemberId: member.excel_member_id,
+        memberName: member.full_name,
+        branch: member.branch,
+        profilePicture: member.profile_picture,
+        entryType: contribution.contribution_type || 'Yearly Dues Key-In',
+        oldDues: oldDues,
+        newDues: member.dues_paid,
+        delta: amountNum,
+        amount: amountNum,
+        action: 'add',
+        paymentMethod: contribution.payment_method || 'Cash',
+        referenceNote: contribution.reference_note || `Logged Transaction (+GH₵ ${amountNum.toFixed(2)})`,
+        recordedBy: contribution.received_by_name || 'Executive Admin',
+        oldShares: oldShares,
+        newShares: member.shares_value,
+        oldGrandTotal: oldGrandTotal,
+        newGrandTotal: member.shares_holding
+      };
+      const existingHistory = getKeyInHistory();
+      saveKeyInHistory([historyEntry, ...existingHistory]);
+    }
   }
 
   return updated;
@@ -1556,6 +1591,7 @@ export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMetho
       action: delta >= 0 ? 'add' : 'deduct',
       contribution_type: 'Yearly Dues',
       payment_method: paymentMethod || 'Cash',
+      reference_note: referenceNote || (delta > 0 ? `Direct Key-In Dues Top-up (+GH₵ ${delta.toFixed(2)})` : `Direct Key-In Dues Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`),
       referenceNote: referenceNote || (delta > 0 ? `Direct Key-In Dues Top-up (+GH₵ ${delta.toFixed(2)})` : `Direct Key-In Dues Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`),
       payment_date: paymentDate || new Date().toISOString().split('T')[0],
       received_by_name: receivedByName

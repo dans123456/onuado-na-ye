@@ -839,7 +839,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                     <td><span className="badge badge-dues">{item.contribution_type}</span></td>
                     <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ {parseFloat(item.amount).toFixed(2)}</td>
                     <td>{item.payment_method}</td>
-                    <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{item.reference_note}</td>
+                    <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{item.reference_note || item.referenceNote || 'Official Fellowship Ledger Payment'}</td>
                     <td>
                       <button 
                         onClick={() => setSelectedReceipt(item)} 
