@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, CheckCircle2, Send, Clock, ShieldCheck, Video, Users, CreditCard } from 'lucide-react';
+import { Mail, CheckCircle2, Send, Clock, ShieldCheck, Video, Users, CreditCard, Phone } from 'lucide-react';
 import PaystackModal from '../components/PaystackModal';
 import { addContribution, getMembers } from '../services/store';
 
@@ -124,35 +124,71 @@ export default function ContactPage({ setActivePage, currentUser, setContributio
                 <Users size={16} color="#d97706" /> Executive Officers Directory
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem', fontSize: '0.85rem' }}>
-                <div style={{ padding: '0.65rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', fontSize: '0.85rem' }}>
+                <div style={{ padding: '0.75rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ fontWeight: 800, color: 'var(--primary-700)' }}>Moses Osei Kwarteng</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>President</div>
+                  <a 
+                    href="tel:0203541966" 
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: '#059669', fontWeight: 700, textDecoration: 'none', marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border-color)' }}
+                  >
+                    <Phone size={12} /> 020 354 1966
+                  </a>
                 </div>
 
-                <div style={{ padding: '0.65rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.75rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ fontWeight: 800, color: 'var(--primary-700)' }}>Osei Kwame</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Vice President</div>
+                  <a 
+                    href="tel:0244283224" 
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: '#059669', fontWeight: 700, textDecoration: 'none', marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border-color)' }}
+                  >
+                    <Phone size={12} /> 024 428 3224
+                  </a>
                 </div>
 
-                <div style={{ padding: '0.65rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.75rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ fontWeight: 800, color: 'var(--primary-700)' }}>Mark-Just Quansah</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>P.R.O.</div>
+                  <a 
+                    href="tel:0267461029" 
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: '#059669', fontWeight: 700, textDecoration: 'none', marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border-color)' }}
+                  >
+                    <Phone size={12} /> 026 746 1029
+                  </a>
                 </div>
 
-                <div style={{ padding: '0.65rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.75rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ fontWeight: 800, color: 'var(--primary-700)' }}>Jonathan Danso Siaw</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Secretary</div>
+                  <a 
+                    href="tel:0242145516" 
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: '#059669', fontWeight: 700, textDecoration: 'none', marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border-color)' }}
+                  >
+                    <Phone size={12} /> 024 214 5516
+                  </a>
                 </div>
 
-                <div style={{ padding: '0.65rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.75rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ fontWeight: 800, color: 'var(--primary-700)' }}>William Anane</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Executive Member</div>
+                  <a 
+                    href="tel:0269563876" 
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: '#059669', fontWeight: 700, textDecoration: 'none', marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border-color)' }}
+                  >
+                    <Phone size={12} /> 026 956 3876
+                  </a>
                 </div>
 
-                <div style={{ padding: '0.65rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '0.75rem 0.85rem', background: 'var(--bg-main)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ fontWeight: 800, color: 'var(--primary-700)' }}>John Amoakohene Asare</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Executive Member</div>
+                  <a 
+                    href="tel:0242927915" 
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: '#059669', fontWeight: 700, textDecoration: 'none', marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border-color)' }}
+                  >
+                    <Phone size={12} /> 024 292 7915
+                  </a>
                 </div>
               </div>
             </div>
