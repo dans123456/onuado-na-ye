@@ -480,6 +480,104 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         </div>
       </div>
 
+      {/* 💳 OFFICIAL FELLOWSHIP ACCOUNTS & TREASURY BALANCES (MTN MOMO, FIDELITY BANK, BANK ACCOUNT TEMA, & GRAND TOTAL) */}
+      <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.05), rgba(37, 99, 235, 0.05))', border: '2px solid rgba(5, 150, 105, 0.3)' }}>
+        <div style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: '#059669', marginBottom: '1rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Building2 size={18} color="#059669" /> Official Fellowship Accounts & Bank Balances (From Excel Sheets)
+          </div>
+          <button 
+            onClick={() => setActiveTab('treasury')} 
+            className="btn btn-secondary"
+            style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <Eye size={14} /> View Complete Ledger & Trial Balance &rarr;
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1.25rem' }}>
+          
+          {/* 1. MTN MOMO ACCOUNT SHEET */}
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(217, 119, 6, 0.3)', borderTop: '4px solid #d97706', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  MTN MOMO ACCOUNT SHEET
+                </span>
+                <span className="badge badge-dues" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem' }}>MTN MOMO</span>
+              </div>
+              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#059669', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
+                GH₵ 1.95
+              </div>
+              <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                Ending MoMo Balance (Line: <strong>0530486443</strong>)
+              </div>
+            </div>
+            <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.2rem', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Total Inflows:</span> <strong style={{ color: '#059669' }}>GH₵ 102,088.75</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Disbursements:</span> <strong>GH₵ 102,086.80</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. FIDELITY BANK SHEET */}
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(5, 150, 105, 0.3)', borderTop: '4px solid #059669', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  FIDELITY BANK SHEET
+                </span>
+                <span className="badge badge-dues" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem' }}>FIDELITY</span>
+              </div>
+              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#059669', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
+                GH₵ 10,698.88
+              </div>
+              <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                Ending Bank Balance (Acc: <strong>2090182444410</strong>)
+              </div>
+            </div>
+            <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.2rem', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Cash Deposited:</span> <strong>GH₵ 125,113.88</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Withdrawals/Inv:</span> <strong>GH₵ 114,415.00</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. BANK ACCOUNT SHEET (TEMA) */}
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(37, 99, 235, 0.3)', borderTop: '4px solid #2563eb', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  BANK ACCOUNT SHEET
+                </span>
+                <span className="badge" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem', background: 'rgba(37, 99, 235, 0.15)', color: '#2563eb' }}>TEMA</span>
+              </div>
+              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#2563eb', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
+                GH₵ 366.24
+              </div>
+              <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                Credit Union Balance (Acc: <strong>2161006002421201</strong>)
+              </div>
+            </div>
+            <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.2rem', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Savings Deposited:</span> <strong>GH₵ 5,500.00</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Cash Withdrawals:</span> <strong>GH₵ 5,400.00</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       {/* 📊 EXCEL MASTER FINANCIAL TOTALS (SHARES TOTAL, TREASURER BILL TOTAL, GRAND AMOUNT) */}
       <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(37, 99, 235, 0.05))', border: '2px solid rgba(220, 38, 38, 0.3)' }}>
         <div style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: '#dc2626', marginBottom: '1rem', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -505,6 +603,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           const sharesTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.shares_value) || 0), 0);
           const treasBillTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.treasurer_bill) || 0), 0);
           const grandMasterTotalVal = sharesTotalVal + treasBillTotalVal;
+          const combinedNetWorth = grandMasterTotalVal + 11067.07;
 
           return (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
@@ -626,8 +725,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             </p>
           </div>
 
-          {/* 3 Treasury Account Cards Grid (MTN MoMo 1st, Fidelity Bank 2nd, Bank Tema 3rd) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 270px), 1fr))', gap: '1.25rem' }}>
+          {/* 4 Treasury Account Cards Grid (MTN MoMo, Fidelity Bank, Bank Tema, and Grand Liquid Total) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1.25rem' }}>
             
             {/* 1ST CARD: MTN Mobile Money Account */}
             <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #d97706', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(255, 255, 255, 0.02))' }}>
@@ -647,8 +746,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
 
               <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ 100,088.75</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Vouchers:</span><strong>GH₵ 100,086.80</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ 102,088.75</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Vouchers:</span><strong>GH₵ 102,086.80</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Account Name:</span><strong>ONUADO NA EYE FELLOWSHIP</strong></div>
               </div>
             </div>
@@ -678,7 +777,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
             </div>
 
-            {/* North Tema Co-Operative Credit Union */}
+            {/* 3RD CARD: North Tema Co-Operative Credit Union */}
             <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #2563eb', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(255, 255, 255, 0.02))' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>

@@ -27,3 +27,4 @@ constitution_text.txt
 *.sw?
 # Scratch scripts
 scratch/
+~$*
