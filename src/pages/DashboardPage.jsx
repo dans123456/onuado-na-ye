@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock } from 'lucide-react';
 import { updateMemberProfile, addContribution, getMembers, getContributions } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
+import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSharesData';
 import PaystackModal from '../components/PaystackModal';
 
 export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions, setContributions, setActivePage }) {
@@ -9,6 +10,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const [isEditing, setIsEditing] = useState(false);
   const [showPII, setShowPII] = useState(false); // Privacy Shield state
   const [isPaystackOpen, setIsPaystackOpen] = useState(false);
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({
     phone_number: currentUser?.phone_number || '',
     momo_number: currentUser?.momo_number || '',
@@ -71,6 +73,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const balanceOwed = currentMember?.balance_owed !== undefined ? currentMember.balance_owed : Math.max(0, duesFeeRequired - duesPaid);
   const netPayoutValue = Math.max(0, sharesHolding - balanceOwed);
   const memberLevyList = getMemberLevyDetails(currentMember);
+  const vehicleSharesData = getMemberVehicleShares(currentMember?.full_name || currentUser?.full_name);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -256,6 +259,31 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #3b82f6' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Levy Paid</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.2rem' }}>GH₵ {levyPaid.toFixed(2)}</div>
+        </div>
+
+        {/* 🚗 VEHICLE SHARES CARD (Inserted right BEFORE Total Payments) */}
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #ea580c', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.06), rgba(255, 255, 255, 0.02))', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: '#ea580c', textTransform: 'uppercase', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>Vehicle Shares</span>
+              <span className="badge" style={{ fontSize: '0.62rem', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', padding: '0.1rem 0.4rem', fontWeight: 800 }}>🚗 SHARES</span>
+            </div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ea580c', marginTop: '0.2rem' }}>
+              GH₵ {vehicleSharesData.totalPaid.toFixed(2)}
+            </div>
+          </div>
+          <div style={{ marginTop: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.25rem' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+              {vehicleSharesData.sharesCount} Shares ({vehicleSharesData.status})
+            </span>
+            <button
+              onClick={() => setIsVehicleModalOpen(true)}
+              className="btn"
+              style={{ padding: '0.22rem 0.55rem', fontSize: '0.72rem', fontWeight: 800, background: '#ea580c', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', boxShadow: '0 2px 6px rgba(234, 88, 12, 0.25)' }}
+            >
+              Details &rarr;
+            </button>
+          </div>
         </div>
 
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #d97706' }}>
@@ -952,6 +980,149 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🚗 VEHICLE SHARES DETAILS MODAL */}
+      {isVehicleModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card" style={{ maxWidth: '580px', width: '100%', padding: '2rem', background: 'var(--bg-card)', borderRadius: '20px', boxShadow: '0 25px 50px rgba(0,0,0,0.4)', maxHeight: '90vh', overflowY: 'auto' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
+              <div>
+                <div className="badge" style={{ background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', fontWeight: 800, padding: '0.25rem 0.75rem', fontSize: '0.78rem', marginBottom: '0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                  🚗 FELLOWSHIP VEHICLE SHARES LEDGER
+                </div>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
+                  {currentMember?.full_name || currentUser?.full_name}
+                </h3>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                  Member ID: <strong>{currentMember?.excel_member_id || currentUser?.excel_member_id}</strong> • Sheet: <strong>VEHICLE SHARES HOLDING</strong>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsVehicleModalOpen(false)}
+                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-main)', fontWeight: 900 }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Vehicle Shares Core Metrics Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.85rem', marginBottom: '1.5rem' }}>
+              
+              <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(234, 88, 12, 0.3)', borderTop: '4px solid #ea580c' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Total Vehicle Paid</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ea580c', marginTop: '0.15rem' }}>
+                  GH₵ {vehicleSharesData.totalPaid.toFixed(2)}
+                </div>
+              </div>
+
+              <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(139, 92, 246, 0.3)', borderTop: '4px solid #8b5cf6' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Shares Dividend</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.15rem' }}>
+                  {vehicleSharesData.sharesCount} Shares
+                </div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>@ GH₵ 50 / Share</div>
+              </div>
+
+              <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(16, 185, 129, 0.3)', borderTop: '4px solid #10b981' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Payment Status</div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: vehicleSharesData.status === 'PAID' ? '#10b981' : 'var(--text-muted)', marginTop: '0.2rem' }}>
+                  {vehicleSharesData.status}
+                </div>
+              </div>
+
+            </div>
+
+            {/* 4-Payment Schedule Table */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Calendar size={15} color="#ea580c" /> Vehicle Shares 4-Payment Schedule Breakdown
+              </div>
+              
+              <div className="table-container">
+                <table className="data-table" style={{ fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr>
+                      <th>Payment Installment</th>
+                      <th>Amount Required / Paid</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ fontWeight: 800 }}>1st Payment Installment</td>
+                      <td style={{ fontWeight: 900, color: vehicleSharesData.payments.p1 > 0 ? '#059669' : 'var(--text-muted)' }}>
+                        GH₵ {vehicleSharesData.payments.p1.toFixed(2)}
+                      </td>
+                      <td>
+                        {vehicleSharesData.payments.p1 > 0 ? (
+                          <span className="badge badge-dues" style={{ fontSize: '0.68rem' }}>PAID ✓</span>
+                        ) : (
+                          <span className="badge" style={{ fontSize: '0.68rem', background: 'var(--border-color)', color: 'var(--text-muted)' }}>UNPAID</span>
+                        )}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: 800 }}>2nd Payment Installment</td>
+                      <td style={{ fontWeight: 900, color: vehicleSharesData.payments.p2 > 0 ? '#059669' : 'var(--text-muted)' }}>
+                        GH₵ {vehicleSharesData.payments.p2.toFixed(2)}
+                      </td>
+                      <td>
+                        {vehicleSharesData.payments.p2 > 0 ? (
+                          <span className="badge badge-dues" style={{ fontSize: '0.68rem' }}>PAID ✓</span>
+                        ) : (
+                          <span className="badge" style={{ fontSize: '0.68rem', background: 'var(--border-color)', color: 'var(--text-muted)' }}>UNPAID</span>
+                        )}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: 800 }}>3rd Payment Installment</td>
+                      <td style={{ fontWeight: 900, color: vehicleSharesData.payments.p3 > 0 ? '#059669' : 'var(--text-muted)' }}>
+                        GH₵ {vehicleSharesData.payments.p3.toFixed(2)}
+                      </td>
+                      <td>
+                        {vehicleSharesData.payments.p3 > 0 ? (
+                          <span className="badge badge-dues" style={{ fontSize: '0.68rem' }}>PAID ✓</span>
+                        ) : (
+                          <span className="badge" style={{ fontSize: '0.68rem', background: 'var(--border-color)', color: 'var(--text-muted)' }}>UNPAID</span>
+                        )}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: 800 }}>4th Payment Installment</td>
+                      <td style={{ fontWeight: 900, color: vehicleSharesData.payments.p4 > 0 ? '#059669' : 'var(--text-muted)' }}>
+                        GH₵ {vehicleSharesData.payments.p4.toFixed(2)}
+                      </td>
+                      <td>
+                        {vehicleSharesData.payments.p4 > 0 ? (
+                          <span className="badge badge-dues" style={{ fontSize: '0.68rem' }}>PAID ✓</span>
+                        ) : (
+                          <span className="badge" style={{ fontSize: '0.68rem', background: 'var(--border-color)', color: 'var(--text-muted)' }}>UNPAID</span>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Fellowship Vehicle Fund Notice */}
+            <div style={{ padding: '0.85rem 1rem', background: 'rgba(234, 88, 12, 0.08)', borderRadius: '12px', border: '1px solid rgba(234, 88, 12, 0.25)', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+              <strong style={{ color: '#ea580c', display: 'block', marginBottom: '0.2rem' }}>📌 Fellowship Vehicle Acquisition Fund Info:</strong>
+              Extracted directly from Excel sheet <strong>VEHICLE SHARES HOLDING</strong>. Total vehicle fund capital pool of <strong>GH₵ 68,000.00</strong> was transferred towards the fellowship vehicle purchase project.
+            </div>
+
+            <button 
+              onClick={() => setIsVehicleModalOpen(false)}
+              className="btn btn-primary" 
+              style={{ width: '100%', padding: '0.65rem', fontWeight: 800, background: '#ea580c', borderColor: '#ea580c' }}
+            >
+              Close Ledger Details
+            </button>
+
           </div>
         </div>
       )}
