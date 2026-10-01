@@ -350,14 +350,26 @@ html, body {
 
 @media (max-width: 480px) {
   h1 {
-    font-size: 1.45rem !important;
+    font-size: 1.35rem !important;
+  }
+  h2 {
+    font-size: 1.15rem !important;
+  }
+  .glass-card {
+    padding: 0.95rem !important;
+    border-radius: 12px !important;
   }
   .badge {
-    font-size: 0.68rem !important;
-    padding: 0.2rem 0.5rem !important;
+    font-size: 0.65rem !important;
+    padding: 0.18rem 0.45rem !important;
   }
   .table-container {
     border-radius: 8px !important;
+    font-size: 0.76rem !important;
+  }
+  .responsive-mobile-flex {
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
 }
 
@@ -416,12 +428,12 @@ html, body {
 
 @media (max-width: 640px) {
   .modal-overlay {
-    padding: 0.65rem !important;
+    padding: 0.5rem !important;
   }
   .modal-responsive-card {
-    padding: 1.15rem !important;
-    border-radius: 16px !important;
-    max-height: 94vh !important;
+    padding: 1rem !important;
+    border-radius: 14px !important;
+    max-height: 95vh !important;
   }
 }
 
