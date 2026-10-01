@@ -5,6 +5,7 @@ import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSharesData';
 import { getMemberSharesSchedule } from '../utils/sharesDividendData';
 import PaystackModal from '../components/PaystackModal';
+import PettyCashVehicleModal from '../components/PettyCashVehicleModal';
 
 export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('record'); // 'record', 'dues_matrix', 'levies_matrix', 'history'
@@ -12,6 +13,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const [showPII, setShowPII] = useState(false); // Privacy Shield state
   const [isPaystackOpen, setIsPaystackOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [isPettyCashVehicleModalOpen, setIsPettyCashVehicleModalOpen] = useState(false);
   const [isSharesModalOpen, setIsSharesModalOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({
     phone_number: currentUser?.phone_number || '',
@@ -279,13 +281,23 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>
               {vehicleSharesData.sharesCount} Shares ({vehicleSharesData.status})
             </span>
-            <button
-              onClick={() => setIsVehicleModalOpen(true)}
-              className="btn"
-              style={{ padding: '0.22rem 0.55rem', fontSize: '0.72rem', fontWeight: 800, background: '#ea580c', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', boxShadow: '0 2px 6px rgba(234, 88, 12, 0.25)' }}
-            >
-              Details &rarr;
-            </button>
+            <div style={{ display: 'flex', gap: '0.25rem' }}>
+              <button
+                onClick={() => setIsPettyCashVehicleModalOpen(true)}
+                className="btn"
+                style={{ padding: '0.22rem 0.45rem', fontSize: '0.7rem', fontWeight: 800, background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', border: '1px solid rgba(234, 88, 12, 0.3)', borderRadius: '6px', cursor: 'pointer' }}
+                title="View PETTY CASH VEHICLE total balance (GH₵ 68,000.00) & particulars ledger"
+              >
+                📋 Fund Particulars
+              </button>
+              <button
+                onClick={() => setIsVehicleModalOpen(true)}
+                className="btn"
+                style={{ padding: '0.22rem 0.55rem', fontSize: '0.72rem', fontWeight: 800, background: '#ea580c', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', boxShadow: '0 2px 6px rgba(234, 88, 12, 0.25)' }}
+              >
+                Details &rarr;
+              </button>
+            </div>
           </div>
         </div>
 
@@ -297,6 +309,11 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #8b5cf6' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Shares Dividends</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#8b5cf6', marginTop: '0.2rem' }}>{sharesDividends} Shares</div>
+          {vehicleSharesData.sharesCount > 0 && (
+            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.2rem', fontWeight: 600 }}>
+              +{vehicleSharesData.sharesCount} Vehicle = <strong style={{ color: '#7c3aed' }}>{currentMember?.total_shares_count || (sharesDividends + vehicleSharesData.sharesCount)} Total</strong>
+            </div>
+          )}
         </div>
 
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #0284c7' }}>
@@ -334,7 +351,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               </div>
               <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#7c3aed', lineHeight: 1.1 }}>
                 GH₵ {sharesHolding.toFixed(2)}
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, marginLeft: '0.5rem' }}>({sharesDividends} Shares)</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, marginLeft: '0.5rem' }}>({currentMember?.total_shares_count || (sharesDividends + vehicleSharesData.sharesCount)} Total Shares)</span>
               </div>
             </div>
           </div>
@@ -1166,9 +1183,12 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.85rem', marginBottom: '1.5rem' }}>
               
               <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(139, 92, 246, 0.3)', borderTop: '4px solid #8b5cf6' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Total Shares</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Total Combined Shares</div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.15rem' }}>
-                  {sharesSchedule.totalShares} Shares
+                  {currentMember?.total_shares_count || sharesSchedule.totalShares} Shares
+                </div>
+                <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)' }}>
+                  {vehicleSharesData.sharesCount > 0 ? `${sharesDividends} Dues + ${vehicleSharesData.sharesCount} Vehicle` : 'Dues Dividends'}
                 </div>
               </div>
 
@@ -1273,6 +1293,12 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         onClose={() => setIsPaystackOpen(false)}
         currentUser={currentUser}
         onPaymentSuccess={handlePaystackSuccess}
+      />
+
+      {/* 🚐 PETTY CASH VEHICLE PARTICULARS MODAL */}
+      <PettyCashVehicleModal 
+        isOpen={isPettyCashVehicleModalOpen}
+        onClose={() => setIsPettyCashVehicleModalOpen(false)}
       />
 
     </div>

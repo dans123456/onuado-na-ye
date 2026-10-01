@@ -686,12 +686,14 @@ const INITIAL_MEMBERS = [
     "mother_contact": "024 314 3124",
     "reg_fees": 200,
     "base_dues_paid": 3900,
-    "base_shares_value": 5968.536838905775,
+    "base_shares_value": 3945.304012158055,
     "dues_paid": 3900,
     "levy_paid": 800,
-    "total_payments": 4900,
+    "vehicle_shares_paid": 2000,
+    "vehicle_shares_count": 40,
+    "total_payments": 6900,
     "dues_fee_required": 3900,
-    "shares_dividends": 118,
+    "shares_dividends": 78,
     "shares_value": 5968.536838905775,
     "treasurer_bill": 828.3552580226167,
     "shares_holding": 6796.892096928392,
@@ -958,12 +960,14 @@ const INITIAL_MEMBERS = [
     "base_shares_value": 3945.304012158055,
     "dues_paid": 3900,
     "levy_paid": 1000,
-    "total_payments": 5100,
+    "vehicle_shares_paid": 2000,
+    "vehicle_shares_count": 40,
+    "total_payments": 7100,
     "dues_fee_required": 3900,
     "shares_dividends": 78,
-    "shares_value": 3945.304012158055,
+    "shares_value": 5968.536838905775,
     "treasurer_bill": 828.3552580226167,
-    "shares_holding": 4773.659270180671,
+    "shares_holding": 6796.892096928392,
     "father_state": "Alive",
     "mother_state": "Alive",
     "status": "ACTIVE",
@@ -1009,12 +1013,14 @@ const INITIAL_MEMBERS = [
     "mother_contact": "",
     "reg_fees": 200,
     "base_dues_paid": 3500,
-    "base_shares_value": 5563.890273556231,
+    "base_shares_value": 3540.655446808511,
     "dues_paid": 3500,
     "levy_paid": 1000,
-    "total_payments": 4700,
+    "vehicle_shares_paid": 2000,
+    "vehicle_shares_count": 40,
+    "total_payments": 6700,
     "dues_fee_required": 3900,
-    "shares_dividends": 110,
+    "shares_dividends": 70,
     "shares_value": 5563.890273556231,
     "treasurer_bill": 828.3552580226167,
     "shares_holding": 6392.2455315788475,
@@ -1313,24 +1319,42 @@ export const recalculateMemberFinancials = (member) => {
   const levyPaid = parseFloat(member.levy_paid) || 0;
   const regFees = parseFloat(member.reg_fees) || 200;
   const duesFeeRequired = parseFloat(member.dues_fee_required) || 3900;
-  
-  member.total_payments = regFees + duesPaid + levyPaid;
+  const vehPaid = member.vehicle_shares_paid !== undefined ? parseFloat(member.vehicle_shares_paid) : 0;
+  const vehSharesCount = member.vehicle_shares_count !== undefined ? parseInt(member.vehicle_shares_count, 10) : Math.floor(vehPaid / 50);
+
+  member.vehicle_shares_paid = vehPaid;
+  member.vehicle_shares_count = vehSharesCount;
+  member.total_payments = regFees + duesPaid + levyPaid + vehPaid;
   member.balance_owed = Math.max(0, duesFeeRequired - duesPaid);
   
   const baseDues = member.base_dues_paid !== undefined ? parseFloat(member.base_dues_paid) : duesPaid;
-  const baseSharesVal = member.base_shares_value !== undefined ? parseFloat(member.base_shares_value) : (Math.floor(duesPaid / 50) * SHARE_BASE_RATE);
+  let rawBaseSharesVal = member.base_shares_value !== undefined ? parseFloat(member.base_shares_value) : (Math.floor(duesPaid / 50) * SHARE_BASE_RATE);
   
-  const duesDelta = duesPaid - baseDues;
-  const sharesDelta = Math.floor(duesDelta / 50) * SHARE_BASE_RATE;
+  // If rawBaseSharesVal was pre-combined with vehicle shares in seed data (> 5000), extract base dues shares value
+  if (rawBaseSharesVal > 5000 && vehSharesCount > 0) {
+    rawBaseSharesVal = rawBaseSharesVal - (vehSharesCount * SHARE_BASE_RATE);
+  }
 
-  member.shares_value = baseSharesVal + sharesDelta;
-  member.shares_dividends = Math.round(member.shares_value / SHARE_BASE_RATE);
-  member.shares_holding = member.shares_value + (parseFloat(member.treasurer_bill) || 0);
+  const duesDelta = duesPaid - baseDues;
+  const duesSharesDeltaVal = Math.floor(duesDelta / 50) * SHARE_BASE_RATE;
+  
+  const duesSharesValue = rawBaseSharesVal + duesSharesDeltaVal;
+  const duesSharesCount = Math.round(duesSharesValue / SHARE_BASE_RATE);
+  
+  const vehSharesValue = vehSharesCount * SHARE_BASE_RATE;
+
+  // Option 1 Master Combined Financials
+  member.dues_shares_dividends = duesSharesCount;
+  member.dues_shares_value = duesSharesValue;
+  member.shares_dividends = duesSharesCount; // Pure Dues Dividends count (e.g. 78)
+  member.total_shares_count = duesSharesCount + vehSharesCount; // Master Combined Shares count (e.g. 78 + 40 = 118)
+  member.shares_value = duesSharesValue + vehSharesValue; // Master Combined Base Value (e.g. GHc 5,966.52)
+  member.shares_holding = member.shares_value + (parseFloat(member.treasurer_bill) || 0); // Master Combined Grand Total (e.g. GHc 6,794.87)
   
   return member;
 };
 
-const DATA_VERSION = '2026-09-28-v7-clean-keyin-history';
+const DATA_VERSION = '2026-09-28-v8-unified-master-shares';
 
 export const getMembers = () => {
   try {
@@ -1637,6 +1661,149 @@ export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMetho
     oldDues,
     newDues: targetDues,
     delta
+  };
+};
+
+/**
+ * Direct Key-In Handler for Special Levies
+ */
+export const updateMemberLevyDirectly = ({ memberId, levyName, levyAmount, paymentMethod, referenceNote, paymentDate, receivedByName }) => {
+  const members = getMembers();
+  const member = members.find(m => m.id === memberId || m.excel_member_id === memberId);
+  if (!member) throw new Error('Member not found for levy update');
+
+  const oldLevy = parseFloat(member.levy_paid) || 0;
+  const addedAmount = Math.max(0, parseFloat(levyAmount) || 0);
+  const newLevy = oldLevy + addedAmount;
+
+  member.levy_paid = newLevy;
+  member.total_payments = (parseFloat(member.reg_fees) || 200) + (parseFloat(member.dues_paid) || 0) + newLevy;
+
+  saveMembers(members);
+
+  let updatedContributions = getContributions();
+  if (addedAmount > 0) {
+    const newContrib = {
+      id: 'c-levy-' + Date.now(),
+      member_id: member.id,
+      amount: addedAmount,
+      action: 'add',
+      contribution_type: 'Special Levy',
+      payment_method: paymentMethod || 'Cash',
+      reference_note: referenceNote || `Special Levy (${levyName || 'General Call-Up'})`,
+      payment_date: paymentDate || new Date().toISOString().split('T')[0],
+      received_by_name: receivedByName || 'Executive Admin'
+    };
+    updatedContributions = [newContrib, ...updatedContributions];
+    localStorage.setItem('ony_contributions', JSON.stringify(updatedContributions));
+
+    const historyEntry = {
+      id: 'kh-levy-' + Date.now(),
+      timestamp: new Date().toISOString(),
+      paymentDate: paymentDate || new Date().toISOString().split('T')[0],
+      category: 'levy',
+      memberId: member.id,
+      memberNo: member.member_no,
+      excelMemberId: member.excel_member_id,
+      memberName: member.full_name,
+      branch: member.branch,
+      profilePicture: member.profile_picture,
+      entryType: 'Special Levy Key-In',
+      levyName: levyName || 'Special Levy Call-Up',
+      oldValue: oldLevy,
+      newValue: newLevy,
+      delta: addedAmount,
+      amount: addedAmount,
+      action: 'add',
+      paymentMethod: paymentMethod || 'Cash',
+      referenceNote: referenceNote || `Special Levy Key-In: ${levyName || 'General Call-Up'} (+GH₵ ${addedAmount.toFixed(2)})`,
+      recordedBy: receivedByName || 'Executive Admin'
+    };
+
+    const existingHistory = getKeyInHistory();
+    const updatedHistory = [historyEntry, ...existingHistory];
+    saveKeyInHistory(updatedHistory);
+  }
+
+  return {
+    updatedMembers: members,
+    updatedContributions,
+    affectedMember: member,
+    oldLevy,
+    newLevy,
+    delta: addedAmount
+  };
+};
+
+/**
+ * Direct Key-In Handler for Vehicle Shares
+ */
+export const updateMemberVehicleSharesDirectly = ({ memberId, installmentName, amount, paymentMethod, referenceNote, paymentDate, receivedByName }) => {
+  const members = getMembers();
+  const member = members.find(m => m.id === memberId || m.excel_member_id === memberId);
+  if (!member) throw new Error('Member not found for vehicle shares update');
+
+  const oldVehiclePaid = parseFloat(member.vehicle_shares_paid) || 0;
+  const addedAmount = Math.max(0, parseFloat(amount) || 0);
+  const newVehiclePaid = oldVehiclePaid + addedAmount;
+  const newVehicleSharesCount = Math.floor(newVehiclePaid / 50);
+
+  member.vehicle_shares_paid = newVehiclePaid;
+  member.vehicle_shares_count = newVehicleSharesCount;
+
+  saveMembers(members);
+
+  let updatedContributions = getContributions();
+  if (addedAmount > 0) {
+    const newContrib = {
+      id: 'c-veh-' + Date.now(),
+      member_id: member.id,
+      amount: addedAmount,
+      action: 'add',
+      contribution_type: 'Vehicle Shares',
+      payment_method: paymentMethod || 'Cash',
+      reference_note: referenceNote || `Vehicle Shares (${installmentName || 'Installment Payment'})`,
+      payment_date: paymentDate || new Date().toISOString().split('T')[0],
+      received_by_name: receivedByName || 'Executive Admin'
+    };
+    updatedContributions = [newContrib, ...updatedContributions];
+    localStorage.setItem('ony_contributions', JSON.stringify(updatedContributions));
+
+    const historyEntry = {
+      id: 'kh-veh-' + Date.now(),
+      timestamp: new Date().toISOString(),
+      paymentDate: paymentDate || new Date().toISOString().split('T')[0],
+      category: 'vehicle',
+      memberId: member.id,
+      memberNo: member.member_no,
+      excelMemberId: member.excel_member_id,
+      memberName: member.full_name,
+      branch: member.branch,
+      profilePicture: member.profile_picture,
+      entryType: 'Vehicle Shares Key-In',
+      installmentName: installmentName || 'Vehicle Shares Payment',
+      oldValue: oldVehiclePaid,
+      newValue: newVehiclePaid,
+      delta: addedAmount,
+      amount: addedAmount,
+      action: 'add',
+      paymentMethod: paymentMethod || 'Cash',
+      referenceNote: referenceNote || `Vehicle Shares Key-In: ${installmentName || 'Installment'} (+GH₵ ${addedAmount.toFixed(2)})`,
+      recordedBy: receivedByName || 'Executive Admin'
+    };
+
+    const existingHistory = getKeyInHistory();
+    const updatedHistory = [historyEntry, ...existingHistory];
+    saveKeyInHistory(updatedHistory);
+  }
+
+  return {
+    updatedMembers: members,
+    updatedContributions,
+    affectedMember: member,
+    oldVehiclePaid,
+    newVehiclePaid,
+    delta: addedAmount
   };
 };
 

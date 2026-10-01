@@ -1,39 +1,51 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, calculateDuesImpact, getKeyInHistory } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
+import PettyCashVehicleModal from '../components/PettyCashVehicleModal';
 
 export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('roster'); // 'roster', 'history', 'manual', 'announcement', 'treasury'
   const [showAllBranches, setShowAllBranches] = useState(false);
 
+  // Petty Cash Vehicle Modal State
+  const [isPettyCashVehicleModalOpen, setIsPettyCashVehicleModalOpen] = useState(false);
+
   // Key-In Audit History State
   const [keyInHistory, setKeyInHistory] = useState(() => getKeyInHistory());
   const [historySearch, setHistorySearch] = useState('');
-  const [historyFilter, setHistoryFilter] = useState('all'); // 'all', 'add', 'deduct', 'momo', 'cash', 'bank'
+  const [historyFilter, setHistoryFilter] = useState('all'); // 'all', 'dues', 'levy', 'vehicle', 'add', 'deduct', 'momo', 'cash', 'bank'
 
-  // Direct Key-In Member Dues Editor State
+  // Direct Key-In Multi-Category Editor State
   const [isDuesEditorOpen, setIsDuesEditorOpen] = useState(false);
+  const [editorCategory, setEditorCategory] = useState('dues'); // 'dues', 'levy', 'vehicle'
   const [editorMemberId, setEditorMemberId] = useState(members[0]?.id || '');
-  const [editorMode, setEditorMode] = useState('add'); // 'add' (top up) or 'set' (exact new total)
+  const [editorMode, setEditorMode] = useState('add'); // 'add' (top up) or 'set' (exact new total for dues)
   const [editorAmount, setEditorAmount] = useState('');
   const [editorMethod, setEditorMethod] = useState('Mobile Money');
   const [editorDate, setEditorDate] = useState(new Date().toISOString().split('T')[0]);
   const [editorNote, setEditorNote] = useState('');
+  const [editorLevyName, setEditorLevyName] = useState('1st LEVY (ELD. ISAAC DARKO)');
+  const [editorCustomLevy, setEditorCustomLevy] = useState('');
+  const [editorInstallment, setEditorInstallment] = useState('1st Installment Payment (GH₵ 500.00)');
   const [editorError, setEditorError] = useState('');
 
-  const openDuesEditorForMember = (member) => {
+  const openDuesEditorForMember = (member, category = 'dues') => {
     if (!member) return;
+    setEditorCategory(category);
     setEditorMemberId(member.id);
     setEditorMode('add');
     setEditorAmount('');
     setEditorMethod('Mobile Money');
     setEditorDate(new Date().toISOString().split('T')[0]);
     setEditorNote('');
+    setEditorLevyName('1st LEVY (ELD. ISAAC DARKO)');
+    setEditorCustomLevy('');
+    setEditorInstallment('1st Installment Payment (GH₵ 500.00)');
     setEditorError('');
     setIsDuesEditorOpen(true);
   };
@@ -48,41 +60,72 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       return;
     }
 
-    const currentDues = parseFloat(targetMember.dues_paid) || 0;
     const inputVal = parseFloat(editorAmount);
-
-    if (isNaN(inputVal) || inputVal < 0) {
-      setEditorError('Please enter a valid amount.');
+    if (isNaN(inputVal) || inputVal <= 0) {
+      setEditorError('Please enter a valid positive payment amount.');
       return;
     }
 
-    const targetDues = editorMode === 'add' ? (currentDues + inputVal) : inputVal;
-
     try {
-      const result = updateMemberDuesDirectly({
-        memberId: targetMember.id,
-        newDuesAmount: targetDues,
-        paymentMethod: editorMethod,
-        referenceNote: editorNote || (editorMode === 'add' ? `Direct Key-In Dues Top-up (+GH₵ ${inputVal.toFixed(2)})` : `Direct Key-In Set Total (GH₵ ${targetDues.toFixed(2)})`),
-        paymentDate: editorDate,
-        receivedByName: currentUser?.full_name || 'Executive Admin'
-      });
+      if (editorCategory === 'dues') {
+        const currentDues = parseFloat(targetMember.dues_paid) || 0;
+        const targetDues = editorMode === 'add' ? (currentDues + inputVal) : inputVal;
 
-      if (setMembers) {
-        setMembers(result.updatedMembers);
-      }
-      if (setContributions) {
-        setContributions(result.updatedContributions);
-      }
-      setKeyInHistory(getKeyInHistory());
+        const result = updateMemberDuesDirectly({
+          memberId: targetMember.id,
+          newDuesAmount: targetDues,
+          paymentMethod: editorMethod,
+          referenceNote: editorNote || (editorMode === 'add' ? `Direct Key-In Dues Top-up (+GH₵ ${inputVal.toFixed(2)})` : `Direct Key-In Set Total (GH₵ ${targetDues.toFixed(2)})`),
+          paymentDate: editorDate,
+          receivedByName: currentUser?.full_name || 'Executive Admin'
+        });
 
-      const diffLabel = result.delta >= 0 ? `+GH₵ ${result.delta.toFixed(2)}` : `-GH₵ ${Math.abs(result.delta).toFixed(2)}`;
-      setImportSuccess(`✅ Successfully updated ${result.affectedMember.full_name}'s Yearly Dues to GH₵ ${result.newDues.toFixed(2)} (${diffLabel})! All Shares, Dividends, and Fellowship Grand Totals recalculated live.`);
-      
+        if (setMembers) setMembers(result.updatedMembers);
+        if (setContributions) setContributions(result.updatedContributions);
+        setKeyInHistory(getKeyInHistory());
+
+        const diffLabel = result.delta >= 0 ? `+GH₵ ${result.delta.toFixed(2)}` : `-GH₵ ${Math.abs(result.delta).toFixed(2)}`;
+        setImportSuccess(`✅ Successfully updated ${result.affectedMember.full_name}'s Yearly Dues to GH₵ ${result.newDues.toFixed(2)} (${diffLabel})! All Shares, Dividends, and Fellowship Grand Totals recalculated live.`);
+      } else if (editorCategory === 'levy') {
+        const finalLevyName = editorLevyName === 'Custom' ? (editorCustomLevy || 'Special Call-Up') : editorLevyName;
+
+        const result = updateMemberLevyDirectly({
+          memberId: targetMember.id,
+          levyName: finalLevyName,
+          levyAmount: inputVal,
+          paymentMethod: editorMethod,
+          referenceNote: editorNote || `Special Levy Key-In: ${finalLevyName} (+GH₵ ${inputVal.toFixed(2)})`,
+          paymentDate: editorDate,
+          receivedByName: currentUser?.full_name || 'Executive Admin'
+        });
+
+        if (setMembers) setMembers(result.updatedMembers);
+        if (setContributions) setContributions(result.updatedContributions);
+        setKeyInHistory(getKeyInHistory());
+
+        setImportSuccess(`✅ Successfully recorded Special Levy payment (+GH₵ ${inputVal.toFixed(2)}) for ${result.affectedMember.full_name} under [${finalLevyName}]! New Special Levy Total: GH₵ ${result.newLevy.toFixed(2)}.`);
+      } else if (editorCategory === 'vehicle') {
+        const result = updateMemberVehicleSharesDirectly({
+          memberId: targetMember.id,
+          installmentName: editorInstallment,
+          amount: inputVal,
+          paymentMethod: editorMethod,
+          referenceNote: editorNote || `Vehicle Shares Key-In: ${editorInstallment} (+GH₵ ${inputVal.toFixed(2)})`,
+          paymentDate: editorDate,
+          receivedByName: currentUser?.full_name || 'Executive Admin'
+        });
+
+        if (setMembers) setMembers(result.updatedMembers);
+        if (setContributions) setContributions(result.updatedContributions);
+        setKeyInHistory(getKeyInHistory());
+
+        setImportSuccess(`✅ Successfully recorded Vehicle Shares payment (+GH₵ ${inputVal.toFixed(2)}) for ${result.affectedMember.full_name} under [${editorInstallment}]! Total Vehicle Shares: ${result.newVehicleSharesCount} Shares (GH₵ ${result.newVehiclePaid.toFixed(2)}).`);
+      }
+
       setIsDuesEditorOpen(false);
-      setTimeout(() => setImportSuccess(''), 6000);
+      setTimeout(() => setImportSuccess(''), 7000);
     } catch (err) {
-      setEditorError(err.message || 'Error updating member dues.');
+      setEditorError(err.message || 'Error executing direct key-in entry.');
     }
   };
 
@@ -193,10 +236,16 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       (item.branch && item.branch.toLowerCase().includes(historySearch.toLowerCase())) ||
       (item.paymentMethod && item.paymentMethod.toLowerCase().includes(historySearch.toLowerCase())) ||
       (item.referenceNote && item.referenceNote.toLowerCase().includes(historySearch.toLowerCase())) ||
+      (item.entryType && item.entryType.toLowerCase().includes(historySearch.toLowerCase())) ||
+      (item.levyName && item.levyName.toLowerCase().includes(historySearch.toLowerCase())) ||
+      (item.installmentName && item.installmentName.toLowerCase().includes(historySearch.toLowerCase())) ||
       (item.recordedBy && item.recordedBy.toLowerCase().includes(historySearch.toLowerCase()));
 
     if (!matchesSearch) return false;
 
+    if (historyFilter === 'dues') return item.category === 'dues' || !item.category || item.entryType?.toLowerCase().includes('dues');
+    if (historyFilter === 'levy') return item.category === 'levy' || item.entryType?.toLowerCase().includes('levy');
+    if (historyFilter === 'vehicle') return item.category === 'vehicle' || item.entryType?.toLowerCase().includes('vehicle');
     if (historyFilter === 'add') return item.action === 'add' || item.delta > 0;
     if (historyFilter === 'deduct') return item.action === 'deduct' || item.delta < 0;
     if (historyFilter === 'momo') return item.paymentMethod?.toLowerCase().includes('momo') || item.paymentMethod?.toLowerCase().includes('mobile money');
@@ -803,6 +852,38 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
             </div>
 
+            {/* 4TH CARD: Petty Cash Vehicle Fund */}
+            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #ea580c', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.08), rgba(255, 255, 255, 0.02))' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Petty Cash Vehicle Fund
+                </span>
+                <span className="badge" style={{ fontSize: '0.7rem', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c' }}>VEHICLE PETTY</span>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Excel Sheet: <strong style={{ color: '#ea580c' }}>PETTY CASH VEHICLE</strong></div>
+
+              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending Vehicle Fund Balance</div>
+                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#ea580c', marginTop: '0.15rem' }}>
+                  GH₵ 68,000.00
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Reserve Capital:</span><strong>GH₵ 62,000.00</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Member Vehicle Shares:</span><strong style={{ color: '#059669' }}>GH₵ 6,000.00</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Vehicle Shares Paid:</span><strong>120 Shares</strong></div>
+                <button
+                  type="button"
+                  onClick={() => setIsPettyCashVehicleModalOpen(true)}
+                  className="btn btn-primary"
+                  style={{ marginTop: '0.4rem', padding: '0.45rem 0.75rem', fontSize: '0.78rem', fontWeight: 800, background: '#ea580c', borderColor: '#ea580c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', width: '100%' }}
+                >
+                  📋 View Particulars &rarr;
+                </button>
+              </div>
+            </div>
+
           </div>
 
           {/* MASTER TRIAL BALANCE TABLE */}
@@ -1069,8 +1150,10 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                 {[
                   { id: 'all', label: 'All Entries' },
+                  { id: 'dues', label: '💳 Yearly Dues' },
+                  { id: 'levy', label: '🏷️ Special Levies' },
+                  { id: 'vehicle', label: '🚗 Vehicle Shares' },
                   { id: 'add', label: '+ Additions' },
-                  { id: 'deduct', label: '- Deductions' },
                   { id: 'momo', label: 'MTN MoMo' },
                   { id: 'cash', label: 'Cash' },
                   { id: 'bank', label: 'Fidelity Bank' }
@@ -1137,8 +1220,12 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       <th>Fellowship Member</th>
                       <th>Entry Type</th>
                       <th>Payment Method</th>
-                      <th>Dues Change (Before → After)</th>
-                      <th>Shares & Holding After</th>
+                      <th>Date & Time</th>
+                      <th>Fellowship Member</th>
+                      <th>Entry Category & Type</th>
+                      <th>Payment Method</th>
+                      <th>Payment / Ledger Change</th>
+                      <th>Recalculated Standings</th>
                       <th>Recorded By & Memo</th>
                       <th>Action</th>
                     </tr>
@@ -1148,6 +1235,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       const deltaVal = parseFloat(item.delta) || 0;
                       const isPositive = deltaVal >= 0;
                       const targetMember = members.find(m => m.id === item.memberId || m.excel_member_id === item.excelMemberId);
+                      const cat = item.category || (item.entryType?.toLowerCase().includes('levy') ? 'levy' : item.entryType?.toLowerCase().includes('vehicle') ? 'vehicle' : 'dues');
 
                       return (
                         <tr key={item.id || idx} style={{ background: isPositive ? 'rgba(5, 150, 105, 0.02)' : 'rgba(220, 38, 38, 0.02)' }}>
@@ -1180,7 +1268,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                             </div>
                           </td>
 
-                          {/* Entry Type & Delta */}
+                          {/* Entry Category & Type */}
                           <td>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                               <span style={{ 
@@ -1198,8 +1286,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                                 {isPositive ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
                                 {isPositive ? `+GH₵ ${deltaVal.toFixed(2)}` : `-GH₵ ${Math.abs(deltaVal).toFixed(2)}`}
                               </span>
-                              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                                {item.entryType || 'Yearly Dues'}
+                              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                                {cat === 'levy' ? `🏷️ ${item.levyName || 'Special Levy'}` : cat === 'vehicle' ? `🚗 ${item.installmentName || 'Vehicle Shares'}` : `💳 Yearly Dues`}
                               </span>
                             </div>
                           </td>
@@ -1216,26 +1304,65 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                             </span>
                           </td>
 
-                          {/* Dues Change (Before → After) */}
+                          {/* Ledger Change (Before → After) */}
                           <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, fontSize: '0.85rem' }}>
-                              <span style={{ color: 'var(--text-muted)' }}>GH₵ {(item.oldDues ?? 0).toFixed(2)}</span>
-                              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>→</span>
-                              <strong style={{ color: '#059669' }}>GH₵ {(item.newDues ?? 0).toFixed(2)}</strong>
-                            </div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
-                              Balance Owed: <strong style={{ color: Math.max(0, 3900 - (item.newDues ?? 0)) > 0 ? '#dc2626' : '#059669' }}>GH₵ {Math.max(0, 3900 - (item.newDues ?? 0)).toFixed(2)}</strong>
-                            </div>
+                            {cat === 'levy' ? (
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, fontSize: '0.85rem' }}>
+                                  <span style={{ color: 'var(--text-muted)' }}>GH₵ {(item.oldValue ?? 0).toFixed(2)}</span>
+                                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>→</span>
+                                  <strong style={{ color: '#d97706' }}>GH₵ {(item.newValue ?? 0).toFixed(2)}</strong>
+                                </div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                                  Special Levy Total
+                                </div>
+                              </div>
+                            ) : cat === 'vehicle' ? (
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, fontSize: '0.85rem' }}>
+                                  <span style={{ color: 'var(--text-muted)' }}>GH₵ {(item.oldValue ?? 0).toFixed(2)}</span>
+                                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>→</span>
+                                  <strong style={{ color: '#2563eb' }}>GH₵ {(item.newValue ?? 0).toFixed(2)}</strong>
+                                </div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                                  Vehicle Shares Capital
+                                </div>
+                              </div>
+                            ) : (
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, fontSize: '0.85rem' }}>
+                                  <span style={{ color: 'var(--text-muted)' }}>GH₵ {(item.oldDues ?? 0).toFixed(2)}</span>
+                                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>→</span>
+                                  <strong style={{ color: '#059669' }}>GH₵ {(item.newDues ?? 0).toFixed(2)}</strong>
+                                </div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                                  Balance Owed: <strong style={{ color: Math.max(0, 3900 - (item.newDues ?? 0)) > 0 ? '#dc2626' : '#059669' }}>GH₵ {Math.max(0, 3900 - (item.newDues ?? 0)).toFixed(2)}</strong>
+                                </div>
+                              </div>
+                            )}
                           </td>
 
-                          {/* Shares & Grand Total */}
+                          {/* Recalculated Standings */}
                           <td>
-                            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#2563eb' }}>
-                              Shares: GH₵ {(item.newShares ?? 0).toFixed(2)}
-                            </div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#7c3aed', marginTop: '0.1rem' }}>
-                              Grand Total: GH₵ {(item.newGrandTotal ?? 0).toFixed(2)}
-                            </div>
+                            {cat === 'vehicle' ? (
+                              <div>
+                                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#2563eb' }}>
+                                  Shares Owned: {Math.floor((item.newValue ?? 0) / 50)} Shares
+                                </div>
+                                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                                  @ GH₵ 50.00 / Share
+                                </div>
+                              </div>
+                            ) : (
+                              <div>
+                                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#2563eb' }}>
+                                  Shares: GH₵ {(item.newShares ?? targetMember?.shares_value ?? 0).toFixed(2)}
+                                </div>
+                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#7c3aed', marginTop: '0.1rem' }}>
+                                  Grand Total: GH₵ {(item.newGrandTotal ?? targetMember?.shares_holding ?? 0).toFixed(2)}
+                                </div>
+                              </div>
+                            )}
                           </td>
 
                           {/* Recorded By & Reference Note */}
@@ -1255,9 +1382,10 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                             <button 
                               onClick={() => {
                                 if (targetMember) {
-                                  openDuesEditorForMember(targetMember);
+                                  openDuesEditorForMember(targetMember, cat);
                                 } else {
                                   setEditorMemberId(item.memberId || members[0]?.id);
+                                  setEditorCategory(cat);
                                   setIsDuesEditorOpen(true);
                                 }
                               }}
@@ -1773,10 +1901,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         type="excel" 
       />
 
-      {/* ⚡ DIRECT KEY-IN MEMBER DUES EDITOR MODAL */}
+      {/* ⚡ DIRECT KEY-IN MULTI-CATEGORY EDITOR MODAL */}
       {isDuesEditorOpen && (() => {
         const activeEditorMember = members.find(m => m.id === editorMemberId) || members[0];
         const curDues = parseFloat(activeEditorMember?.dues_paid) || 0;
+        const curLevy = parseFloat(activeEditorMember?.levy_paid) || 0;
+        const curVehPaid = parseFloat(activeEditorMember?.vehicle_shares_paid) || 0;
+        const curVehShares = activeEditorMember?.vehicle_shares_count || Math.floor(curVehPaid / 50);
+
         const inputNum = parseFloat(editorAmount) || 0;
         const targetDues = editorMode === 'add' ? (curDues + inputNum) : (editorAmount !== '' ? inputNum : curDues);
         const impact = calculateDuesImpact(activeEditorMember, targetDues);
@@ -1784,21 +1916,21 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
         return (
           <div className="modal-overlay">
-            <div className="glass-card modal-responsive-card">
+            <div className="glass-card modal-responsive-card" style={{ maxWidth: '640px' }}>
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.9rem', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.9rem', gap: '0.75rem' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
                     <span style={{ background: '#059669', color: '#fff', padding: '0.2rem 0.55rem', borderRadius: '10px', fontSize: '0.72rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                      <Zap size={12} /> Direct Key-In
+                      <Zap size={12} /> Direct Key-In Engine
                     </span>
-                    <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>Live Instant Recalculation</span>
+                    <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>Real-Time Ledger Update</span>
                   </div>
                   <h2 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--primary-700)', margin: 0, lineHeight: 1.25 }}>
-                    Key In Member Dues
+                    Executive Direct Key-In Entry
                   </h2>
                   <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0', lineHeight: 1.4 }}>
-                    Key in dues payments or adjustments. Shares, Dividends, and Master Totals update instantly.
+                    Key in payments for Yearly Dues, Special Levies, or Vehicle Shares.
                   </p>
                 </div>
 
@@ -1806,9 +1938,88 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   type="button"
                   onClick={() => setIsDuesEditorOpen(false)}
                   className="modal-close-btn"
-                  aria-label="Close Dues Key-In Editor"
+                  aria-label="Close Direct Key-In Editor"
                 >
                   <X size={20} />
+                </button>
+              </div>
+
+              {/* CATEGORY SELECTOR TABS */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem', marginBottom: '1.25rem', background: 'var(--bg-main)', padding: '0.35rem', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+                <button
+                  type="button"
+                  onClick={() => { setEditorCategory('dues'); setEditorAmount(''); setEditorError(''); }}
+                  style={{
+                    padding: '0.55rem 0.4rem',
+                    borderRadius: '10px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                    border: 'none',
+                    background: editorCategory === 'dues' ? '#059669' : 'transparent',
+                    color: editorCategory === 'dues' ? '#fff' : 'var(--text-muted)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <CreditCard size={14} /> Yearly Dues
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { 
+                    setEditorCategory('levy'); 
+                    setEditorAmount('200'); 
+                    setEditorLevyName('1st LEVY (ELD. ISAAC DARKO)');
+                    setEditorError(''); 
+                  }}
+                  style={{
+                    padding: '0.55rem 0.4rem',
+                    borderRadius: '10px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                    border: 'none',
+                    background: editorCategory === 'levy' ? '#d97706' : 'transparent',
+                    color: editorCategory === 'levy' ? '#fff' : 'var(--text-muted)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Tag size={14} /> Special Levies
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { 
+                    setEditorCategory('vehicle'); 
+                    setEditorAmount('500'); 
+                    setEditorInstallment('1st Installment Payment (GH₵ 500.00)');
+                    setEditorError(''); 
+                  }}
+                  style={{
+                    padding: '0.55rem 0.4rem',
+                    borderRadius: '10px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                    border: 'none',
+                    background: editorCategory === 'vehicle' ? '#2563eb' : 'transparent',
+                    color: editorCategory === 'vehicle' ? '#fff' : 'var(--text-muted)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Car size={14} /> Vehicle Shares
                 </button>
               </div>
 
@@ -1838,99 +2049,226 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   </select>
                 </div>
 
-                {/* 2. Snapshot of Current Standing */}
+                {/* 2. Snapshot of Member Standing based on Category */}
                 {activeEditorMember && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.85rem 1rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2.5px solid #059669', background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: `2.5px solid ${editorCategory === 'dues' ? '#059669' : editorCategory === 'levy' ? '#d97706' : '#2563eb'}`, background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
                       {activeEditorMember.profile_picture ? (
                         <img src={activeEditorMember.profile_picture} alt={activeEditorMember.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         <User size={24} color="var(--text-muted)" />
                       )}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))', gap: '0.5rem', flex: 1, minWidth: '200px' }}>
-                      <div>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Current Dues</div>
-                        <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#059669' }}>GH₵ {curDues.toFixed(2)}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Outstanding</div>
-                        <div style={{ fontSize: '0.92rem', fontWeight: 800, color: Math.max(0, 3900 - curDues) > 0 ? '#dc2626' : '#059669' }}>
-                          GH₵ {Math.max(0, 3900 - curDues).toFixed(2)}
+
+                    {editorCategory === 'dues' && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))', gap: '0.5rem', flex: 1, minWidth: '200px' }}>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Current Dues</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#059669' }}>GH₵ {curDues.toFixed(2)}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Outstanding</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: Math.max(0, 3900 - curDues) > 0 ? '#dc2626' : '#059669' }}>
+                            GH₵ {Math.max(0, 3900 - curDues).toFixed(2)}
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#2563eb' }}>
+                            GH₵ {(parseFloat(activeEditorMember.shares_value) || 0).toFixed(2)}
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Grand Holding</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#7c3aed' }}>
+                            GH₵ {(parseFloat(activeEditorMember.shares_holding) || 0).toFixed(2)}
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div>
-                        <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#2563eb' }}>
-                          GH₵ {(parseFloat(activeEditorMember.shares_value) || 0).toFixed(2)}
+                    )}
+
+                    {editorCategory === 'levy' && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))', gap: '0.5rem', flex: 1, minWidth: '200px' }}>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Levies Paid</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#d97706' }}>GH₵ {curLevy.toFixed(2)}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Registration Fee</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#2563eb' }}>GH₵ {(parseFloat(activeEditorMember.reg_fees) || 200).toFixed(2)}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Payments</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#059669' }}>
+                            GH₵ {(parseFloat(activeEditorMember.total_payments) || 0).toFixed(2)}
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Grand Holding</div>
-                        <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#7c3aed' }}>
-                          GH₵ {(parseFloat(activeEditorMember.shares_holding) || 0).toFixed(2)}
+                    )}
+
+                    {editorCategory === 'vehicle' && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))', gap: '0.5rem', flex: 1, minWidth: '200px' }}>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Vehicle Capital Paid</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#2563eb' }}>GH₵ {curVehPaid.toFixed(2)}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Owned</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#7c3aed' }}>{curVehShares} Shares</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Vehicle Share Price</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#059669' }}>GH₵ 50.00 / Share</div>
                         </div>
                       </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 3. CATEGORY SPECIFIC SELECTIONS */}
+                {editorCategory === 'dues' && (
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+                      2. Choose Entry Mode
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => setEditorMode('add')}
+                        style={{
+                          padding: '0.65rem 0.6rem',
+                          borderRadius: '10px',
+                          fontSize: '0.85rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.35rem',
+                          background: editorMode === 'add' ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-main)',
+                          border: editorMode === 'add' ? '2px solid #059669' : '1px solid var(--border-color)',
+                          color: editorMode === 'add' ? '#059669' : 'var(--text-main)',
+                          textAlign: 'center'
+                        }}
+                      >
+                        <PlusCircle size={15} /> + Add Payment
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setEditorMode('set')}
+                        style={{
+                          padding: '0.65rem 0.6rem',
+                          borderRadius: '10px',
+                          fontSize: '0.85rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.35rem',
+                          background: editorMode === 'set' ? 'rgba(37, 99, 235, 0.15)' : 'var(--bg-main)',
+                          border: editorMode === 'set' ? '2px solid #2563eb' : '1px solid var(--border-color)',
+                          color: editorMode === 'set' ? '#2563eb' : 'var(--text-main)',
+                          textAlign: 'center'
+                        }}
+                      >
+                        <Edit3 size={15} /> ✏️ Set Total Dues
+                      </button>
                     </div>
                   </div>
                 )}
 
-                {/* 3. Choose Entry Mode */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                    2. Choose Entry Mode
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem' }}>
-                    <button
-                      type="button"
-                      onClick={() => setEditorMode('add')}
-                      style={{
-                        padding: '0.65rem 0.6rem',
-                        borderRadius: '10px',
-                        fontSize: '0.85rem',
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.35rem',
-                        background: editorMode === 'add' ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-main)',
-                        border: editorMode === 'add' ? '2px solid #059669' : '1px solid var(--border-color)',
-                        color: editorMode === 'add' ? '#059669' : 'var(--text-main)',
-                        textAlign: 'center'
-                      }}
-                    >
-                      <PlusCircle size={15} /> + Add Payment
-                    </button>
+                {editorCategory === 'levy' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+                        2. Select Special Levy Call-Up / Recipient
+                      </label>
+                      <select 
+                        className="form-select"
+                        value={editorLevyName}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEditorLevyName(val);
+                          if (val.includes('1st LEVY')) setEditorAmount('200');
+                          else if (val.includes('2nd LEVY')) setEditorAmount('100');
+                          else if (val.includes('3rd LEVY')) setEditorAmount('200');
+                          else if (val.includes('4th LEVY')) setEditorAmount('200');
+                          else if (val.includes('5th LEVY')) setEditorAmount('200');
+                          else if (val.includes('6th LEVY')) setEditorAmount('100');
+                          else if (val !== 'Custom') setEditorAmount('200');
+                        }}
+                        style={{ fontWeight: 700, padding: '0.65rem 0.8rem', fontSize: '0.88rem' }}
+                      >
+                        <option value="1st LEVY (ELD. ISAAC DARKO)">1st LEVY: ELD. ISAAC DARKO (GH₵ 200.00 Target)</option>
+                        <option value="2nd LEVY (ELD. SAMUEL NKANSAH)">2nd LEVY: ELD. SAMUEL NKANSAH (GH₵ 100.00 Target)</option>
+                        <option value="3rd LEVY (ELD. SAMUEL NKANSAH)">3rd LEVY: ELD. SAMUEL NKANSAH (GH₵ 200.00 Target)</option>
+                        <option value="4th LEVY (ELD. JOHN OFOSUHENE ASARE)">4th LEVY: ELD. JOHN OFOSUHENE ASARE (GH₵ 200.00 Target)</option>
+                        <option value="5th LEVY (ELD JONATHAN DANSO SIAW)">5th LEVY: ELD JONATHAN DANSO SIAW (GH₵ 200.00 Target)</option>
+                        <option value="6th LEVY (ELD PRINCE AHWIREN ASANTE)">6th LEVY: ELD PRINCE AHWIREN ASANTE (GH₵ 100.00 Target)</option>
+                        <option value="7th LEVY (Fellowship Reserve)">7th LEVY: Fellowship Reserve</option>
+                        <option value="8th LEVY (Fellowship Reserve)">8th LEVY: Fellowship Reserve</option>
+                        <option value="9th LEVY (Fellowship Reserve)">9th LEVY: Fellowship Reserve</option>
+                        <option value="10th LEVY (Fellowship Reserve)">10th LEVY: Fellowship Reserve</option>
+                        <option value="11th LEVY (Fellowship Reserve)">11th LEVY: Fellowship Reserve</option>
+                        <option value="12th LEVY (Fellowship Reserve)">12th LEVY: Fellowship Reserve</option>
+                        <option value="General Special Levy Pool">General Special Levy Pool</option>
+                        <option value="Custom">➕ Custom Call-Up / Member Cause...</option>
+                      </select>
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setEditorMode('set')}
-                      style={{
-                        padding: '0.65rem 0.6rem',
-                        borderRadius: '10px',
-                        fontSize: '0.85rem',
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.35rem',
-                        background: editorMode === 'set' ? 'rgba(37, 99, 235, 0.15)' : 'var(--bg-main)',
-                        border: editorMode === 'set' ? '2px solid #2563eb' : '1px solid var(--border-color)',
-                        color: editorMode === 'set' ? '#2563eb' : 'var(--text-main)',
-                        textAlign: 'center'
-                      }}
-                    >
-                      <Edit3 size={15} /> ✏️ Set Total Dues
-                    </button>
+                    {editorLevyName === 'Custom' && (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+                          Specify Custom Special Levy Cause / Recipient Name
+                        </label>
+                        <input 
+                          type="text"
+                          required
+                          placeholder="e.g. Eld Osei Kwame Wedding Special Levy"
+                          className="form-input"
+                          value={editorCustomLevy}
+                          onChange={(e) => setEditorCustomLevy(e.target.value)}
+                          style={{ fontSize: '0.88rem' }}
+                        />
+                      </div>
+                    )}
                   </div>
-                </div>
+                )}
+
+                {editorCategory === 'vehicle' && (
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+                      2. Select Vehicle Shares Installment / Top-Up
+                    </label>
+                    <select 
+                      className="form-select"
+                      value={editorInstallment}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditorInstallment(val);
+                        if (val.includes('Installment')) setEditorAmount('500');
+                      }}
+                      style={{ fontWeight: 700, padding: '0.65rem 0.8rem', fontSize: '0.88rem' }}
+                    >
+                      <option value="1st Installment Payment (GH₵ 500.00)">1st Installment (GH₵ 500.00 - 10 Vehicle Shares)</option>
+                      <option value="2nd Installment Payment (GH₵ 500.00)">2nd Installment (GH₵ 500.00 - 10 Vehicle Shares)</option>
+                      <option value="3rd Installment Payment (GH₵ 500.00)">3rd Installment (GH₵ 500.00 - 10 Vehicle Shares)</option>
+                      <option value="4th Installment Payment (GH₵ 500.00)">4th Installment (GH₵ 500.00 - 10 Vehicle Shares)</option>
+                      <option value="Custom Vehicle Shares Top-Up">Custom Vehicle Capital Top-Up / Full Payment</option>
+                    </select>
+                  </div>
+                )}
 
                 {/* 4. Amount Input */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                    {editorMode === 'add' ? '3. Payment Amount to Add (GH₵)' : '3. Exact New Yearly Dues Amount (GH₵)'}
+                    {editorCategory === 'dues' 
+                      ? (editorMode === 'add' ? '3. Payment Amount to Add (GH₵)' : '3. Exact New Yearly Dues Amount (GH₵)')
+                      : editorCategory === 'levy'
+                      ? '3. Special Levy Amount Keyed In (GH₵)'
+                      : '3. Vehicle Shares Amount Keyed In (GH₵)'}
                   </label>
                   <div style={{ position: 'relative' }}>
                     <span style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 800, color: 'var(--text-muted)' }}>
@@ -1940,7 +2278,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       type="number"
                       step="0.01"
                       required
-                      placeholder={editorMode === 'add' ? 'e.g. 500.00' : 'e.g. 3500.00'}
+                      placeholder={editorCategory === 'vehicle' ? '500.00' : 'e.g. 200.00'}
                       className="form-input"
                       style={{ paddingLeft: '3.2rem', fontSize: '1.1rem', fontWeight: 800, height: '46px' }}
                       value={editorAmount}
@@ -1983,7 +2321,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem' }}>Reference / Receipt Note (Optional)</label>
                   <input 
                     type="text"
-                    placeholder="e.g. Dues payment recorded at meeting"
+                    placeholder="e.g. Recorded at Executive Meeting"
                     className="form-input"
                     value={editorNote}
                     onChange={(e) => setEditorNote(e.target.value)}
@@ -1992,7 +2330,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </div>
 
                 {/* 6. LIVE BEFORE & AFTER IMPACT PREVIEW */}
-                {impact && (
+                {editorCategory === 'dues' && impact && (
                   <div style={{ padding: '1rem', borderRadius: '12px', background: hasChange ? 'rgba(5, 150, 105, 0.06)' : 'var(--bg-main)', border: hasChange ? '1.5px solid rgba(5, 150, 105, 0.35)' : '1px solid var(--border-color)' }}>
                     <div style={{ fontSize: '0.78rem', fontWeight: 800, color: hasChange ? '#059669' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.65rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem' }}>
                       <span>⚡ Live Financial Calculation Preview</span>
@@ -2045,6 +2383,58 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   </div>
                 )}
 
+                {editorCategory === 'levy' && inputNum > 0 && (
+                  <div style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(217, 119, 6, 0.06)', border: '1.5px solid rgba(217, 119, 6, 0.35)' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#d97706', textTransform: 'uppercase', marginBottom: '0.65rem' }}>
+                      ⚡ Special Levy Calculation Preview
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem', fontSize: '0.82rem' }}>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Special Levies Paid</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.1rem' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>GH₵ {curLevy.toFixed(2)}</span>
+                          <span>→</span>
+                          <strong style={{ color: '#d97706' }}>GH₵ {(curLevy + inputNum).toFixed(2)}</strong>
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Fellowship Total Payments</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.1rem' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>GH₵ {(parseFloat(activeEditorMember?.total_payments) || 0).toFixed(2)}</span>
+                          <span>→</span>
+                          <strong style={{ color: '#059669' }}>GH₵ {((parseFloat(activeEditorMember?.total_payments) || 0) + inputNum).toFixed(2)}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {editorCategory === 'vehicle' && inputNum > 0 && (
+                  <div style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(37, 99, 235, 0.06)', border: '1.5px solid rgba(37, 99, 235, 0.35)' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#2563eb', textTransform: 'uppercase', marginBottom: '0.65rem' }}>
+                      ⚡ Vehicle Shares Calculation Preview (@ GH₵ 50.00 / Share)
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem', fontSize: '0.82rem' }}>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Vehicle Shares Paid</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.1rem' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>GH₵ {curVehPaid.toFixed(2)}</span>
+                          <span>→</span>
+                          <strong style={{ color: '#2563eb' }}>GH₵ {(curVehPaid + inputNum).toFixed(2)}</strong>
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>Vehicle Shares Owned</div>
+                        <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.1rem' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>{curVehShares} Shares</span>
+                          <span>→</span>
+                          <strong style={{ color: '#7c3aed' }}>{Math.floor((curVehPaid + inputNum) / 50)} Shares</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* 7. Action Buttons */}
                 <div style={{ display: 'flex', gap: '0.65rem', justifyContent: 'flex-end', flexWrap: 'wrap', marginTop: '0.5rem' }}>
                   <button 
@@ -2058,9 +2448,21 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <button 
                     type="submit"
                     className="btn btn-primary"
-                    style={{ padding: '0.75rem 1.5rem', fontWeight: 800, fontSize: '0.92rem', background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', flex: '2 1 180px' }}
+                    style={{ 
+                      padding: '0.75rem 1.5rem', 
+                      fontWeight: 800, 
+                      fontSize: '0.92rem', 
+                      background: editorCategory === 'dues' ? '#059669' : editorCategory === 'levy' ? '#d97706' : '#2563eb', 
+                      borderColor: editorCategory === 'dues' ? '#059669' : editorCategory === 'levy' ? '#d97706' : '#2563eb', 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      gap: '0.45rem', 
+                      flex: '2 1 180px' 
+                    }}
                   >
-                    <CheckCircle2 size={18} /> Save & Apply Dues
+                    <CheckCircle2 size={18} /> 
+                    {editorCategory === 'dues' ? 'Save & Apply Yearly Dues' : editorCategory === 'levy' ? 'Save & Apply Special Levy' : 'Save & Apply Vehicle Shares'}
                   </button>
                 </div>
               </form>
@@ -2069,7 +2471,11 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         );
       })()}
 
-
+      {/* 🚐 PETTY CASH VEHICLE PARTICULARS MODAL */}
+      <PettyCashVehicleModal 
+        isOpen={isPettyCashVehicleModalOpen}
+        onClose={() => setIsPettyCashVehicleModalOpen(false)}
+      />
 
     </div>
   );
