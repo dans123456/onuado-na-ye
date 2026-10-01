@@ -308,10 +308,13 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #8b5cf6' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Shares Dividends</div>
-          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#8b5cf6', marginTop: '0.2rem' }}>{sharesDividends} Shares</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.2rem' }}>{sharesDividends} Shares</div>
           {vehicleSharesData.sharesCount > 0 && (
-            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.2rem', fontWeight: 600 }}>
-              +{vehicleSharesData.sharesCount} Vehicle = <strong style={{ color: '#7c3aed' }}>{currentMember?.total_shares_count || (sharesDividends + vehicleSharesData.sharesCount)} Total</strong>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem' }}>
+              <span>+{vehicleSharesData.sharesCount} Vehicle =</span>
+              <strong style={{ color: '#7c3aed', background: 'rgba(124, 58, 237, 0.12)', padding: '0.18rem 0.55rem', borderRadius: '6px', fontSize: '1.05rem', fontWeight: 900, border: '1px solid rgba(124, 58, 237, 0.25)', boxShadow: '0 1px 3px rgba(124, 58, 237, 0.15)' }}>
+                {currentMember?.total_shares_count || (sharesDividends + vehicleSharesData.sharesCount)} Total
+              </strong>
             </div>
           )}
         </div>
@@ -349,9 +352,11 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>
                 Member Shares Holding Grand Total
               </div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#7c3aed', lineHeight: 1.1 }}>
-                GH₵ {sharesHolding.toFixed(2)}
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, marginLeft: '0.5rem' }}>({currentMember?.total_shares_count || (sharesDividends + vehicleSharesData.sharesCount)} Total Shares)</span>
+              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#7c3aed', lineHeight: 1.1, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.1rem' }}>
+                <span>GH₵ {sharesHolding.toFixed(2)}</span>
+                <span style={{ fontSize: '0.95rem', color: '#7c3aed', fontWeight: 800, background: 'rgba(124, 58, 237, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '6px', border: '1px solid rgba(124, 58, 237, 0.25)' }}>
+                  ({currentMember?.total_shares_count || (sharesDividends + vehicleSharesData.sharesCount)} Total Shares)
+                </span>
               </div>
             </div>
           </div>
