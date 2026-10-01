@@ -4,6 +4,7 @@ import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
 import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, calculateDuesImpact, getKeyInHistory } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
+import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
 
 export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
@@ -1385,6 +1386,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <th>Branch</th>
                   <th>Primary Phone</th>
                   <th>Yearly Dues Paid</th>
+                  <th>Vehicle Shares</th>
                   <th>Outstanding Balance</th>
                   <th>Status</th>
                   <th>Quick Actions</th>
@@ -1394,6 +1396,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 {filteredRoster.map(m => {
                   const duesPaid = parseFloat(m.dues_paid) || 0;
                   const balanceOwed = m.balance_owed !== undefined ? m.balance_owed : Math.max(0, (m.dues_fee_required || 3900) - duesPaid);
+                  const vShares = getMemberVehicleShares(m.full_name);
                   return (
                     <tr key={m.id}>
                       <td style={{ fontWeight: 800, color: 'var(--accent-600)' }}>
@@ -1421,6 +1424,12 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       <td style={{ fontWeight: 800, color: '#059669' }}>
                         GH₵ {duesPaid.toFixed(2)}
                         <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>of GH₵ 3,900</span>
+                      </td>
+                      <td style={{ fontWeight: 800, color: '#ea580c' }}>
+                        GH₵ {vShares.totalPaid.toFixed(2)}
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>
+                          {vShares.sharesCount} Shares ({vShares.status})
+                        </span>
                       </td>
                       <td style={{ fontWeight: 800, color: balanceOwed > 0 ? '#dc2626' : '#059669' }}>
                         GH₵ {balanceOwed.toFixed(2)}
@@ -1681,6 +1690,12 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Registration Fee</div><strong style={{ color: '#059669' }}>GH₵ {(selectedDossierMember.reg_fees || 200).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Dues Paid</div><strong style={{ color: '#059669' }}>GH₵ {(selectedDossierMember.dues_paid || 0).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Levy Paid</div><strong style={{ color: '#3b82f6' }}>GH₵ {(selectedDossierMember.levy_paid || 0).toFixed(2)}</strong></div>
+                  <div>
+                    <div style={{ fontSize: '0.72rem', color: '#ea580c', fontWeight: 800 }}>Vehicle Shares Paid</div>
+                    <strong style={{ color: '#ea580c' }}>
+                      GH₵ {getMemberVehicleShares(selectedDossierMember.full_name).totalPaid.toFixed(2)} ({getMemberVehicleShares(selectedDossierMember.full_name).sharesCount} Shares)
+                    </strong>
+                  </div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Total Payments</div><strong style={{ color: '#d97706' }}>GH₵ {(selectedDossierMember.total_payments || 0).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Dues Fee Required</div><strong>GH₵ {(selectedDossierMember.dues_fee_required || 3900).toFixed(2)}</strong></div>
                   <div>

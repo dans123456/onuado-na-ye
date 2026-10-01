@@ -3,6 +3,7 @@ import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Ca
 import { updateMemberProfile, addContribution, getMembers, getContributions } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSharesData';
+import { getMemberSharesSchedule } from '../utils/sharesDividendData';
 import PaystackModal from '../components/PaystackModal';
 
 export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions, setContributions, setActivePage }) {
@@ -11,6 +12,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const [showPII, setShowPII] = useState(false); // Privacy Shield state
   const [isPaystackOpen, setIsPaystackOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [isSharesModalOpen, setIsSharesModalOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({
     phone_number: currentUser?.phone_number || '',
     momo_number: currentUser?.momo_number || '',
@@ -74,6 +76,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const netPayoutValue = Math.max(0, sharesHolding - balanceOwed);
   const memberLevyList = getMemberLevyDetails(currentMember);
   const vehicleSharesData = getMemberVehicleShares(currentMember?.full_name || currentUser?.full_name);
+  const sharesSchedule = getMemberSharesSchedule(currentMember?.full_name || currentUser?.full_name, duesPaid);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -385,6 +388,13 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
           <Wallet size={18} color="#8b5cf6" /> Transaction Ledger History
+        </button>
+        <button 
+          onClick={() => setIsSharesModalOpen(true)} 
+          className="btn btn-secondary"
+          style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: 'rgba(139, 92, 246, 0.12)', color: '#8b5cf6', border: '1.5px solid rgba(139, 92, 246, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+        >
+          <Sparkles size={18} color="#8b5cf6" /> 📊 Member Shares Dividend Details &rarr;
         </button>
         <button 
           onClick={() => setActiveTab('payment_channels')} 
@@ -1121,6 +1131,136 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               style={{ width: '100%', padding: '0.65rem', fontWeight: 800, background: '#ea580c', borderColor: '#ea580c' }}
             >
               Close Ledger Details
+            </button>
+
+          </div>
+        </div>
+      )}
+
+      {/* 📊 SHARES DIVIDEND SCHEDULE & BREAKDOWN MODAL */}
+      {isSharesModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card" style={{ maxWidth: '620px', width: '100%', padding: '2rem', background: 'var(--bg-card)', borderRadius: '20px', boxShadow: '0 25px 50px rgba(0,0,0,0.4)', maxHeight: '90vh', overflowY: 'auto' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
+              <div>
+                <div className="badge" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6', fontWeight: 800, padding: '0.25rem 0.75rem', fontSize: '0.78rem', marginBottom: '0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                  📊 OFFICIAL SHARES DIVIDEND SCHEDULE
+                </div>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
+                  {currentMember?.full_name || currentUser?.full_name}
+                </h3>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                  Member ID: <strong>{currentMember?.excel_member_id || currentUser?.excel_member_id}</strong> • Sheet: <strong>MEMBERS SHARES DEVIDENT</strong>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsSharesModalOpen(false)}
+                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-main)', fontWeight: 900 }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Key Summary Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.85rem', marginBottom: '1.5rem' }}>
+              
+              <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(139, 92, 246, 0.3)', borderTop: '4px solid #8b5cf6' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Total Shares</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.15rem' }}>
+                  {sharesSchedule.totalShares} Shares
+                </div>
+              </div>
+
+              <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(2, 132, 199, 0.3)', borderTop: '4px solid #0284c7' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Shares Base Value</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0284c7', marginTop: '0.15rem' }}>
+                  GH₵ {sharesValue.toFixed(2)}
+                </div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Rate: 50.584373</div>
+              </div>
+
+              <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(236, 72, 153, 0.3)', borderTop: '4px solid #ec4899' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Treasurer Bill</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ec4899', marginTop: '0.15rem' }}>
+                  GH₵ {treasurerBill.toFixed(2)}
+                </div>
+              </div>
+
+              <div style={{ padding: '0.9rem', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(217, 119, 6, 0.1))', borderRadius: '12px', border: '2px solid #7c3aed', borderTop: '4px solid #7c3aed' }}>
+                <div style={{ fontSize: '0.7rem', color: '#7c3aed', textTransform: 'uppercase', fontWeight: 900 }}>Grand Holding</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#7c3aed', marginTop: '0.15rem' }}>
+                  GH₵ {sharesHolding.toFixed(2)}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Yearly Breakdown Table */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Calendar size={15} color="#8b5cf6" /> Yearly Dues Shares Allocation Schedule (Excel Verified)
+              </div>
+              
+              <div className="table-container">
+                <table className="data-table" style={{ fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr>
+                      <th>Dues Year / Category</th>
+                      <th>Shares Allocated</th>
+                      <th>Base Value (GH₵)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ fontWeight: 800 }}>2023 Monthly Dues Shares</td>
+                      <td style={{ fontWeight: 900, color: '#8b5cf6' }}>{sharesSchedule.s2023} Shares</td>
+                      <td>GH₵ {(sharesSchedule.s2023 * 50.584373).toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: 800 }}>2024 Monthly Dues Shares</td>
+                      <td style={{ fontWeight: 900, color: '#8b5cf6' }}>{sharesSchedule.s2024} Shares</td>
+                      <td>GH₵ {(sharesSchedule.s2024 * 50.584373).toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: 800 }}>2025 Monthly Dues Shares</td>
+                      <td style={{ fontWeight: 900, color: '#8b5cf6' }}>{sharesSchedule.s2025} Shares</td>
+                      <td>GH₵ {(sharesSchedule.s2025 * 50.584373).toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: 800 }}>2026 Monthly Dues Shares</td>
+                      <td style={{ fontWeight: 900, color: '#8b5cf6' }}>{sharesSchedule.s2026} Shares</td>
+                      <td>GH₵ {(sharesSchedule.s2026 * 50.584373).toFixed(2)}</td>
+                    </tr>
+                    {sharesSchedule.vehicleShares > 0 && (
+                      <tr style={{ background: 'rgba(234, 88, 12, 0.08)' }}>
+                        <td style={{ fontWeight: 900, color: '#ea580c' }}>🚗 Vehicle Shares Allocation</td>
+                        <td style={{ fontWeight: 900, color: '#ea580c' }}>{sharesSchedule.vehicleShares} Shares</td>
+                        <td style={{ fontWeight: 900, color: '#ea580c' }}>GH₵ 2,000.00</td>
+                      </tr>
+                    )}
+                    <tr style={{ borderTop: '2px solid var(--border-color)', fontWeight: 900 }}>
+                      <td>TOTAL SHARES ALLOCATED</td>
+                      <td style={{ color: '#8b5cf6', fontSize: '0.95rem' }}>{sharesSchedule.totalShares} SHARES</td>
+                      <td style={{ color: '#0284c7', fontSize: '0.95rem' }}>GH₵ {sharesValue.toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Note */}
+            <div style={{ padding: '0.85rem 1rem', background: 'rgba(139, 92, 246, 0.08)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.25)', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+              <strong style={{ color: '#8b5cf6', display: 'block', marginBottom: '0.2rem' }}>📌 Shares Calculation Formula:</strong>
+              1 Share is allocated for every GH₵ 50.00 of dues paid. Total Shares Value is calculated at the official fellowship base rate of <strong>GH₵ 50.584373 per share</strong>, plus interest earned on Treasurer Bills.
+            </div>
+
+            <button 
+              onClick={() => setIsSharesModalOpen(false)}
+              className="btn btn-primary" 
+              style={{ width: '100%', padding: '0.65rem', fontWeight: 800, background: '#8b5cf6', borderColor: '#8b5cf6' }}
+            >
+              Close Shares Details
             </button>
 
           </div>
