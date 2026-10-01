@@ -20,6 +20,12 @@ The application is **100% built, fully mobile-responsive, connected to live Supa
 
 ## 🛠️ Key Work Completed Today
 
+-3. **Member Shares Dividend Schedule & Admin Vehicle Integration**:
+   - Extracted member shares dividend breakdown directly from Sheet `MEMBERS SHARES DEVIDENT` ([src/utils/sharesDividendData.js](file:///c:/Users/user/.gemini/antigravity-ide/scratch/onuado-na-ye/src/utils/sharesDividendData.js)).
+   - Added **"📊 Member Shares Dividend Details →"** button right next to the Transaction Ledger History tab on the Member Portal.
+   - Opens a yearly dues shares schedule breakdown modal (2023, 2024, 2025, 2026 shares), base shares value rate (GH₵ 50.584373/share), and Treasurer Bill interest.
+   - Added **Vehicle Shares column & dossier field** to the Executive Admin Console ([AdminPage.jsx](file:///c:/Users/user/.gemini/antigravity-ide/scratch/onuado-na-ye/src/pages/AdminPage.jsx)).
+
 -2. **Vehicle Shares Integration (Member Portal)**:
    - Extracted member vehicle shares data directly from Excel sheet `VEHICLE SHARES HOLDING`.
    - Added **Vehicle Shares Card** in [DashboardPage.jsx](file:///c:/Users/user/.gemini/antigravity-ide/scratch/onuado-na-ye/src/pages/DashboardPage.jsx) positioned right **BEFORE the Total Payments card**.
