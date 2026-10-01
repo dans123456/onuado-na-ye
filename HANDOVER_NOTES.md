@@ -20,6 +20,11 @@ The application is **100% built, fully mobile-responsive, connected to live Supa
 
 ## 🛠️ Key Work Completed Today
 
+-2. **Vehicle Shares Integration (Member Portal)**:
+   - Extracted member vehicle shares data directly from Excel sheet `VEHICLE SHARES HOLDING`.
+   - Added **Vehicle Shares Card** in [DashboardPage.jsx](file:///c:/Users/user/.gemini/antigravity-ide/scratch/onuado-na-ye/src/pages/DashboardPage.jsx) positioned right **BEFORE the Total Payments card**.
+   - Includes a **"Details →"** button opening a 4-payment installment schedule breakdown modal (1st Payment, 2nd Payment, 3rd Payment, 4th Payment), vehicle share dividend allocation (@ GH₵ 50.00 / Share), and fellowship vehicle acquisition fund status (GH₵ 68,000.00 pool).
+
 -1. **Official Treasury & Bank Balances Synchronization (Admin Console)**:
    - Added direct balance summaries and analytics extracted from the official Excel sheets to the Admin Executive console:
      - **MTN MOMO ACCOUNT SHEET**: Ending Balance: **GH₵ 1.95** (Total Inflows: **GH₵ 102,088.75**, Total Disbursements: **GH₵ 102,086.80**, MoMo: `0530486443`, Code: `293658`).
