@@ -240,9 +240,13 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             );
           })()}
 
-          <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
-          <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>
-          <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Contact Us</button>
+          {!currentUser && (
+            <>
+              <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
+              <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>
+              <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Contact Us</button>
+            </>
+          )}
 
           <button onClick={() => setIsDarkMode(!isDarkMode)} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
             {isDarkMode ? <Sun size={16} color="#f59e0b" /> : <Moon size={16} color="#047857" />} {isDarkMode ? 'Light Theme' : 'Dark Theme'}
