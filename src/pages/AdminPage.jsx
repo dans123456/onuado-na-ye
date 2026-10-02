@@ -7,6 +7,7 @@ import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
 import PettyCashVehicleModal from '../components/PettyCashVehicleModal';
+import BankAccountTemaModal from '../components/BankAccountTemaModal';
 
 export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('roster'); // 'roster', 'history', 'manual', 'announcement', 'treasury'
@@ -14,6 +15,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
   // Petty Cash Vehicle Modal State
   const [isPettyCashVehicleModalOpen, setIsPettyCashVehicleModalOpen] = useState(false);
+  const [isBankTemaModalOpen, setIsBankTemaModalOpen] = useState(false);
 
   // Key-In Audit History State
   const [keyInHistory, setKeyInHistory] = useState(() => getKeyInHistory());
@@ -838,18 +840,29 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Account No: <strong style={{ color: 'var(--text-main)', fontFamily: 'monospace' }}>2161006002421201</strong></div>
 
               <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending Bank Tema Balance</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Net Ending Bank Balance</div>
                 <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#2563eb', marginTop: '0.15rem' }}>
                   GH₵ 366.24
+                </div>
+                <div style={{ fontSize: '0.7rem', color: '#059669', marginTop: '0.15rem', fontWeight: 700 }}>
+                  Calculated: Income (GH₵ 5,766.24) - Expenses (GH₵ 5,400.00)
                 </div>
               </div>
 
               <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Bank Inflows (Income):</span><strong style={{ color: '#059669' }}>+GH₵ 5,766.24</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Outflows (Withdrawals):</span><strong style={{ color: '#dc2626' }}>-GH₵ 5,400.00</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Shares Held:</span><strong>GH₵ 100.00</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Savings Deposited:</span><strong>GH₵ 5,500.00</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Bank Interest:</span><strong style={{ color: '#d97706' }}>GH₵ 166.24</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Cash Withdrawals:</span><strong>GH₵ 5,400.00</strong></div>
               </div>
+
+              <button
+                onClick={() => setIsBankTemaModalOpen(true)}
+                className="btn btn-secondary"
+                style={{ width: '100%', marginTop: '0.85rem', padding: '0.4rem', fontSize: '0.78rem', fontWeight: 800, color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
+              >
+                <FileSpreadsheet size={14} /> Particulars & Ledger Breakdown &rarr;
+              </button>
             </div>
 
             {/* 4TH CARD: Petty Cash Vehicle Fund */}
@@ -2482,6 +2495,12 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       <PettyCashVehicleModal 
         isOpen={isPettyCashVehicleModalOpen}
         onClose={() => setIsPettyCashVehicleModalOpen(false)}
+      />
+
+      {/* 🏦 BANK ACCOUNT TEMA PARTICULARS MODAL */}
+      <BankAccountTemaModal 
+        isOpen={isBankTemaModalOpen}
+        onClose={() => setIsBankTemaModalOpen(false)}
       />
 
     </div>
