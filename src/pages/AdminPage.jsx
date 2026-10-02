@@ -606,24 +606,31 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  BANK ACCOUNT SHEET
+                  BANK ACCOUNT TEMA
                 </span>
-                <span className="badge" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem', background: 'rgba(37, 99, 235, 0.15)', color: '#2563eb' }}>TEMA</span>
+                <span className="badge" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem', background: 'rgba(37, 99, 235, 0.15)', color: '#2563eb' }}>CREDIT UNION</span>
               </div>
               <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#2563eb', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
                 GH₵ 366.24
               </div>
               <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                Credit Union Balance (Acc: <strong>2161006002421201</strong>)
+                Net Balance (Acc: <strong>2161006002421201</strong>)
               </div>
             </div>
-            <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.2rem', color: 'var(--text-muted)' }}>
+            <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', color: 'var(--text-muted)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Savings Deposited:</span> <strong>GH₵ 5,500.00</strong>
+                <span>Total Income (Inflows):</span> <strong style={{ color: '#059669' }}>+GH₵ 5,766.24</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Cash Withdrawals:</span> <strong>GH₵ 5,400.00</strong>
+                <span>Total Expenses (Outflows):</span> <strong style={{ color: '#dc2626' }}>-GH₵ 5,400.00</strong>
               </div>
+              <button 
+                onClick={() => setIsBankTemaModalOpen(true)}
+                className="btn btn-secondary"
+                style={{ width: '100%', marginTop: '0.5rem', padding: '0.3rem 0.5rem', fontSize: '0.72rem', fontWeight: 800, color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
+              >
+                <FileSpreadsheet size={12} /> View Particulars Breakdown &rarr;
+              </button>
             </div>
           </div>
 
