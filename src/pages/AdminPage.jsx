@@ -525,7 +525,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #d97706' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Active Fellowship Branches</div>
           <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706', marginTop: '0.2rem' }}>
-            {new Set(members.map(m => m.branch || 'Takoradi')).size} Branches
+            {new Set(members.map(m => m.branch || 'Tema')).size} Branches
           </div>
         </div>
       </div>

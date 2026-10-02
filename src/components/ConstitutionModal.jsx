@@ -104,7 +104,7 @@ export const CONSTITUTION_ARTICLES = [
     art: 'Art. 14',
     title: 'MEETINGS & QUORUM',
     category: 'General',
-    content: `• Meetings are held online (via Google Meet / Zoom) and physically as scheduled on 1st & 3rd Sundays of every month.
+    content: `• Meetings are held online (via Google Meet / Zoom) and physically as scheduled on 1st Sunday of every month @ 7:30 PM.
 • Quorum for general meetings shall be one-third (1/3) of active members.`
   },
   {

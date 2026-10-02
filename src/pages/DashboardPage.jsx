@@ -164,10 +164,10 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             </div>
             <div>
               <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                📢 Executive Announcement — General Fellowship Meeting
+                📢 Executive Announcement — General Fellowship Online Meeting
               </div>
               <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                First Sunday of next month @ 4:00 PM • Venue: Takoradi Fellowship Hall & Zoom Link.
+                1st Sunday of every month @ 7:30 PM • Online Meeting (Google Meet & Zoom Link in Portal).
               </div>
             </div>
           </div>

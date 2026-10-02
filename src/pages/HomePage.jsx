@@ -56,19 +56,40 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
         </div>
       </div>
 
-      {/* Announcements Banner */}
-      <div className="glass-card" style={{ marginTop: '2.5rem', padding: '1.75rem', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', borderLeft: '6px solid var(--accent-500)', boxShadow: '0 6px 20px rgba(0,0,0,0.04)' }}>
-        <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(245, 158, 11, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', flexShrink: 0 }}>
-          <BellRing size={26} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '0.2rem' }}>
-            Fellowship Announcement: Monthly Dues & Fidelity Bank / MoMo Sync
+      {/* Announcements Banner & Online Meeting Schedule */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginTop: '2.5rem' }}>
+        
+        {/* Financial Payment Details */}
+        <div className="glass-card" style={{ padding: '1.75rem', display: 'flex', alignItems: 'flex-start', gap: '1.25rem', borderLeft: '6px solid var(--accent-500)', boxShadow: '0 6px 20px rgba(0,0,0,0.04)' }}>
+          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(245, 158, 11, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706', flexShrink: 0 }}>
+            <BellRing size={26} />
           </div>
-          <div style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-            Members can send monthly dues and welfare contributions via MTN Mobile Money (<strong>0530486443</strong>), Merchant Code (<strong>293658</strong>), or <strong>Fidelity Bank Ghana</strong>. All transfers are automatically reconciled!
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-main)', marginBottom: '0.25rem' }}>
+              Fellowship Announcement: Dues & Bank Account Details
+            </div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              Members can send monthly dues & welfare contributions via <strong>Fidelity Bank Ghana (Acc No: 2090182444410)</strong>, MTN Mobile Money (<strong>0530486443</strong>), or Merchant Code (<strong>293658</strong>). All transfers are automatically reconciled!
+            </div>
           </div>
         </div>
+
+        {/* 🎥 Online Meeting Schedule Card */}
+        <div className="glass-card" style={{ padding: '1.75rem', display: 'flex', alignItems: 'flex-start', gap: '1.25rem', borderLeft: '6px solid #059669', boxShadow: '0 6px 20px rgba(0,0,0,0.04)', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.05), rgba(37, 99, 235, 0.05))' }}>
+          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669', flexShrink: 0 }}>
+            <Video size={26} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#059669', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+              <span>📢 Regular Online Meeting</span>
+              <span className="badge badge-dues" style={{ fontSize: '0.68rem', padding: '0.1rem 0.45rem' }}>Google Meet / Zoom</span>
+            </div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              General Fellowship meetings are held <strong>ONLINE</strong> on the <strong>1st Sunday of every month @ 7:30 PM</strong>. Meeting links are available inside the Portal!
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Fellowship Pillars Grid */}
@@ -107,7 +128,7 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
             </div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.6rem' }}>Nationwide Fellowship Branches</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', lineHeight: 1.6 }}>
-              Connecting members across Aburi, Ashaiman, Atensu, Dansoman, Darkoman, Kasoa, Koforidua, Kotobabi, Mampong, Mankessim, Noyem, Nsawam, Odorkor, Suame, Takoradi, and Teshie.
+              Connecting members across Aburi, Ashaiman, Atensu, Dansoman, Darkoman, Kasoa, Koforidua, Kotobabi, Mampong, Mankessim, Noyem, Nsawam, Odorkor, Suame, Tema, and Teshie.
             </p>
           </div>
 

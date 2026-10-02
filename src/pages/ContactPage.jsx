@@ -102,7 +102,7 @@ export default function ContactPage({ setActivePage, currentUser, setContributio
                 <div>
                   <div style={{ fontWeight: 700 }}>Online Meeting Schedule</div>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.15rem' }}>
-                    1st & 3rd Sunday of every month @ <strong>4:00 PM GMT</strong>
+                    1st Sunday of every month @ <strong>7:30 PM GMT</strong>
                   </div>
                 </div>
               </div>
