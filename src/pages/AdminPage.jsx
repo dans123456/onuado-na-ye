@@ -1434,7 +1434,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               >
                 {members.map(m => (
                   <option key={m.id} value={m.id}>
-                    {m.full_name} ({m.phone_number}) — {m.branch}
+                    {m.full_name} ({m.phone_number}{m.phone_number_2 ? ` / ${m.phone_number_2}` : ''}) — {m.branch}
                   </option>
                 ))}
               </select>
@@ -1548,7 +1548,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                         </div>
                       </td>
                       <td style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{m.branch}</td>
-                      <td>{m.phone_number}</td>
+                      <td>
+                        <div style={{ fontWeight: 600 }}>{m.phone_number}</div>
+                        {m.phone_number_2 && (
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                            {m.phone_number_2}
+                          </div>
+                        )}
+                      </td>
                       <td style={{ fontWeight: 800, color: '#059669' }}>
                         GH₵ {duesPaid.toFixed(2)}
                         <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>of GH₵ 3,900</span>

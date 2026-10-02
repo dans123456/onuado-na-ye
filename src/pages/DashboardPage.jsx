@@ -485,16 +485,22 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                 </div>
 
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Primary Phone & MoMo</div>
-                  <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Phone size={14} color="#059669" /> {maskPhone(currentUser.phone_number)}
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Phone Numbers (Primary & Secondary)</div>
+                  <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <Phone size={14} color="#059669" /> 
+                    <span>{maskPhone(currentUser.phone_number)}</span>
+                    {currentUser.phone_number_2 && (
+                      <span style={{ color: 'var(--primary-600)', background: 'rgba(5, 150, 105, 0.1)', padding: '0.12rem 0.5rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 700 }}>
+                        Secondary: {maskPhone(currentUser.phone_number_2)}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Residential Address</div>
-                  <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <MapPin size={14} color="#059669" /> {currentUser.home_address || 'Ashaiman, Ghana'}
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Residency (Town)</div>
+                  <div style={{ fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <MapPin size={14} color="#059669" /> {currentUser.town || currentUser.home_address || `${currentUser.branch || 'Accra'}, Ghana`}
                   </div>
                 </div>
 
