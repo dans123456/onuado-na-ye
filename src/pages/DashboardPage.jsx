@@ -707,77 +707,129 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
       {/* TAB 2: YEARLY DUES TRACKER (2023 - 2033) */}
       {activeTab === 'dues_matrix' && (
-        <div className="glass-card" style={{ padding: '2.25rem', borderRadius: '18px' }}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CreditCard size={22} /> Yearly Dues Breakdown Matrix (2023 – 2033)
-            </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Exact annual dues schedule, amounts paid, and outstanding balances matching Excel sheet.</p>
+        <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+          <div style={{ marginBottom: '1.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CreditCard size={22} color="#059669" /> Multi-Year Dues Tracker (2023 – 2033)
+              </h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>
+                Exact annual dues schedule, amounts paid, and outstanding balances matching Excel sheets <strong>YEARLY DUES FEES</strong> & <strong>MONTHLY DUES</strong>.
+              </p>
+            </div>
+            <div style={{ padding: '0.75rem 1.25rem', background: 'rgba(5, 150, 105, 0.1)', borderRadius: '12px', border: '1px solid rgba(5, 150, 105, 0.3)', textAlign: 'right' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#059669', textTransform: 'uppercase' }}>Total Dues Paid</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)' }}>GH₵ {duesPaid.toFixed(2)}</div>
+            </div>
           </div>
 
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Year</th>
-                  <th>Expected Dues Fee</th>
-                  <th>Amount Paid</th>
-                  <th>Outstanding Balance</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(() => {
-                  let remPaid = duesPaid || 0;
-                  const yearlySchedule = [
-                    { year: 'DUES 2023', expected: 600 },
-                    { year: 'DUES 2024', expected: 900 },
-                    { year: 'DUES 2025', expected: 1200 },
-                    { year: 'DUES 2026', expected: 1200 },
-                  ];
+          {/* 📅 MULTI-YEAR CARDS GRID (2023 - 2033) */}
+          {(() => {
+            let runningDues = duesPaid || 0;
+            const yearsList = [
+              { year: '2023', label: '2023 Dues', expected: 600 },
+              { year: '2024', label: '2024 Dues', expected: 900 },
+              { year: '2025', label: '2025 Dues', expected: 1200 },
+              { year: '2026', label: '2026 Dues', expected: 1200 },
+              { year: '2027', label: '2027 Dues', expected: 1200 },
+              { year: '2028', label: '2028 Dues', expected: 1200 },
+              { year: '2029', label: '2029 Dues', expected: 1200 },
+              { year: '2030', label: '2030 Dues', expected: 1200 },
+              { year: '2031', label: '2031 Dues', expected: 1200 },
+              { year: '2032', label: '2032 Dues', expected: 1200 },
+              { year: '2033', label: '2033 Dues', expected: 1200 }
+            ];
 
-                  return yearlySchedule.map((item) => {
-                    const amountPaid = Math.min(item.expected, Math.max(0, remPaid));
-                    remPaid = Math.max(0, remPaid - amountPaid);
-                    const balance = Math.max(0, item.expected - amountPaid);
-                    const isFullyPaid = balance === 0 && amountPaid > 0;
-                    const isPartial = balance > 0 && amountPaid > 0;
+            const calculatedYears = yearsList.map(item => {
+              const paid = Math.min(item.expected, Math.max(0, runningDues));
+              runningDues = Math.max(0, runningDues - paid);
+              const balance = Math.max(0, item.expected - paid);
+              const isFullyPaid = balance === 0 && paid > 0;
+              const isPartial = balance > 0 && paid > 0;
+              return { ...item, paid, balance, isFullyPaid, isPartial };
+            });
 
-                    return (
-                      <tr key={item.year}>
-                        <td style={{ fontWeight: 800 }}>{item.year}</td>
-                        <td>GH₵ {item.expected.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-                        <td style={{ fontWeight: 800, color: isFullyPaid ? '#059669' : (isPartial ? '#3b82f6' : 'var(--text-muted)') }}>
-                          GH₵ {amountPaid.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                        </td>
-                        <td style={{ fontWeight: 700, color: balance > 0 ? '#dc2626' : 'var(--text-muted)' }}>
-                          GH₵ {balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                        </td>
-                        <td>
-                          {isFullyPaid ? (
-                            <span className="badge badge-dues">Fully Paid ✓</span>
-                          ) : isPartial ? (
-                            <span className="badge badge-welfare">Partial / Owed ⚠️</span>
-                          ) : (
-                            <span className="badge" style={{ background: 'var(--bg-card-hover)', color: 'var(--text-muted)' }}>Unpaid</span>
-                          )}
-                        </td>
+            return (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+                  {calculatedYears.map((item) => (
+                    <div 
+                      key={item.year}
+                      className="glass-card" 
+                      style={{ 
+                        padding: '1.1rem', 
+                        borderRadius: '14px', 
+                        borderLeft: `4px solid ${item.isFullyPaid ? '#059669' : item.isPartial ? '#d97706' : 'var(--border-color)'}`,
+                        background: item.isFullyPaid ? 'linear-gradient(135deg, rgba(5, 150, 105, 0.06), rgba(255, 255, 255, 0.02))' : 'var(--bg-main)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>📅 {item.label}</span>
+                        {item.isFullyPaid ? (
+                          <span className="badge badge-dues" style={{ fontSize: '0.62rem', padding: '0.1rem 0.4rem' }}>Paid ✓</span>
+                        ) : item.isPartial ? (
+                          <span className="badge badge-welfare" style={{ fontSize: '0.62rem', padding: '0.1rem 0.4rem' }}>Partial ⚠️</span>
+                        ) : (
+                          <span className="badge" style={{ fontSize: '0.62rem', padding: '0.1rem 0.4rem', background: 'var(--bg-card-hover)', color: 'var(--text-muted)' }}>Upcoming</span>
+                        )}
+                      </div>
+
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: item.isFullyPaid ? '#059669' : item.isPartial ? '#d97706' : 'var(--text-muted)' }}>
+                        GH₵ {item.paid.toFixed(2)}
+                      </div>
+
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Target: GH₵ {item.expected.toFixed(2)}</span>
+                        {item.balance > 0 && <strong style={{ color: '#dc2626' }}>Owed: GH₵ {item.balance.toFixed(2)}</strong>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 📋 DETAILED ANNUAL LEDGER TABLE */}
+                <div style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.75rem', letterSpacing: '0.04em' }}>
+                  📋 Annual Dues Ledger Schedule (2023 – 2033)
+                </div>
+                <div className="table-container">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Dues Year</th>
+                        <th>Required Dues Target</th>
+                        <th>Amount Paid</th>
+                        <th>Outstanding Balance</th>
+                        <th>Status</th>
                       </tr>
-                    );
-                  });
-                })()}
-                {['2027', '2028', '2029', '2030', '2031', '2032', '2033'].map(year => (
-                  <tr key={year}>
-                    <td style={{ fontWeight: 800, opacity: 0.6 }}>DUES {year}</td>
-                    <td style={{ opacity: 0.6 }}>GH₵ 1,200.00</td>
-                    <td style={{ opacity: 0.6 }}>GH₵ 0.00</td>
-                    <td style={{ opacity: 0.6 }}>—</td>
-                    <td><span className="badge" style={{ background: 'var(--bg-card-hover)', color: 'var(--text-muted)' }}>Upcoming</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </thead>
+                    <tbody>
+                      {calculatedYears.map((item) => (
+                        <tr key={item.year} style={{ background: item.isFullyPaid ? 'rgba(5, 150, 105, 0.02)' : 'transparent' }}>
+                          <td style={{ fontWeight: 800 }}>DUES {item.year}</td>
+                          <td>GH₵ {item.expected.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                          <td style={{ fontWeight: 800, color: item.isFullyPaid ? '#059669' : (item.isPartial ? '#d97706' : 'var(--text-muted)') }}>
+                            GH₵ {item.paid.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td style={{ fontWeight: 700, color: item.balance > 0 ? '#dc2626' : '#059669' }}>
+                            GH₵ {item.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td>
+                            {item.isFullyPaid ? (
+                              <span className="badge badge-dues">Fully Paid ✓</span>
+                            ) : item.isPartial ? (
+                              <span className="badge badge-welfare">Partial / Owed ⚠️</span>
+                            ) : (
+                              <span className="badge" style={{ background: 'var(--bg-card-hover)', color: 'var(--text-muted)' }}>Upcoming</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            );
+          })()}
+
         </div>
       )}
 
