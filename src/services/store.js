@@ -1847,3 +1847,77 @@ export const saveAnnouncement = (text) => {
   localStorage.setItem('ony_announcement', text);
   return text;
 };
+
+// ==========================================
+// 📊 TRIAL BALANCE DYNAMIC MANAGEMENT SYSTEM
+// ==========================================
+export const INITIAL_TRIAL_BALANCE = [
+  // Income Items (Total: GH₵ 88,503.20)
+  { id: 'tb-01', particulars: 'REGISTRATION FEES', amount: 4800.00, type: 'income', category: 'Income' },
+  { id: 'tb-02', particulars: 'TOTAL MONTHLY DUES FOR 2023', amount: 10800.00, type: 'income', category: 'Income' },
+  { id: 'tb-03', particulars: 'TOTAL MONTHLY DUES FOR 2024', amount: 16900.00, type: 'income', category: 'Income' },
+  { id: 'tb-04', particulars: 'TOTAL MONTHLY DUES FOR 2025', amount: 22350.00, type: 'income', category: 'Income' },
+  { id: 'tb-05', particulars: 'TOTAL MONTHLY DUES FOR 2026', amount: 15900.00, type: 'income', category: 'Income' },
+  { id: 'tb-06', particulars: 'TREASURER BILL INTEREST', amount: 10502.70, type: 'income', category: 'Investment Returns' },
+  { id: 'tb-07', particulars: 'LEVY BALANCE', amount: 1250.50, type: 'income', category: 'Special Levy' },
+  { id: 'tb-08', particulars: 'SPECIAL CONTRIBUTIONS', amount: 6000.00, type: 'income', category: 'Income' },
+
+  // Expenditure & Asset Items (Total: GH₵ 88,503.20)
+  { id: 'tb-09', particulars: 'TRANSFER TO VEHICLE PURCHASE ACCOUNT', amount: 68000.00, type: 'expenditure', category: 'Asset Transfer' },
+  { id: 'tb-10', particulars: 'FIDELITY BANK ENDING BALANCE', amount: 10698.88, type: 'expenditure', category: 'Bank Asset' },
+  { id: 'tb-11', particulars: 'BANK TEMA ENDING BALANCE', amount: 366.24, type: 'expenditure', category: 'Bank Asset' },
+  { id: 'tb-12', particulars: 'MOMO ACCOUNT ENDING BALANCE', amount: 1.95, type: 'expenditure', category: 'MoMo Wallet' },
+  { id: 'tb-13', particulars: 'BANK TEMA SHARES', amount: 100.00, type: 'expenditure', category: 'Shares Investment' },
+  { id: 'tb-14', particulars: 'TRANSPORTATIONS', amount: 5100.00, type: 'expenditure', category: 'Expenditure' },
+  { id: 'tb-15', particulars: 'REGISTRAR GENERAL (RGD) FEES', amount: 1300.00, type: 'expenditure', category: 'Legal & Compliance' },
+  { id: 'tb-16', particulars: 'MOMO CHARGES & COMMISSIONS', amount: 1091.80, type: 'expenditure', category: 'Bank Fees' },
+  { id: 'tb-17', particulars: 'GENERAL EXPENSES', amount: 1010.00, type: 'expenditure', category: 'Expenditure' },
+  { id: 'tb-18', particulars: 'DOCUMENTATIONS', amount: 500.00, type: 'expenditure', category: 'Expenditure' },
+  { id: 'tb-19', particulars: 'PRINTING & STATIONERY', amount: 285.00, type: 'expenditure', category: 'Expenditure' },
+  { id: 'tb-20', particulars: 'TREASURER BILL CHARGES', amount: 34.34, type: 'expenditure', category: 'Bank Fees' },
+  { id: 'tb-21', particulars: 'FIDELITY BANK CHARGES', amount: 15.00, type: 'expenditure', category: 'Bank Fees' }
+];
+
+export const getTrialBalanceItems = () => {
+  const stored = localStorage.getItem('ony_trial_balance');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      console.error('Error parsing stored trial balance', e);
+    }
+  }
+  return INITIAL_TRIAL_BALANCE;
+};
+
+export const saveTrialBalanceItems = (items) => {
+  localStorage.setItem('ony_trial_balance', JSON.stringify(items));
+  return items;
+};
+
+export const addTrialBalanceItem = (newItem) => {
+  const items = getTrialBalanceItems();
+  const entry = {
+    id: 'tb-' + Date.now(),
+    particulars: newItem.particulars ? newItem.particulars.toUpperCase().trim() : 'UNNAMED ITEM',
+    amount: parseFloat(newItem.amount) || 0,
+    type: newItem.type || 'income',
+    category: newItem.category || (newItem.type === 'income' ? 'Income' : 'Expenditure')
+  };
+  const updated = [...items, entry];
+  saveTrialBalanceItems(updated);
+  return updated;
+};
+
+export const deleteTrialBalanceItem = (id) => {
+  const items = getTrialBalanceItems();
+  const updated = items.filter(item => item.id !== id);
+  saveTrialBalanceItems(updated);
+  return updated;
+};
+
+export const resetTrialBalanceToDefaults = () => {
+  localStorage.removeItem('ony_trial_balance');
+  return INITIAL_TRIAL_BALANCE;
+};
+

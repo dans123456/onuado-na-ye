@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2 } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -16,6 +16,55 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   // Petty Cash Vehicle Modal State
   const [isPettyCashVehicleModalOpen, setIsPettyCashVehicleModalOpen] = useState(false);
   const [isBankTemaModalOpen, setIsBankTemaModalOpen] = useState(false);
+
+  // Dynamic Trial Balance State
+  const [trialBalanceItems, setTrialBalanceItems] = useState(() => getTrialBalanceItems());
+  const [isTBModalOpen, setIsTBModalOpen] = useState(false);
+  const [tbParticulars, setTbParticulars] = useState('');
+  const [tbAmount, setTbAmount] = useState('');
+  const [tbType, setTbType] = useState('income'); // 'income' or 'expenditure'
+  const [tbCategory, setTbCategory] = useState('Income');
+  const [tbError, setTbError] = useState('');
+
+  const handleAddTrialBalanceSubmit = (e) => {
+    e.preventDefault();
+    setTbError('');
+    if (!tbParticulars.trim()) {
+      setTbError('Please enter a description for the line item.');
+      return;
+    }
+    const val = parseFloat(tbAmount);
+    if (isNaN(val) || val <= 0) {
+      setTbError('Please enter a valid amount greater than GH₵ 0.00.');
+      return;
+    }
+
+    const updated = addTrialBalanceItem({
+      particulars: tbParticulars,
+      amount: val,
+      type: tbType,
+      category: tbCategory || (tbType === 'income' ? 'Income' : 'Expenditure')
+    });
+    setTrialBalanceItems(updated);
+    setTbParticulars('');
+    setTbAmount('');
+    setTbError('');
+    setIsTBModalOpen(false);
+  };
+
+  const handleDeleteTBItem = (id, particulars) => {
+    if (window.confirm(`Are you sure you want to remove "${particulars}" from the Trial Balance?`)) {
+      const updated = deleteTrialBalanceItem(id);
+      setTrialBalanceItems(updated);
+    }
+  };
+
+  const handleResetTBToDefaults = () => {
+    if (window.confirm('Reset Trial Balance back to original Excel baseline (GH₵ 88,503.20)? Any custom added items will be cleared.')) {
+      const updated = resetTrialBalanceToDefaults();
+      setTrialBalanceItems(updated);
+    }
+  };
 
   // Key-In Audit History State
   const [keyInHistory, setKeyInHistory] = useState(() => getKeyInHistory());
@@ -911,168 +960,148 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           </div>
 
           {/* MASTER TRIAL BALANCE TABLE */}
-          <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
-            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                  <FileText size={20} color="#2563eb" /> Verified Fellowship Trial Balance Sheet
-                </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>
-                  Extracted from Excel sheet <strong>TRAIL BALANCE</strong>. Total Balanced Income & Expenditure: <strong>GH₵ 86,103.20</strong>.
-                </p>
+          {(() => {
+            const totalTBIncome = trialBalanceItems
+              .filter(item => item.type === 'income')
+              .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+            const totalTBExpenditure = trialBalanceItems
+              .filter(item => item.type === 'expenditure')
+              .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+            const isBalanced = Math.abs(totalTBIncome - totalTBExpenditure) < 0.05;
+
+            return (
+              <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+                <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                      <FileText size={20} color="#2563eb" /> Verified Fellowship Trial Balance Sheet
+                    </h3>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>
+                      Extracted from Excel sheet <strong>TRAIL BALANCE</strong> & dynamic entries. Total Balanced Income & Expenditure: <strong>GH₵ {totalTBIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <button 
+                      type="button"
+                      onClick={() => setIsTBModalOpen(true)}
+                      className="btn btn-primary"
+                      style={{ padding: '0.55rem 1rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                    >
+                      <PlusCircle size={16} /> + Add Line Item
+                    </button>
+
+                    <button 
+                      type="button"
+                      onClick={handleResetTBToDefaults}
+                      className="btn btn-secondary"
+                      style={{ padding: '0.55rem 0.85rem', fontSize: '0.78rem', fontWeight: 700 }}
+                      title="Reset to original Excel baseline"
+                    >
+                      <RefreshCw size={13} /> Reset Baseline
+                    </button>
+
+                    <div style={{ padding: '0.6rem 1rem', background: isBalanced ? 'rgba(5, 150, 105, 0.1)' : 'rgba(220, 38, 38, 0.1)', borderRadius: '10px', border: `1px solid ${isBalanced ? 'rgba(5, 150, 105, 0.3)' : 'rgba(220, 38, 38, 0.3)'}`, textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: isBalanced ? '#059669' : '#dc2626', fontWeight: 800 }}>Trial Balance Status</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                        {isBalanced ? `GH₵ ${totalTBIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `Unbalanced (Diff: GH₵ ${Math.abs(totalTBIncome - totalTBExpenditure).toFixed(2)})`}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="table-container">
+                  <table className="data-table" style={{ fontSize: '0.88rem' }}>
+                    <thead>
+                      <tr>
+                        <th>Particulars / Line Item</th>
+                        <th>Income (GH₵)</th>
+                        <th>Expenditure & Assets (GH₵)</th>
+                        <th>Category / Notes</th>
+                        <th style={{ width: '60px', textAlign: 'center' }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Income Rows */}
+                      <tr style={{ background: 'rgba(5, 150, 105, 0.05)', fontWeight: 800 }}>
+                        <td colSpan={5} style={{ color: '#059669', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          🟢 Fellowship Income Accounts
+                        </td>
+                      </tr>
+                      {trialBalanceItems.filter(item => item.type === 'income').map((item) => (
+                        <tr key={item.id}>
+                          <td style={{ fontWeight: 800 }}>{item.particulars}</td>
+                          <td style={{ fontWeight: 800, color: '#059669' }}>
+                            GH₵ {parseFloat(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </td>
+                          <td style={{ color: 'var(--text-muted)' }}>—</td>
+                          <td><span className="badge badge-dues">{item.category || 'Income'}</span></td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTBItem(item.id, item.particulars)}
+                              style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.2rem', opacity: 0.7 }}
+                              title="Delete line item"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+
+                      {/* Expenditure Rows */}
+                      <tr style={{ background: 'rgba(37, 99, 235, 0.05)', fontWeight: 800 }}>
+                        <td colSpan={5} style={{ color: '#2563eb', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          🔵 Fellowship Expenditures & Assets Accounts
+                        </td>
+                      </tr>
+                      {trialBalanceItems.filter(item => item.type === 'expenditure').map((item) => (
+                        <tr key={item.id}>
+                          <td style={{ fontWeight: 800 }}>{item.particulars}</td>
+                          <td style={{ color: 'var(--text-muted)' }}>—</td>
+                          <td style={{ fontWeight: 800, color: item.category?.toLowerCase().includes('asset') ? '#059669' : '#2563eb' }}>
+                            GH₵ {parseFloat(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </td>
+                          <td><span className="badge badge-dues" style={{ background: item.category?.toLowerCase().includes('asset') ? 'rgba(5, 150, 105, 0.1)' : 'rgba(37, 99, 235, 0.1)', color: item.category?.toLowerCase().includes('asset') ? '#059669' : '#2563eb' }}>{item.category || 'Expenditure'}</span></td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTBItem(item.id, item.particulars)}
+                              style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.2rem', opacity: 0.7 }}
+                              title="Delete line item"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+
+                      {/* Grand Totals */}
+                      <tr style={{ background: 'var(--bg-main)', borderTop: '2.5px solid var(--border-color)', fontSize: '1rem' }}>
+                        <td style={{ fontWeight: 900, color: 'var(--primary-700)' }}>GRAND TOTALS</td>
+                        <td style={{ fontWeight: 900, color: '#059669', fontSize: '1.1rem' }}>
+                          GH₵ {totalTBIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td style={{ fontWeight: 900, color: '#2563eb', fontSize: '1.1rem' }}>
+                          GH₵ {totalTBExpenditure.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td>
+                          {isBalanced ? (
+                            <span className="badge badge-dues" style={{ fontWeight: 800 }}>Balanced 100% ✓</span>
+                          ) : (
+                            <span className="badge badge-welfare" style={{ fontWeight: 800, background: 'rgba(220, 38, 38, 0.15)', color: '#dc2626' }}>Unbalanced ⚠️</span>
+                          )}
+                        </td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
-
-              <div style={{ padding: '0.6rem 1rem', background: 'rgba(5, 150, 105, 0.1)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.3)', textAlign: 'right' }}>
-                <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#059669', fontWeight: 800 }}>Trial Balance Sum</div>
-                <div style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-main)' }}>GH₵ 86,103.20</div>
-              </div>
-            </div>
-
-            <div className="table-container">
-              <table className="data-table" style={{ fontSize: '0.88rem' }}>
-                <thead>
-                  <tr>
-                    <th>Particulars / Line Item</th>
-                    <th>Income (GH₵)</th>
-                    <th>Expenditure & Assets (GH₵)</th>
-                    <th>Category / Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>REGISTRATION FEES</td>
-                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 4,800.00</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td><span className="badge badge-dues">Income</span></td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>TOTAL MONTHLY DUES FOR 2023</td>
-                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 10,800.00</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td><span className="badge badge-dues">Income</span></td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>TOTAL MONTHLY DUES FOR 2024</td>
-                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 16,900.00</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td><span className="badge badge-dues">Income</span></td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>TOTAL MONTHLY DUES FOR 2025</td>
-                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 22,350.00</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td><span className="badge badge-dues">Income</span></td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>TOTAL MONTHLY DUES FOR 2026</td>
-                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 15,500.00</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td><span className="badge badge-dues">Income</span></td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>TREASURER BILL INTEREST</td>
-                    <td style={{ fontWeight: 800, color: '#d97706' }}>GH₵ 10,502.70</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td><span className="badge badge-welfare">Investment Returns</span></td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>LEVY BALANCE</td>
-                    <td style={{ fontWeight: 800, color: '#3b82f6' }}>GH₵ 1,250.50</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td><span className="badge badge-dues">Special Levy</span></td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>SPECIAL CONTRIBUTIONS</td>
-                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 4,000.00</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td><span className="badge badge-dues">Income</span></td>
-                  </tr>
-                  
-                  {/* Expenditures */}
-                  <tr style={{ background: 'rgba(5, 150, 105, 0.03)' }}>
-                    <td style={{ fontWeight: 800 }}>FIDELITY BANK ENDING BALANCE</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 10,698.88</td>
-                    <td><span className="badge badge-dues">Bank Asset</span></td>
-                  </tr>
-                  <tr style={{ background: 'rgba(37, 99, 235, 0.03)' }}>
-                    <td style={{ fontWeight: 800 }}>BANK TEMA ENDING BALANCE</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 800, color: '#2563eb' }}>GH₵ 366.24</td>
-                    <td><span className="badge badge-dues">Bank Asset</span></td>
-                  </tr>
-                  <tr style={{ background: 'rgba(5, 150, 105, 0.03)' }}>
-                    <td style={{ fontWeight: 800 }}>MOMO ACCOUNT ENDING BALANCE</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 1.95</td>
-                    <td><span className="badge badge-dues">MoMo Wallet</span></td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>TRANSPORTATIONS</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 700 }}>GH₵ 5,100.00</td>
-                    <td>Expenditure</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>REGISTRAR GENERAL (RGD) FEES</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 700 }}>GH₵ 1,300.00</td>
-                    <td>Legal & Compliance</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>MOMO CHARGES & COMMISSIONS</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 700 }}>GH₵ 1,091.80</td>
-                    <td>Bank Fees</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>GENERAL EXPENSES</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 700 }}>GH₵ 1,010.00</td>
-                    <td>Expenditure</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>DOCUMENTATIONS</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 700 }}>GH₵ 500.00</td>
-                    <td>Expenditure</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>PRINTING & STATIONERY</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 700 }}>GH₵ 285.00</td>
-                    <td>Expenditure</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>BANK TEMA SHARES</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 700 }}>GH₵ 100.00</td>
-                    <td>Shares Investment</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>TREASURER BILL CHARGES</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 700 }}>GH₵ 34.34</td>
-                    <td>Bank Fees</td>
-                  </tr>
-                  <tr>
-                    <td style={{ fontWeight: 800 }}>FIDELITY BANK CHARGES</td>
-                    <td style={{ color: 'var(--text-muted)' }}>—</td>
-                    <td style={{ fontWeight: 700 }}>GH₵ 15.00</td>
-                    <td>Bank Fees</td>
-                  </tr>
-
-                  {/* Grand Totals */}
-                  <tr style={{ background: 'var(--bg-main)', borderTop: '2.5px solid var(--border-color)', fontSize: '1rem' }}>
-                    <td style={{ fontWeight: 900, color: 'var(--primary-700)' }}>GRAND TOTALS (BALANCED)</td>
-                    <td style={{ fontWeight: 900, color: '#059669', fontSize: '1.1rem' }}>GH₵ 86,103.20</td>
-                    <td style={{ fontWeight: 900, color: '#059669', fontSize: '1.1rem' }}>GH₵ 86,103.20</td>
-                    <td><span className="badge badge-dues" style={{ fontWeight: 800 }}>Balanced 100% ✓</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+            );
+          })()}
 
         </div>
       )}
@@ -2540,6 +2569,112 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         isOpen={isBankTemaModalOpen}
         onClose={() => setIsBankTemaModalOpen(false)}
       />
+
+      {/* 📊 ADD TRIAL BALANCE ITEM MODAL */}
+      {isTBModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '1.8rem', borderRadius: '20px', background: 'var(--bg-card)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <PlusCircle size={20} color="#059669" />
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)' }}>Add Trial Balance Line Item</h3>
+              </div>
+              <button onClick={() => setIsTBModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {tbError && (
+              <div style={{ padding: '0.75rem', borderRadius: '10px', background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.3)', color: '#dc2626', fontSize: '0.82rem', fontWeight: 700, marginBottom: '1rem' }}>
+                ⚠️ {tbError}
+              </div>
+            )}
+
+            <form onSubmit={handleAddTrialBalanceSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                  Particulars / Description *
+                </label>
+                <input 
+                  type="text"
+                  required
+                  placeholder="e.g., SPECIAL DONATION 2026 or EQUIPMENT EXPENSE"
+                  value={tbParticulars}
+                  onChange={(e) => setTbParticulars(e.target.value)}
+                  style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: 700 }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                    Entry Type *
+                  </label>
+                  <select
+                    value={tbType}
+                    onChange={(e) => {
+                      setTbType(e.target.value);
+                      if (e.target.value === 'income' && tbCategory === 'Expenditure') setTbCategory('Income');
+                      if (e.target.value === 'expenditure' && tbCategory === 'Income') setTbCategory('Expenditure');
+                    }}
+                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: 700 }}
+                  >
+                    <option value="income">🟢 Income</option>
+                    <option value="expenditure">🔵 Expenditure / Asset</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                    Amount (GH₵) *
+                  </label>
+                  <input 
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    required
+                    placeholder="0.00"
+                    value={tbAmount}
+                    onChange={(e) => setTbAmount(e.target.value)}
+                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: 800 }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                  Category / Tag Note
+                </label>
+                <input 
+                  type="text"
+                  placeholder="e.g., Income, Expenditure, Bank Asset, Special Levy, Shares"
+                  value={tbCategory}
+                  onChange={(e) => setTbCategory(e.target.value)}
+                  style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.88rem' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                <button 
+                  type="button"
+                  onClick={() => setIsTBModalOpen(false)}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.65rem 1.1rem', fontWeight: 700 }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  <CheckCircle2 size={16} /> Save Line Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
