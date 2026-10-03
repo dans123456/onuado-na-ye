@@ -27,6 +27,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   const [editorCategory, setEditorCategory] = useState('dues'); // 'dues', 'levy', 'vehicle'
   const [editorMemberId, setEditorMemberId] = useState(members[0]?.id || '');
   const [editorMode, setEditorMode] = useState('add'); // 'add' (top up) or 'set' (exact new total for dues)
+  const [editorDuesYear, setEditorDuesYear] = useState('2025');
   const [editorAmount, setEditorAmount] = useState('');
   const [editorMethod, setEditorMethod] = useState('Mobile Money');
   const [editorDate, setEditorDate] = useState(new Date().toISOString().split('T')[0]);
@@ -41,6 +42,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
     setEditorCategory(category);
     setEditorMemberId(member.id);
     setEditorMode('add');
+    setEditorDuesYear('2025');
     setEditorAmount('');
     setEditorMethod('Mobile Money');
     setEditorDate(new Date().toISOString().split('T')[0]);
@@ -72,12 +74,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       if (editorCategory === 'dues') {
         const currentDues = parseFloat(targetMember.dues_paid) || 0;
         const targetDues = editorMode === 'add' ? (currentDues + inputVal) : inputVal;
+        const yearTag = editorDuesYear && editorDuesYear !== 'General Dues Pool' ? `${editorDuesYear} Dues` : 'Yearly Dues';
 
         const result = updateMemberDuesDirectly({
           memberId: targetMember.id,
           newDuesAmount: targetDues,
+          duesYear: editorDuesYear,
           paymentMethod: editorMethod,
-          referenceNote: editorNote || (editorMode === 'add' ? `Direct Key-In Dues Top-up (+GH₵ ${inputVal.toFixed(2)})` : `Direct Key-In Set Total (GH₵ ${targetDues.toFixed(2)})`),
+          referenceNote: editorNote || (editorMode === 'add' ? `${yearTag} Payment Top-up (+GH₵ ${inputVal.toFixed(2)})` : `${yearTag} Set Total Dues (GH₵ ${targetDues.toFixed(2)})`),
           paymentDate: editorDate,
           receivedByName: currentUser?.full_name || 'Executive Admin'
         });
@@ -1307,7 +1311,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                                 {isPositive ? `+GH₵ ${deltaVal.toFixed(2)}` : `-GH₵ ${Math.abs(deltaVal).toFixed(2)}`}
                               </span>
                               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>
-                                {cat === 'levy' ? `🏷️ ${item.levyName || 'Special Levy'}` : cat === 'vehicle' ? `🚗 ${item.installmentName || 'Vehicle Shares'}` : `💳 Yearly Dues`}
+                                {cat === 'levy' ? `🏷️ ${item.levyName || 'Special Levy'}` : cat === 'vehicle' ? `🚗 ${item.installmentName || 'Vehicle Shares'}` : `💳 ${item.duesYear ? `${item.duesYear} Dues` : 'Yearly Dues'}`}
                               </span>
                             </div>
                           </td>
@@ -2154,54 +2158,76 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 {/* 3. CATEGORY SPECIFIC SELECTIONS */}
                 {editorCategory === 'dues' && (
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                      2. Choose Entry Mode
-                    </label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem' }}>
-                      <button
-                        type="button"
-                        onClick={() => setEditorMode('add')}
-                        style={{
-                          padding: '0.65rem 0.6rem',
-                          borderRadius: '10px',
-                          fontSize: '0.85rem',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.35rem',
-                          background: editorMode === 'add' ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-main)',
-                          border: editorMode === 'add' ? '2px solid #059669' : '1px solid var(--border-color)',
-                          color: editorMode === 'add' ? '#059669' : 'var(--text-main)',
-                          textAlign: 'center'
-                        }}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+                        2. Select Dues Target Year (Which year is this payment for?)
+                      </label>
+                      <select 
+                        className="form-select"
+                        value={editorDuesYear}
+                        onChange={(e) => setEditorDuesYear(e.target.value)}
+                        style={{ fontWeight: 700, padding: '0.65rem 0.8rem', fontSize: '0.88rem' }}
                       >
-                        <PlusCircle size={15} /> + Add Payment
-                      </button>
+                        <option value="2023">📅 2023 Dues (Settlement of 2023 Arrears)</option>
+                        <option value="2024">📅 2024 Dues (Settlement of 2024 Arrears)</option>
+                        <option value="2025">📅 2025 Dues (2025 Fiscal Year)</option>
+                        <option value="2026">📅 2026 Dues (2026 Fiscal Year)</option>
+                        <option value="2027">📅 2027 Advance Dues</option>
+                        <option value="2028">📅 2028 Advance Dues</option>
+                        <option value="General Dues Pool">📂 General Dues Pool / Backlog Settlement</option>
+                      </select>
+                    </div>
 
-                      <button
-                        type="button"
-                        onClick={() => setEditorMode('set')}
-                        style={{
-                          padding: '0.65rem 0.6rem',
-                          borderRadius: '10px',
-                          fontSize: '0.85rem',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.35rem',
-                          background: editorMode === 'set' ? 'rgba(37, 99, 235, 0.15)' : 'var(--bg-main)',
-                          border: editorMode === 'set' ? '2px solid #2563eb' : '1px solid var(--border-color)',
-                          color: editorMode === 'set' ? '#2563eb' : 'var(--text-main)',
-                          textAlign: 'center'
-                        }}
-                      >
-                        <Edit3 size={15} /> ✏️ Set Total Dues
-                      </button>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+                        3. Choose Entry Mode
+                      </label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem' }}>
+                        <button
+                          type="button"
+                          onClick={() => setEditorMode('add')}
+                          style={{
+                            padding: '0.65rem 0.6rem',
+                            borderRadius: '10px',
+                            fontSize: '0.85rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.35rem',
+                            background: editorMode === 'add' ? 'rgba(5, 150, 105, 0.15)' : 'var(--bg-main)',
+                            border: editorMode === 'add' ? '2px solid #059669' : '1px solid var(--border-color)',
+                            color: editorMode === 'add' ? '#059669' : 'var(--text-main)',
+                            textAlign: 'center'
+                          }}
+                        >
+                          <PlusCircle size={15} /> + Add Payment
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setEditorMode('set')}
+                          style={{
+                            padding: '0.65rem 0.6rem',
+                            borderRadius: '10px',
+                            fontSize: '0.85rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.35rem',
+                            background: editorMode === 'set' ? 'rgba(37, 99, 235, 0.15)' : 'var(--bg-main)',
+                            border: editorMode === 'set' ? '2px solid #2563eb' : '1px solid var(--border-color)',
+                            color: editorMode === 'set' ? '#2563eb' : 'var(--text-main)',
+                            textAlign: 'center'
+                          }}
+                        >
+                          <Edit3 size={15} /> ✏️ Set Total Dues
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}

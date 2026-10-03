@@ -1586,7 +1586,7 @@ export const clearKeyInHistory = () => {
   return [];
 };
 
-export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMethod = 'Cash', referenceNote = '', paymentDate = '', receivedByName = 'Executive Admin' }) => {
+export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMethod = 'Cash', referenceNote = '', paymentDate = '', receivedByName = 'Executive Admin', duesYear = '2025' }) => {
   const members = getMembers();
   const memberIndex = members.findIndex(m => m.id === memberId || m.excel_member_id === memberId);
   if (memberIndex === -1) {
@@ -1608,15 +1608,19 @@ export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMetho
   // If there is a payment or adjustment delta, log an official contribution receipt
   let updatedContributions = getContributions();
   if (Math.abs(delta) >= 0.01) {
+    const yearLabel = duesYear && duesYear !== 'General Dues Pool' ? `${duesYear} Dues` : 'Yearly Dues';
+    const computedNote = referenceNote || (delta > 0 ? `${yearLabel} Payment Top-up (+GH₵ ${delta.toFixed(2)})` : `${yearLabel} Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`);
+
     const newContrib = {
       id: 'c-direct-' + Date.now(),
       member_id: member.id,
       amount: Math.abs(delta),
       action: delta >= 0 ? 'add' : 'deduct',
       contribution_type: 'Yearly Dues',
+      duesYear: duesYear || '2025',
       payment_method: paymentMethod || 'Cash',
-      reference_note: referenceNote || (delta > 0 ? `Direct Key-In Dues Top-up (+GH₵ ${delta.toFixed(2)})` : `Direct Key-In Dues Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`),
-      referenceNote: referenceNote || (delta > 0 ? `Direct Key-In Dues Top-up (+GH₵ ${delta.toFixed(2)})` : `Direct Key-In Dues Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`),
+      reference_note: computedNote,
+      referenceNote: computedNote,
       payment_date: paymentDate || new Date().toISOString().split('T')[0],
       received_by_name: receivedByName
     };
@@ -1634,14 +1638,15 @@ export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMetho
       memberName: member.full_name,
       branch: member.branch,
       profilePicture: member.profile_picture,
-      entryType: 'Yearly Dues Key-In',
+      entryType: duesYear && duesYear !== 'General Dues Pool' ? `${duesYear} Dues Key-In` : 'Yearly Dues Key-In',
+      duesYear: duesYear || '2025',
       oldDues: oldDues,
       newDues: targetDues,
       delta: delta,
       amount: Math.abs(delta),
       action: delta >= 0 ? 'add' : 'deduct',
       paymentMethod: paymentMethod || 'Cash',
-      referenceNote: referenceNote || (delta > 0 ? `Direct Key-In Dues Top-up (+GH₵ ${delta.toFixed(2)})` : `Direct Key-In Dues Adjustment (-GH₵ ${Math.abs(delta).toFixed(2)})`),
+      referenceNote: computedNote,
       recordedBy: receivedByName || 'Executive Admin',
       oldShares: oldShares,
       newShares: member.shares_value,
