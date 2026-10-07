@@ -656,7 +656,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         const pendingCount = pendingApps.length;
 
         return (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
             
             {/* Expanded Member Status Breakdown Card */}
             <div className="glass-card" style={{ padding: '1.35rem', borderLeft: '5px solid #059669', borderRadius: '16px' }}>
@@ -674,7 +674,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
 
               {/* Status Breakdown Sub-bar */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(85px, 1fr))', gap: '0.5rem', marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)' }}>
+              <div className="status-sub-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(75px, 1fr))', gap: '0.5rem', marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)' }}>
                 <div 
                   onClick={() => { setActiveTab('roster'); setRosterStatusFilter('ACTIVE'); }}
                   style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(5, 150, 105, 0.1)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.3)', transition: 'all 0.2s ease' }}
