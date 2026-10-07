@@ -648,20 +648,107 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         </div>
       </div>
 
-      {/* Quick Branch & Member Overview Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
-        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #059669' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Registered Members</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#059669', marginTop: '0.2rem' }}>{members.length} Members</div>
-        </div>
+      {/* Quick Branch & Member Status Summary Cards */}
+      {(() => {
+        const activeCount = members.filter(m => m.status === 'ACTIVE').length;
+        const probationCount = members.filter(m => m.status === 'PROBATION').length;
+        const removedCount = members.filter(m => m.status === 'REMOVED').length;
+        const pendingCount = pendingApps.length;
 
-        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #d97706' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Active Fellowship Branches</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706', marginTop: '0.2rem' }}>
-            {new Set(members.map(m => m.branch || 'Tema')).size} Branches
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
+            
+            {/* Expanded Member Status Breakdown Card */}
+            <div className="glass-card" style={{ padding: '1.35rem', borderLeft: '5px solid #059669', borderRadius: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>
+                  Total Registered Members
+                </div>
+                <span className="badge badge-dues" style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem' }}>
+                  {members.length} Members Total
+                </span>
+              </div>
+
+              <div style={{ fontSize: '2.1rem', fontWeight: 900, color: '#059669', fontFamily: 'var(--font-heading)', lineHeight: 1.1 }}>
+                {members.length} <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>Members</span>
+              </div>
+
+              {/* Status Breakdown Sub-bar */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(85px, 1fr))', gap: '0.5rem', marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)' }}>
+                <div 
+                  onClick={() => { setActiveTab('roster'); setRosterStatusFilter('ACTIVE'); }}
+                  style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(5, 150, 105, 0.1)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.3)', transition: 'all 0.2s ease' }}
+                  title="Click to view Active members"
+                >
+                  <div style={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <span>🟢</span> Active
+                  </div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)', marginTop: '0.1rem' }}>
+                    {activeCount}
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => { setActiveTab('roster'); setRosterStatusFilter('PROBATION'); }}
+                  style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(217, 119, 6, 0.1)', borderRadius: '10px', border: '1px solid rgba(217, 119, 6, 0.3)', transition: 'all 0.2s ease' }}
+                  title="Click to view Probation members"
+                >
+                  <div style={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <span>🟡</span> Probation
+                  </div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)', marginTop: '0.1rem' }}>
+                    {probationCount}
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => { setActiveTab('roster'); setRosterStatusFilter('REMOVED'); }}
+                  style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(220, 38, 38, 0.1)', borderRadius: '10px', border: '1px solid rgba(220, 38, 38, 0.3)', transition: 'all 0.2s ease' }}
+                  title="Click to view Removed members"
+                >
+                  <div style={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <span>🔴</span> Removed
+                  </div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)', marginTop: '0.1rem' }}>
+                    {removedCount}
+                  </div>
+                </div>
+
+                {pendingCount > 0 && (
+                  <div 
+                    onClick={() => { setActiveTab('roster'); setRosterStatusFilter('PENDING'); }}
+                    style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(37, 99, 235, 0.1)', borderRadius: '10px', border: '1px solid rgba(37, 99, 235, 0.3)', transition: 'all 0.2s ease' }}
+                    title="Click to view Pending applications"
+                  >
+                    <div style={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', color: '#2563eb', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <span>📩</span> Pending
+                    </div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)', marginTop: '0.1rem' }}>
+                      {pendingCount}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Active Fellowship Branches Card */}
+            <div className="glass-card" style={{ padding: '1.35rem', borderLeft: '5px solid #d97706', borderRadius: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.04em' }}>
+                  Active Fellowship Branches
+                </div>
+                <div style={{ fontSize: '2.1rem', fontWeight: 900, color: '#d97706', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
+                  {new Set(members.map(m => m.branch || 'Tema')).size} <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>Branches</span>
+                </div>
+              </div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px solid var(--border-color)', fontWeight: 600 }}>
+                Includes Tema, Mampong, Accra, Kumasi & regional branches.
+              </div>
+            </div>
+
           </div>
-        </div>
-      </div>
+        );
+      })()}
 
       {/* 💳 OFFICIAL FELLOWSHIP ACCOUNTS & TREASURY BALANCES (MTN MOMO, FIDELITY BANK, BANK ACCOUNT TEMA, & GRAND TOTAL) */}
       <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '1.5rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.05), rgba(37, 99, 235, 0.05))', border: '2px solid rgba(5, 150, 105, 0.3)' }}>
