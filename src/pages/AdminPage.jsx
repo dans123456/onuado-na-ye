@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2 } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -63,6 +63,84 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
     if (window.confirm('Reset Trial Balance back to original Excel baseline (GH₵ 88,503.20)? Any custom added items will be cleared.')) {
       const updated = resetTrialBalanceToDefaults();
       setTrialBalanceItems(updated);
+    }
+  };
+
+  // Member Roster Status Filter & Registration Management
+  const [rosterStatusFilter, setRosterStatusFilter] = useState('all'); // 'all', 'ACTIVE', 'PROBATION', 'REMOVED', 'PENDING'
+  const [pendingApps, setPendingApps] = useState(() => getPendingApplications());
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [newMemberForm, setNewMemberForm] = useState({
+    full_name: '',
+    phone_number: '',
+    branch: 'Tema',
+    title: 'Brother',
+    position: 'Member',
+    occupation: '',
+    next_of_kin: '',
+    next_of_kin_contact: '',
+    hometown: '',
+    status: 'PROBATION',
+    initial_dues: '',
+    initial_levy: ''
+  });
+  const [addMemberError, setAddMemberError] = useState('');
+
+  // Handle Quick Status Change
+  const handleStatusChange = (memberId, newStatus) => {
+    const updated = updateMemberStatus(memberId, newStatus, currentUser?.full_name || 'Executive Admin');
+    if (updated) {
+      setMembers(updated);
+      setKeyInHistory(getKeyInHistory());
+    }
+  };
+
+  // Handle Direct Executive New Member Registration
+  const handleAddMemberSubmit = (e) => {
+    e.preventDefault();
+    setAddMemberError('');
+    if (!newMemberForm.full_name.trim()) {
+      setAddMemberError('Please enter the full name of the new member.');
+      return;
+    }
+    const { updatedMembers } = addNewMember({
+      ...newMemberForm,
+      recorded_by: currentUser?.full_name || 'Executive Admin'
+    });
+    setMembers(updatedMembers);
+    setKeyInHistory(getKeyInHistory());
+    setIsAddMemberModalOpen(false);
+    setNewMemberForm({
+      full_name: '',
+      phone_number: '',
+      branch: 'Tema',
+      title: 'Brother',
+      position: 'Member',
+      occupation: '',
+      next_of_kin: '',
+      next_of_kin_contact: '',
+      hometown: '',
+      status: 'PROBATION',
+      initial_dues: '',
+      initial_levy: ''
+    });
+  };
+
+  // Handle Approve Pending Applicant
+  const handleApproveApplicant = (appId, statusToAssign = 'PROBATION') => {
+    const res = approvePendingApplication(appId, statusToAssign);
+    if (res) {
+      setMembers(res.updatedMembers);
+      setPendingApps(res.remainingPending);
+      setKeyInHistory(getKeyInHistory());
+    }
+  };
+
+  // Handle Reject Pending Applicant
+  const handleRejectApplicant = (appId) => {
+    if (window.confirm('Are you sure you want to reject this membership application?')) {
+      const remaining = rejectPendingApplication(appId);
+      setPendingApps(remaining);
     }
   };
 
@@ -1528,133 +1606,376 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         </div>
       )}
 
-      {/* TAB 3: COMPLETE 24 MEMBER ROSTER (WITH ALL 45 FIELDS DOSSIER) */}
-      {activeTab === 'roster' && (
-        <div className="glass-card" style={{ padding: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Complete Member Roster & Master Dossiers</h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                Click <strong>"Inspect Full 45-Field Dossier 📋"</strong> on any member row to view all 45 extracted fields!
-              </p>
-            </div>
+      {/* TAB 3: COMPLETE MEMBER ROSTER & EXECUTIVE STATUS MANAGEMENT */}
+      {activeTab === 'roster' && (() => {
+        const activeCount = members.filter(m => m.status === 'ACTIVE').length;
+        const probationCount = members.filter(m => m.status === 'PROBATION').length;
+        const removedCount = members.filter(m => m.status === 'REMOVED').length;
+        const pendingCount = pendingApps.length;
 
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <div style={{ position: 'relative' }}>
-                <input 
-                  type="text" 
-                  placeholder="Search name, phone, branch, ID..."
-                  className="form-input"
-                  style={{ paddingLeft: '2.2rem', width: '270px' }}
-                  value={rosterSearch}
-                  onChange={(e) => setRosterSearch(e.target.value)}
-                />
-                <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+        const filteredMembers = members.filter(m => {
+          if (rosterStatusFilter !== 'all' && rosterStatusFilter !== 'PENDING') {
+            if (m.status !== rosterStatusFilter) return false;
+          }
+          if (historySearch.trim()) {
+            const q = historySearch.toLowerCase();
+            const nameMatch = m.full_name?.toLowerCase().includes(q);
+            const phoneMatch = m.phone_number?.includes(q) || m.phone_number_2?.includes(q);
+            const branchMatch = m.branch?.toLowerCase().includes(q);
+            const idMatch = m.excel_member_id?.toLowerCase().includes(q) || String(m.member_no).includes(q);
+            if (!nameMatch && !phoneMatch && !branchMatch && !idMatch) return false;
+          }
+          return true;
+        });
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            
+            {/* Status Summary & Filter Cards Header */}
+            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '18px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--primary-700)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Users size={22} color="#059669" /> Complete Member Roster & Executive Status Console
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>
+                    Filter by status, register new members, approve online applications, or inspect full 45-field dossiers.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <button 
+                    onClick={() => setIsAddMemberModalOpen(true)}
+                    className="btn btn-primary"
+                    style={{ padding: '0.55rem 1.1rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}
+                  >
+                    <UserPlus size={16} /> + Register New Member
+                  </button>
+                  <button onClick={exportFullRosterCSV} className="btn btn-accent" style={{ padding: '0.55rem 0.95rem', fontSize: '0.82rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Download size={15} /> Export CSV (45 Fields)
+                  </button>
+                </div>
               </div>
 
-              <button onClick={exportFullRosterCSV} className="btn btn-accent" style={{ padding: '0.5rem 0.85rem', fontSize: '0.82rem', fontWeight: 700 }}>
-                <Download size={15} /> Export CSV (45 Fields)
-              </button>
-            </div>
-          </div>
+              {/* Status Breakdown Pills */}
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+                <button
+                  onClick={() => setRosterStatusFilter('all')}
+                  style={{
+                    padding: '0.5rem 0.95rem',
+                    borderRadius: '20px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    border: rosterStatusFilter === 'all' ? '1.5px solid var(--primary-600)' : '1px solid var(--border-color)',
+                    background: rosterStatusFilter === 'all' ? 'var(--primary-600)' : 'var(--bg-main)',
+                    color: rosterStatusFilter === 'all' ? '#fff' : 'var(--text-main)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
+                  }}
+                >
+                  👥 All Members ({members.length})
+                </button>
 
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>No / ID</th>
-                  <th>Full Name</th>
-                  <th>Branch</th>
-                  <th>Primary Phone</th>
-                  <th>Yearly Dues Paid</th>
-                  <th>Vehicle Shares</th>
-                  <th>Outstanding Balance</th>
-                  <th>Status</th>
-                  <th>Quick Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRoster.map(m => {
-                  const duesPaid = parseFloat(m.dues_paid) || 0;
-                  const balanceOwed = m.balance_owed !== undefined ? m.balance_owed : Math.max(0, (m.dues_fee_required || 3900) - duesPaid);
-                  const vShares = getMemberVehicleShares(m.full_name);
-                  return (
-                    <tr key={m.id}>
-                      <td style={{ fontWeight: 800, color: 'var(--accent-600)' }}>
-                        #{m.member_no || m.id.replace('m-', '')} ({m.excel_member_id})
-                      </td>
-                      <td style={{ fontWeight: 800 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <div style={{ width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid rgba(5, 150, 105, 0.35)', background: 'var(--bg-main)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {m.profile_picture ? (
-                              <img src={m.profile_picture} alt={m.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <User size={18} color="var(--text-muted)" />
-                            )}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: '0.92rem' }}>{m.full_name}</div>
-                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                              {m.title} • {m.position}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{m.branch}</td>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{m.phone_number}</div>
-                        {m.phone_number_2 && (
-                          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                            {m.phone_number_2}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ fontWeight: 800, color: '#059669' }}>
-                        GH₵ {duesPaid.toFixed(2)}
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>of GH₵ 3,900</span>
-                      </td>
-                      <td style={{ fontWeight: 800, color: '#ea580c' }}>
-                        GH₵ {vShares.totalPaid.toFixed(2)}
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>
-                          {vShares.sharesCount} Shares ({vShares.status})
-                        </span>
-                      </td>
-                      <td style={{ fontWeight: 800, color: balanceOwed > 0 ? '#dc2626' : '#059669' }}>
-                        GH₵ {balanceOwed.toFixed(2)}
-                        {balanceOwed > 0 && <span style={{ fontSize: '0.7rem', color: '#dc2626', display: 'block', fontWeight: 600 }}>Owed ⚠️</span>}
-                      </td>
-                      <td>
-                        <span className={`badge ${m.status === 'ACTIVE' ? 'badge-dues' : 'badge-admin'}`}>
-                          {m.status || 'ACTIVE'}
-                        </span>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                          <button 
-                            onClick={() => openDuesEditorForMember(m)}
-                            className="btn btn-primary"
-                            style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#059669', borderColor: '#059669' }}
-                            title="Key in dues changes directly"
-                          >
-                            <Edit3 size={13} /> Update Dues
-                          </button>
-                          <button 
-                            onClick={() => setSelectedDossierMember(m)}
-                            className="btn btn-secondary"
-                            style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--primary-700)', border: '1px solid rgba(5, 150, 105, 0.4)' }}
-                          >
-                            <Eye size={13} color="#059669" /> Dossier
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                <button
+                  onClick={() => setRosterStatusFilter('ACTIVE')}
+                  style={{
+                    padding: '0.5rem 0.95rem',
+                    borderRadius: '20px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    border: rosterStatusFilter === 'ACTIVE' ? '1.5px solid #059669' : '1px solid var(--border-color)',
+                    background: rosterStatusFilter === 'ACTIVE' ? '#059669' : 'rgba(5, 150, 105, 0.08)',
+                    color: rosterStatusFilter === 'ACTIVE' ? '#fff' : '#059669',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
+                  }}
+                >
+                  🟢 Active ({activeCount})
+                </button>
+
+                <button
+                  onClick={() => setRosterStatusFilter('PROBATION')}
+                  style={{
+                    padding: '0.5rem 0.95rem',
+                    borderRadius: '20px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    border: rosterStatusFilter === 'PROBATION' ? '1.5px solid #d97706' : '1px solid var(--border-color)',
+                    background: rosterStatusFilter === 'PROBATION' ? '#d97706' : 'rgba(217, 119, 6, 0.08)',
+                    color: rosterStatusFilter === 'PROBATION' ? '#fff' : '#d97706',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
+                  }}
+                >
+                  🟡 Probation ({probationCount})
+                </button>
+
+                <button
+                  onClick={() => setRosterStatusFilter('REMOVED')}
+                  style={{
+                    padding: '0.5rem 0.95rem',
+                    borderRadius: '20px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    border: rosterStatusFilter === 'REMOVED' ? '1.5px solid #dc2626' : '1px solid var(--border-color)',
+                    background: rosterStatusFilter === 'REMOVED' ? '#dc2626' : 'rgba(220, 38, 38, 0.08)',
+                    color: rosterStatusFilter === 'REMOVED' ? '#fff' : '#dc2626',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
+                  }}
+                >
+                  🔴 Removed ({removedCount})
+                </button>
+
+                <button
+                  onClick={() => setRosterStatusFilter('PENDING')}
+                  style={{
+                    padding: '0.5rem 0.95rem',
+                    borderRadius: '20px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    border: rosterStatusFilter === 'PENDING' ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                    background: rosterStatusFilter === 'PENDING' ? '#2563eb' : 'rgba(37, 99, 235, 0.08)',
+                    color: rosterStatusFilter === 'PENDING' ? '#fff' : '#2563eb',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
+                  }}
+                >
+                  📩 Pending Registrations ({pendingCount})
+                  {pendingCount > 0 && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>}
+                </button>
+              </div>
+
+            </div>
+
+            {/* PENDING APPLICATIONS VIEW */}
+            {rosterStatusFilter === 'PENDING' ? (
+              <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+                <div style={{ marginBottom: '1.25rem' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
+                    📩 Online Pending Member Registrations ({pendingApps.length})
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.2rem' }}>
+                    Applicants who submitted their bio-data online and paid GH₵ 200.00 registration fee awaiting Executive Approval.
+                  </p>
+                </div>
+
+                {pendingApps.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '3rem 1rem', background: 'var(--bg-main)', borderRadius: '14px', border: '1px dashed var(--border-color)' }}>
+                    <UserCheck size={38} color="#059669" style={{ margin: '0 auto 0.75rem auto', opacity: 0.7 }} />
+                    <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 0.3rem' }}>No Pending Applications</h4>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
+                      All online applicant registrations have been reviewed and admitted.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="table-container">
+                    <table className="data-table" style={{ fontSize: '0.88rem' }}>
+                      <thead>
+                        <tr>
+                          <th>Submitted Date</th>
+                          <th>Applicant Name</th>
+                          <th>Contact Phone</th>
+                          <th>Branch</th>
+                          <th>Reg Fee Paid</th>
+                          <th>Payment Ref</th>
+                          <th>Executive Approval Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pendingApps.map(app => (
+                          <tr key={app.id}>
+                            <td style={{ fontWeight: 700, color: 'var(--text-muted)' }}>{app.date_submitted}</td>
+                            <td style={{ fontWeight: 800 }}>{app.title} {app.full_name}</td>
+                            <td style={{ fontWeight: 700 }}>📞 {app.phone_number}</td>
+                            <td style={{ fontWeight: 700, color: '#059669' }}>{app.branch}</td>
+                            <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 200.00 ✓</td>
+                            <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{app.payment_reference}</td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                <button
+                                  onClick={() => handleApproveApplicant(app.id, 'PROBATION')}
+                                  className="btn btn-primary"
+                                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', fontWeight: 800, background: '#d97706', borderColor: '#d97706' }}
+                                  title="Approve and admit as Probation Member"
+                                >
+                                  Admit as Probation
+                                </button>
+                                <button
+                                  onClick={() => handleApproveApplicant(app.id, 'ACTIVE')}
+                                  className="btn btn-primary"
+                                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', fontWeight: 800, background: '#059669', borderColor: '#059669' }}
+                                  title="Approve and admit as Active Member"
+                                >
+                                  Admit as Active
+                                </button>
+                                <button
+                                  onClick={() => handleRejectApplicant(app.id)}
+                                  className="btn btn-secondary"
+                                  style={{ padding: '0.35rem 0.55rem', fontSize: '0.75rem', fontWeight: 700, color: '#dc2626' }}
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* MASTER ROSTER TABLE VIEW */
+              <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+                  <div style={{ position: 'relative', minWidth: '260px', flex: 1, maxWidth: '400px' }}>
+                    <input 
+                      type="text" 
+                      placeholder="Search name, phone, branch, ID..."
+                      className="form-input"
+                      style={{ paddingLeft: '2.2rem', width: '100%' }}
+                      value={historySearch}
+                      onChange={(e) => setHistorySearch(e.target.value)}
+                    />
+                    <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                  </div>
+
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                    Showing <strong>{filteredMembers.length}</strong> of <strong>{members.length}</strong> Members
+                  </div>
+                </div>
+
+                <div className="table-container">
+                  <table className="data-table" style={{ fontSize: '0.88rem' }}>
+                    <thead>
+                      <tr>
+                        <th>No / ID</th>
+                        <th>Full Name</th>
+                        <th>Branch</th>
+                        <th>Primary Phone</th>
+                        <th>Yearly Dues Paid</th>
+                        <th>Vehicle Shares</th>
+                        <th>Outstanding Balance</th>
+                        <th>Member Status</th>
+                        <th>Quick Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredMembers.map(m => {
+                        const duesPaid = parseFloat(m.dues_paid) || 0;
+                        const balanceOwed = m.balance_owed !== undefined ? m.balance_owed : Math.max(0, (m.dues_fee_required || 3900) - duesPaid);
+                        const vShares = getMemberVehicleShares(m.full_name);
+                        return (
+                          <tr key={m.id} style={{ background: m.status === 'REMOVED' ? 'rgba(220, 38, 38, 0.03)' : m.status === 'PROBATION' ? 'rgba(217, 119, 6, 0.02)' : 'transparent' }}>
+                            <td style={{ fontWeight: 800, color: 'var(--accent-600)' }}>
+                              #{m.member_no || m.id.replace('m-', '')} ({m.excel_member_id})
+                            </td>
+                            <td style={{ fontWeight: 800 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ width: '38px', height: '38px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: `2px solid ${m.status === 'ACTIVE' ? '#059669' : m.status === 'PROBATION' ? '#d97706' : '#dc2626'}`, background: 'var(--bg-main)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  {m.profile_picture ? (
+                                    <img src={m.profile_picture} alt={m.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  ) : (
+                                    <User size={18} color="var(--text-muted)" />
+                                  )}
+                                </div>
+                                <div>
+                                  <div style={{ fontSize: '0.92rem' }}>{m.full_name}</div>
+                                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                    {m.title} • {m.position}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ fontWeight: 700, color: 'var(--primary-700)' }}>{m.branch}</td>
+                            <td>
+                              <div style={{ fontWeight: 600 }}>{m.phone_number}</div>
+                              {m.phone_number_2 && (
+                                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                  {m.phone_number_2}
+                                </div>
+                              )}
+                            </td>
+                            <td style={{ fontWeight: 800, color: '#059669' }}>
+                              GH₵ {duesPaid.toFixed(2)}
+                              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>of GH₵ 3,900</span>
+                            </td>
+                            <td style={{ fontWeight: 800, color: '#ea580c' }}>
+                              GH₵ {vShares.totalPaid.toFixed(2)}
+                              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>
+                                {vShares.sharesCount} Shares ({vShares.status})
+                              </span>
+                            </td>
+                            <td style={{ fontWeight: 800, color: balanceOwed > 0 ? '#dc2626' : '#059669' }}>
+                              GH₵ {balanceOwed.toFixed(2)}
+                              {balanceOwed > 0 && <span style={{ fontSize: '0.7rem', color: '#dc2626', display: 'block', fontWeight: 600 }}>Owed ⚠️</span>}
+                            </td>
+
+                            {/* Executive Status Selector */}
+                            <td>
+                              <select
+                                value={m.status || 'ACTIVE'}
+                                onChange={(e) => handleStatusChange(m.id, e.target.value)}
+                                style={{
+                                  padding: '0.25rem 0.55rem',
+                                  borderRadius: '8px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 800,
+                                  border: `1.5px solid ${m.status === 'ACTIVE' ? '#059669' : m.status === 'PROBATION' ? '#d97706' : '#dc2626'}`,
+                                  background: m.status === 'ACTIVE' ? 'rgba(5, 150, 105, 0.1)' : m.status === 'PROBATION' ? 'rgba(217, 119, 6, 0.1)' : 'rgba(220, 38, 38, 0.1)',
+                                  color: m.status === 'ACTIVE' ? '#059669' : m.status === 'PROBATION' ? '#d97706' : '#dc2626',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <option value="ACTIVE">🟢 ACTIVE</option>
+                                <option value="PROBATION">🟡 PROBATION</option>
+                                <option value="REMOVED">🔴 REMOVED</option>
+                              </select>
+                            </td>
+
+                            {/* Quick Actions */}
+                            <td>
+                              <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                                <button 
+                                  onClick={() => openDuesEditorForMember(m)}
+                                  className="btn btn-primary"
+                                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#059669', borderColor: '#059669' }}
+                                  title="Key in dues changes directly"
+                                >
+                                  <Edit3 size={13} /> Update Dues
+                                </button>
+                                <button 
+                                  onClick={() => setSelectedDossierMember(m)}
+                                  className="btn btn-secondary"
+                                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--primary-700)', border: '1px solid rgba(5, 150, 105, 0.4)' }}
+                                >
+                                  <Eye size={13} color="#059669" /> Dossier
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* TAB 4: BROADCAST ANNOUNCEMENT TICKER */}
       {activeTab === 'announcement' && (
@@ -2669,6 +2990,126 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 >
                   <CheckCircle2 size={16} /> Save Line Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 👤 REGISTER NEW MEMBER MODAL (DIRECT EXECUTIVE ADD) */}
+      {isAddMemberModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '560px', padding: '2rem', borderRadius: '24px', background: 'var(--bg-card)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)', border: '1px solid var(--border-color)', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <UserPlus size={22} color="#059669" />
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-main)' }}>Register New Member</h3>
+              </div>
+              <button onClick={() => setIsAddMemberModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {addMemberError && (
+              <div style={{ padding: '0.75rem 1rem', borderRadius: '10px', background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.3)', color: '#dc2626', fontSize: '0.82rem', fontWeight: 700, marginBottom: '1rem' }}>
+                ⚠️ {addMemberError}
+              </div>
+            )}
+
+            <form onSubmit={handleAddMemberSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.85rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Title</label>
+                  <select
+                    value={newMemberForm.title}
+                    onChange={(e) => setNewMemberForm({ ...newMemberForm, title: e.target.value })}
+                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: 700 }}
+                  >
+                    <option value="Brother">Brother</option>
+                    <option value="Elder">Elder</option>
+                    <option value="Deacon">Deacon</option>
+                    <option value="Pastor">Pastor</option>
+                    <option value="Mr">Mr</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Full Name *</label>
+                  <input 
+                    type="text"
+                    required
+                    placeholder="e.g. Emmanuel Mensah"
+                    value={newMemberForm.full_name}
+                    onChange={(e) => setNewMemberForm({ ...newMemberForm, full_name: e.target.value })}
+                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: 800 }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Phone Number *</label>
+                  <input 
+                    type="tel"
+                    required
+                    placeholder="024 XXX XXXX"
+                    value={newMemberForm.phone_number}
+                    onChange={(e) => setNewMemberForm({ ...newMemberForm, phone_number: e.target.value })}
+                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.9rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Branch *</label>
+                  <select
+                    value={newMemberForm.branch}
+                    onChange={(e) => setNewMemberForm({ ...newMemberForm, branch: e.target.value })}
+                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: 700 }}
+                  >
+                    <option value="Tema">Tema Branch</option>
+                    <option value="Mampong">Mampong Branch</option>
+                    <option value="Accra">Accra Central</option>
+                    <option value="Kumasi">Kumasi Branch</option>
+                    <option value="Takoradi">Takoradi Branch</option>
+                    <option value="Other">Other Branch</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Admission Status *</label>
+                  <select
+                    value={newMemberForm.status}
+                    onChange={(e) => setNewMemberForm({ ...newMemberForm, status: e.target.value })}
+                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: 700 }}
+                  >
+                    <option value="PROBATION">🟡 PROBATION (Onboarding Member)</option>
+                    <option value="ACTIVE">🟢 ACTIVE (Full Member)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Church Position</label>
+                  <input 
+                    type="text"
+                    placeholder="e.g. Member / Committee"
+                    value={newMemberForm.position}
+                    onChange={(e) => setNewMemberForm({ ...newMemberForm, position: e.target.value })}
+                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.88rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ padding: '0.85rem 1rem', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.08)', border: '1px solid rgba(5, 150, 105, 0.25)', fontSize: '0.82rem', color: '#059669', fontWeight: 700 }}>
+                💡 Registration Fee: <strong>GH₵ 200.00</strong> will be credited to total payments. Member Number & ONY ID will be auto-assigned sequentially.
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                <button type="button" onClick={() => setIsAddMemberModalOpen(false)} className="btn btn-secondary" style={{ padding: '0.65rem 1.1rem', fontWeight: 700 }}>Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ padding: '0.65rem 1.35rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <UserPlus size={16} /> Register & Admit Member
                 </button>
               </div>
             </form>

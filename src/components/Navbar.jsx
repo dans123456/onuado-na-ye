@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy, Megaphone } from 'lucide-react';
+import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy, Megaphone, UserPlus } from 'lucide-react';
 import { getAnnouncement, getMembers } from '../services/store';
 
-export default function Navbar({ activePage, setActivePage, currentUser, setCurrentUser, isDarkMode, setIsDarkMode }) {
+export default function Navbar({ activePage, setActivePage, currentUser, setCurrentUser, isDarkMode, setIsDarkMode, onOpenRegister }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showMoMoModal, setShowMoMoModal] = useState(false);
   const [copiedMoMo, setCopiedMoMo] = useState(false);
@@ -127,6 +127,17 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           >
             <Wallet size={15} /> <span>Pay Dues MoMo</span>
           </button>
+
+          {/* Join Fellowship Registration Button */}
+          {!currentUser && onOpenRegister && (
+            <button 
+              onClick={onOpenRegister}
+              className="btn btn-primary nav-register-btn"
+              style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}
+            >
+              <UserPlus size={15} /> <span>Join Fellowship</span>
+            </button>
+          )}
 
           {/* Dark / Light Theme Toggle */}
           <button 

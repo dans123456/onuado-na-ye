@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminPage from './pages/AdminPage';
 import ExecutiveAuthModal from './components/ExecutiveAuthModal';
+import MemberRegistrationModal from './components/MemberRegistrationModal';
 
 import { getMembers, getContributions } from './services/store';
 
@@ -52,6 +53,9 @@ export default function App() {
       return false;
     }
   });
+
+  // Public Self-Registration Modal State
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   // Live state from store
   const [members, setMembers] = useState([]);
@@ -134,6 +138,7 @@ export default function App() {
         setCurrentUser={setCurrentUser}
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
+        onOpenRegister={() => setIsRegisterModalOpen(true)}
       />
 
       <main style={{ flex: 1 }}>
@@ -220,6 +225,12 @@ export default function App() {
         onClose={() => setShowExecutiveAuthModal(false)}
         onSuccess={handleExecutiveAuthSuccess}
         currentUser={currentUser}
+      />
+
+      {/* Public Self-Registration Modal */}
+      <MemberRegistrationModal 
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
       />
     </div>
   );

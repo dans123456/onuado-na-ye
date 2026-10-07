@@ -1921,3 +1921,205 @@ export const resetTrialBalanceToDefaults = () => {
   return INITIAL_TRIAL_BALANCE;
 };
 
+// ==========================================
+// 👤 MEMBER CREATION & PENDING APPLICATIONS
+// ==========================================
+
+export const addNewMember = (newMemberData) => {
+  const members = getMembers();
+  
+  // Calculate next member_no
+  const maxNo = members.reduce((max, m) => Math.max(max, parseInt(m.member_no) || 0), 0);
+  const nextNo = maxNo + 1;
+  const excelId = `ONY-${String(nextNo).padStart(3, '0')}`;
+  
+  const createdMember = {
+    id: `m-${Date.now()}`,
+    excel_member_id: excelId,
+    member_no: nextNo,
+    full_name: newMemberData.full_name?.trim() || 'New Member',
+    profile_picture: newMemberData.profile_picture || '/members/default_avatar.png',
+    name_in_capitals: (newMemberData.full_name || 'New Member').toUpperCase().trim(),
+    title: newMemberData.title || 'Brother',
+    position: newMemberData.position || 'Member',
+    branch: newMemberData.branch || 'Tema',
+    date_joined: newMemberData.date_joined || new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+    phone_number: newMemberData.phone_number || '',
+    phone_number_2: newMemberData.phone_number_2 || '',
+    house_no: newMemberData.house_no || '',
+    gps_address: newMemberData.gps_address || '',
+    town: newMemberData.town || newMemberData.branch || 'Tema',
+    email: newMemberData.email || '',
+    ghana_card: newMemberData.ghana_card || '',
+    occupation: newMemberData.occupation || '',
+    place_of_work: newMemberData.place_of_work || '',
+    date_of_birth: newMemberData.date_of_birth || '',
+    place_of_birth: newMemberData.place_of_birth || '',
+    hometown: newMemberData.hometown || '',
+    district: newMemberData.district || '',
+    region: newMemberData.region || 'Greater Accra',
+    tribe: newMemberData.tribe || '',
+    next_of_kin: newMemberData.next_of_kin || '',
+    next_of_kin_relation: newMemberData.next_of_kin_relation || '',
+    next_of_kin_contact: newMemberData.next_of_kin_contact || '',
+    marital_status: newMemberData.marital_status || 'Single',
+    spouse_name: newMemberData.spouse_name || '',
+    spouse_contact: newMemberData.spouse_contact || '',
+    children_count: newMemberData.children_count || '',
+    father_name: newMemberData.father_name || '',
+    father_contact: newMemberData.father_contact || '',
+    mother_name: newMemberData.mother_name || '',
+    mother_contact: newMemberData.mother_contact || '',
+    reg_fees: 200,
+    base_dues_paid: parseFloat(newMemberData.initial_dues) || 0,
+    base_shares_value: 0,
+    dues_paid: parseFloat(newMemberData.initial_dues) || 0,
+    levy_paid: parseFloat(newMemberData.initial_levy) || 0,
+    total_payments: (parseFloat(newMemberData.initial_dues) || 0) + (parseFloat(newMemberData.initial_levy) || 0) + 200,
+    dues_fee_required: 3300,
+    shares_dividends: 0,
+    shares_value: 0,
+    treasurer_bill: 0,
+    shares_holding: 0,
+    father_state: newMemberData.father_state || 'Alive',
+    mother_state: newMemberData.mother_state || 'Alive',
+    status: newMemberData.status || 'PROBATION',
+    role: 'member',
+    balance_owed: Math.max(0, 3900 - (parseFloat(newMemberData.initial_dues) || 0))
+  };
+
+  // Recalculate member financials
+  recalculateMemberFinancials(createdMember);
+
+  const updatedMembers = [...members, createdMember];
+  saveMembers(updatedMembers);
+
+  // Log history
+  const historyEntry = {
+    id: 'kh-newm-' + Date.now(),
+    timestamp: new Date().toISOString(),
+    paymentDate: new Date().toISOString().split('T')[0],
+    category: 'member_registration',
+    memberId: createdMember.id,
+    memberNo: createdMember.member_no,
+    excelMemberId: createdMember.excel_member_id,
+    memberName: createdMember.full_name,
+    branch: createdMember.branch,
+    profilePicture: createdMember.profile_picture,
+    entryType: 'New Member Registration',
+    oldValue: 0,
+    newValue: createdMember.reg_fees,
+    delta: createdMember.reg_fees,
+    amount: createdMember.reg_fees,
+    action: 'add',
+    paymentMethod: newMemberData.payment_method || 'Mobile Money',
+    referenceNote: `Registered New Member #${createdMember.member_no} (${createdMember.full_name}) - Status: ${createdMember.status}`,
+    recordedBy: newMemberData.recorded_by || 'Executive Admin'
+  };
+  const history = getKeyInHistory();
+  saveKeyInHistory([historyEntry, ...history]);
+
+  return { updatedMembers, createdMember };
+};
+
+export const updateMemberStatus = (memberId, newStatus, recordedBy = 'Executive Admin') => {
+  const members = getMembers();
+  const index = members.findIndex(m => m.id === memberId);
+  if (index === -1) return null;
+
+  const oldStatus = members[index].status;
+  members[index].status = newStatus;
+  saveMembers(members);
+
+  const historyEntry = {
+    id: 'kh-stat-' + Date.now(),
+    timestamp: new Date().toISOString(),
+    paymentDate: new Date().toISOString().split('T')[0],
+    category: 'status_change',
+    memberId: members[index].id,
+    memberNo: members[index].member_no,
+    excelMemberId: members[index].excel_member_id,
+    memberName: members[index].full_name,
+    branch: members[index].branch,
+    profilePicture: members[index].profile_picture,
+    entryType: 'Status Change',
+    oldValue: oldStatus,
+    newValue: newStatus,
+    delta: 0,
+    amount: 0,
+    action: 'update',
+    paymentMethod: 'System',
+    referenceNote: `Changed status of ${members[index].full_name} from ${oldStatus} to ${newStatus}`,
+    recordedBy
+  };
+  const history = getKeyInHistory();
+  saveKeyInHistory([historyEntry, ...history]);
+
+  return members;
+};
+
+// Pending Self-Registrations
+export const getPendingApplications = () => {
+  const stored = localStorage.getItem('ony_pending_applications');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      console.error('Error parsing pending applications', e);
+    }
+  }
+  return [];
+};
+
+export const savePendingApplication = (appData) => {
+  const pending = getPendingApplications();
+  const application = {
+    id: 'app-' + Date.now(),
+    date_submitted: new Date().toISOString().split('T')[0],
+    timestamp: new Date().toISOString(),
+    full_name: appData.full_name,
+    phone_number: appData.phone_number,
+    email: appData.email || '',
+    branch: appData.branch || 'Tema',
+    title: appData.title || 'Brother',
+    occupation: appData.occupation || '',
+    hometown: appData.hometown || '',
+    next_of_kin: appData.next_of_kin || '',
+    next_of_kin_contact: appData.next_of_kin_contact || '',
+    reg_fee_paid: 200,
+    payment_reference: appData.payment_reference || `REG-${Date.now()}`,
+    payment_method: appData.payment_method || 'Mobile Money',
+    status: 'PENDING_APPROVAL'
+  };
+
+  const updated = [application, ...pending];
+  localStorage.setItem('ony_pending_applications', JSON.stringify(updated));
+  return application;
+};
+
+export const approvePendingApplication = (appId, initialStatus = 'PROBATION') => {
+  const pending = getPendingApplications();
+  const app = pending.find(a => a.id === appId);
+  if (!app) return null;
+
+  // Add as full member
+  const { updatedMembers, createdMember } = addNewMember({
+    ...app,
+    status: initialStatus
+  });
+
+  // Remove from pending
+  const remaining = pending.filter(a => a.id !== appId);
+  localStorage.setItem('ony_pending_applications', JSON.stringify(remaining));
+
+  return { updatedMembers, createdMember, remainingPending: remaining };
+};
+
+export const rejectPendingApplication = (appId) => {
+  const pending = getPendingApplications();
+  const remaining = pending.filter(a => a.id !== appId);
+  localStorage.setItem('ony_pending_applications', JSON.stringify(remaining));
+  return remaining;
+};
+
+
