@@ -1373,7 +1373,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-09-28-v8-unified-master-shares';
+const DATA_VERSION = '2026-10-10-v9-clean-baseline-68564';
 
 export const getMembers = () => {
   try {
