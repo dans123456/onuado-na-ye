@@ -741,8 +741,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   {new Set(members.map(m => m.branch || 'Aburi')).size} <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>Branches</span>
                 </div>
               </div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px solid var(--border-color)', fontWeight: 600 }}>
-                Includes Aburi, Ashaiman, Atonsu, Dansoman, Darkuman, Kasoa & 10 other regional branches.
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px solid var(--border-color)', fontWeight: 600, lineHeight: 1.4 }}>
+                Aburi, Ashaiman, Atonsu, Dansoman, Darkuman, Kasoa, Koforidua, Kotobabi, Akuapem Mampong, Mankessim, Noyem, Nsawam, Odorkor, Suame, Takoradi, Teshie.
               </div>
             </div>
 
