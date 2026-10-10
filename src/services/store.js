@@ -1373,7 +1373,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-10-10-v13-mathematical-perfection-68564';
+const DATA_VERSION = '2026-10-10-v14-unbreakable-68564';
 
 export const getMembers = () => {
   try {
@@ -1404,8 +1404,8 @@ export const getMembers = () => {
   memberList = memberList.map(m => {
     const initMatch = INITIAL_MEMBERS.find(initM => initM.id === m.id || initM.excel_member_id === m.excel_member_id);
     if (initMatch) {
-      if (m.base_dues_paid === undefined) m.base_dues_paid = initMatch.base_dues_paid || initMatch.dues_paid;
-      if (m.base_shares_value === undefined) m.base_shares_value = initMatch.base_shares_value || initMatch.shares_value;
+      m.base_dues_paid = initMatch.base_dues_paid !== undefined ? initMatch.base_dues_paid : (initMatch.dues_paid || 0);
+      m.base_shares_value = initMatch.base_shares_value !== undefined ? initMatch.base_shares_value : (initMatch.shares_value || 0);
       if (!m.profile_picture && initMatch.profile_picture) m.profile_picture = initMatch.profile_picture;
     }
     return recalculateMemberFinancials(m);
