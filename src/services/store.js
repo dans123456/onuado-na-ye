@@ -1351,7 +1351,7 @@ export const recalculateMemberFinancials = (member) => {
   
   // If rawBaseSharesVal was pre-combined with vehicle shares in seed data (> 5000), extract base dues shares value
   if (rawBaseSharesVal > 5000 && vehSharesCount > 0) {
-    rawBaseSharesVal = rawBaseSharesVal - (vehSharesCount * SHARE_BASE_RATE);
+    rawBaseSharesVal = rawBaseSharesVal - (vehSharesCount * 50);
   }
 
   const duesDelta = duesPaid - baseDues;
@@ -1360,7 +1360,7 @@ export const recalculateMemberFinancials = (member) => {
   const duesSharesValue = rawBaseSharesVal + duesSharesDeltaVal;
   const duesSharesCount = Math.round(duesSharesValue / SHARE_BASE_RATE);
   
-  const vehSharesValue = vehSharesCount * SHARE_BASE_RATE;
+  const vehSharesValue = vehPaid > 0 ? vehPaid : (vehSharesCount * 50);
 
   // Option 1 Master Combined Financials
   member.dues_shares_dividends = duesSharesCount;
@@ -1373,7 +1373,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-10-10-v9-clean-baseline-68564';
+const DATA_VERSION = '2026-10-10-v10-exact-68564-fix';
 
 export const getMembers = () => {
   try {
