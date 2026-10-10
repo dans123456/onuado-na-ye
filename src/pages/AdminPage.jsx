@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -71,6 +71,18 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
     if (window.confirm('Reset Trial Balance back to original Excel baseline (GH₵ 88,503.20)? Any custom added items will be cleared.')) {
       const updated = resetTrialBalanceToDefaults();
       setTrialBalanceItems(updated);
+    }
+  };
+
+  const handleDeleteHistoryEntry = (entry) => {
+    if (!entry) return;
+    const amountStr = (parseFloat(entry.delta) || parseFloat(entry.amount) || 0).toFixed(2);
+    if (window.confirm(`Are you sure you want to delete/undo this entry for "${entry.memberName}" (+GH₵ ${amountStr})?\n\nThis will safely revert this payment and recalculate their shares and grand total.`)) {
+      const { updatedMembers, updatedHistory } = deleteKeyInHistoryEntry(entry.id);
+      setMembers(updatedMembers);
+      setKeyInHistory(updatedHistory);
+      setImportSuccess(`Transaction for ${entry.memberName} (-GH₵ ${amountStr}) reverted successfully. Member shares recalculated.`);
+      setTimeout(() => setImportSuccess(''), 5000);
     }
   };
 
@@ -1669,24 +1681,34 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                             )}
                           </td>
 
-                          {/* Quick Action Button */}
+                          {/* Quick Action Buttons */}
                           <td>
-                            <button 
-                              onClick={() => {
-                                if (targetMember) {
-                                  openDuesEditorForMember(targetMember, cat);
-                                } else {
-                                  setEditorMemberId(item.memberId || members[0]?.id);
-                                  setEditorCategory(cat);
-                                  setIsDuesEditorOpen(true);
-                                }
-                              }}
-                              className="btn btn-secondary"
-                              style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-                              title="Update this member's dues again"
-                            >
-                              <Edit3 size={12} color="#059669" /> Key In
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.35rem' }}>
+                              <button 
+                                onClick={() => {
+                                  if (targetMember) {
+                                    openDuesEditorForMember(targetMember, cat);
+                                  } else {
+                                    setEditorMemberId(item.memberId || members[0]?.id);
+                                    setEditorCategory(cat);
+                                    setIsDuesEditorOpen(true);
+                                  }
+                                }}
+                                className="btn btn-secondary"
+                                style={{ padding: '0.3rem 0.55rem', fontSize: '0.73rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
+                                title="Edit this member's payment"
+                              >
+                                <Edit3 size={12} color="#059669" /> Edit
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteHistoryEntry(item)}
+                                className="btn btn-secondary"
+                                style={{ padding: '0.3rem 0.55rem', fontSize: '0.73rem', fontWeight: 700, color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
+                                title="Delete this entry and revert payment"
+                              >
+                                <Trash2 size={12} /> Undo
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );

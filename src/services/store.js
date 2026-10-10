@@ -1417,7 +1417,8 @@ export const getMembers = () => {
 export const resetMembersToBaseline = () => {
   localStorage.removeItem('ony_members');
   localStorage.removeItem('ony_contributions');
-  const fresh = INITIAL_MEMBERS.map(m => recalculateMemberFinancials(m));
+  localStorage.removeItem('ony_keyin_history');
+  const fresh = INITIAL_MEMBERS.map(m => recalculateMemberFinancials({ ...m }));
   localStorage.setItem('ony_members', JSON.stringify(fresh));
   return fresh;
 };
@@ -1603,6 +1604,41 @@ export const saveKeyInHistory = (historyList) => {
 export const clearKeyInHistory = () => {
   localStorage.removeItem('ony_keyin_history');
   return [];
+};
+
+export const deleteKeyInHistoryEntry = (entryId) => {
+  const history = getKeyInHistory();
+  const entry = history.find(h => h.id === entryId);
+  if (!entry) return { updatedMembers: getMembers(), updatedHistory: history };
+
+  const members = getMembers();
+  const memberIndex = members.findIndex(m => m.id === entry.memberId || m.excel_member_id === entry.excelMemberId);
+
+  if (memberIndex !== -1) {
+    const member = members[memberIndex];
+    const cat = entry.category || (entry.entryType?.toLowerCase().includes('levy') ? 'levy' : entry.entryType?.toLowerCase().includes('vehicle') ? 'vehicle' : 'dues');
+    const delta = parseFloat(entry.delta) || parseFloat(entry.amount) || 0;
+
+    if (cat === 'dues') {
+      const currentDues = parseFloat(member.dues_paid) || 0;
+      member.dues_paid = Math.max(0, currentDues - delta);
+    } else if (cat === 'levy') {
+      const currentLevy = parseFloat(member.levy_paid) || 0;
+      member.levy_paid = Math.max(0, currentLevy - delta);
+    } else if (cat === 'vehicle') {
+      const currentVeh = parseFloat(member.vehicle_shares_paid) || 0;
+      member.vehicle_shares_paid = Math.max(0, currentVeh - delta);
+      member.vehicle_shares_count = Math.floor(member.vehicle_shares_paid / 50);
+    }
+
+    recalculateMemberFinancials(member);
+    saveMembers(members);
+  }
+
+  const updatedHistory = history.filter(h => h.id !== entryId);
+  saveKeyInHistory(updatedHistory);
+
+  return { updatedMembers: getMembers(), updatedHistory };
 };
 
 export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMethod = 'Cash', referenceNote = '', paymentDate = '', receivedByName = 'Executive Admin', duesYear = '2025' }) => {
