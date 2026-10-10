@@ -1941,6 +1941,207 @@ export const resetTrialBalanceToDefaults = () => {
 };
 
 // ==========================================
+// 💳 OFFICIAL TREASURY ACCOUNTS DYNAMIC LEDGER SYSTEM
+// ==========================================
+export const INITIAL_TREASURY_ACCOUNTS = {
+  momo: {
+    accountName: "MTN Mobile Money Account",
+    line: "0530486443",
+    code: "293658",
+    baseInflows: 102088.75,
+    baseDisbursements: 102086.80,
+    customTransactions: []
+  },
+  fidelity: {
+    accountName: "Fidelity Bank Ghana",
+    accountNo: "2090182444410",
+    baseCashDeposited: 125113.88,
+    baseWithdrawals: 114415.00,
+    maturedBillsReversed: 62425.51,
+    bankInterestEarned: 88.37,
+    customTransactions: []
+  },
+  bankTema: {
+    accountName: "North Tema Co-Operative Credit Union",
+    accountNo: "2161006002421201",
+    baseInflows: 5766.24,
+    baseOutflows: 5400.00,
+    bankShares: 100.00,
+    bankInterest: 166.24,
+    customTransactions: []
+  },
+  pettyCashVehicle: {
+    accountName: "Petty Cash Vehicle Fund",
+    baseBankReserve: 62000.00,
+    baseMemberShares: 6000.00,
+    baseSharesCount: 120,
+    customTransactions: []
+  }
+};
+
+export const getTreasuryAccountsData = () => {
+  const stored = localStorage.getItem('ony_treasury_accounts_data');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      console.error('Error parsing stored treasury accounts data', e);
+    }
+  }
+  return INITIAL_TREASURY_ACCOUNTS;
+};
+
+export const saveTreasuryAccountsData = (data) => {
+  localStorage.setItem('ony_treasury_accounts_data', JSON.stringify(data));
+  return data;
+};
+
+export const calculateTreasuryTotals = (data = getTreasuryAccountsData()) => {
+  const momoData = data.momo || INITIAL_TREASURY_ACCOUNTS.momo;
+  const fidelityData = data.fidelity || INITIAL_TREASURY_ACCOUNTS.fidelity;
+  const bankTemaData = data.bankTema || INITIAL_TREASURY_ACCOUNTS.bankTema;
+  const vehicleData = data.pettyCashVehicle || INITIAL_TREASURY_ACCOUNTS.pettyCashVehicle;
+
+  // 1. MoMo Calculations
+  const momoCustomInflows = (momoData.customTransactions || [])
+    .filter(tx => tx.type === 'inflow')
+    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+  const momoCustomOutflows = (momoData.customTransactions || [])
+    .filter(tx => tx.type === 'outflow')
+    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+
+  const momoTotalInflows = (parseFloat(momoData.baseInflows) || 102088.75) + momoCustomInflows;
+  const momoTotalDisbursements = (parseFloat(momoData.baseDisbursements) || 102086.80) + momoCustomOutflows;
+  const momoEndingBalance = momoTotalInflows - momoTotalDisbursements;
+
+  // 2. Fidelity Calculations
+  const fidelityCustomDeposits = (fidelityData.customTransactions || [])
+    .filter(tx => tx.type === 'inflow' || tx.type === 'deposit')
+    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+  const fidelityCustomWithdrawals = (fidelityData.customTransactions || [])
+    .filter(tx => tx.type === 'outflow' || tx.type === 'withdrawal')
+    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+
+  const fidelityTotalCashDeposited = (parseFloat(fidelityData.baseCashDeposited) || 125113.88) + fidelityCustomDeposits;
+  const fidelityTotalWithdrawals = (parseFloat(fidelityData.baseWithdrawals) || 114415.00) + fidelityCustomWithdrawals;
+  const fidelityEndingBalance = fidelityTotalCashDeposited - fidelityTotalWithdrawals;
+
+  // 3. Bank Tema Calculations
+  const bankTemaCustomInflows = (bankTemaData.customTransactions || [])
+    .filter(tx => tx.type === 'inflow')
+    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+  const bankTemaCustomOutflows = (bankTemaData.customTransactions || [])
+    .filter(tx => tx.type === 'outflow')
+    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+
+  const bankTemaTotalInflows = (parseFloat(bankTemaData.baseInflows) || 5766.24) + bankTemaCustomInflows;
+  const bankTemaTotalOutflows = (parseFloat(bankTemaData.baseOutflows) || 5400.00) + bankTemaCustomOutflows;
+  const bankTemaEndingBalance = bankTemaTotalInflows - bankTemaTotalOutflows;
+
+  // 4. Petty Cash Vehicle Calculations
+  const vehicleCustomInflows = (vehicleData.customTransactions || [])
+    .filter(tx => tx.type === 'inflow')
+    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+  const vehicleCustomOutflows = (vehicleData.customTransactions || [])
+    .filter(tx => tx.type === 'outflow')
+    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
+
+  const vehicleBankReserve = (parseFloat(vehicleData.baseBankReserve) || 62000.00) + vehicleCustomInflows;
+  const vehicleMemberShares = parseFloat(vehicleData.baseMemberShares) || 6000.00;
+  const vehicleEndingBalance = vehicleBankReserve + vehicleMemberShares - vehicleCustomOutflows;
+
+  // Grand Combined Liquid Total
+  const grandLiquidTotal = momoEndingBalance + fidelityEndingBalance + bankTemaEndingBalance;
+
+  return {
+    momo: {
+      ...momoData,
+      totalInflows: momoTotalInflows,
+      disbursements: momoTotalDisbursements,
+      endingBalance: momoEndingBalance
+    },
+    fidelity: {
+      ...fidelityData,
+      cashDeposited: fidelityTotalCashDeposited,
+      withdrawals: fidelityTotalWithdrawals,
+      endingBalance: fidelityEndingBalance
+    },
+    bankTema: {
+      ...bankTemaData,
+      totalIncome: bankTemaTotalInflows,
+      totalExpenses: bankTemaTotalOutflows,
+      endingBalance: bankTemaEndingBalance
+    },
+    pettyCashVehicle: {
+      ...vehicleData,
+      bankReserve: vehicleBankReserve,
+      memberShares: vehicleMemberShares,
+      endingBalance: vehicleEndingBalance
+    },
+    grandLiquidTotal
+  };
+};
+
+export const addTreasuryTransaction = (accountKey, transaction) => {
+  const data = getTreasuryAccountsData();
+  if (!data[accountKey]) return data;
+
+  const newTx = {
+    id: 'tx-' + Date.now(),
+    description: transaction.description ? transaction.description.trim() : 'Manual Treasury Entry',
+    amount: parseFloat(transaction.amount) || 0,
+    type: transaction.type || 'inflow', // 'inflow' or 'outflow'
+    date: transaction.date || new Date().toISOString().split('T')[0]
+  };
+
+  const updatedAccount = {
+    ...data[accountKey],
+    customTransactions: [...(data[accountKey].customTransactions || []), newTx]
+  };
+
+  const updatedData = {
+    ...data,
+    [accountKey]: updatedAccount
+  };
+
+  saveTreasuryAccountsData(updatedData);
+  return updatedData;
+};
+
+export const deleteTreasuryTransaction = (accountKey, transactionId) => {
+  const data = getTreasuryAccountsData();
+  if (!data[accountKey]) return data;
+
+  const updatedTransactions = (data[accountKey].customTransactions || []).filter(tx => tx.id !== transactionId);
+
+  const updatedData = {
+    ...data,
+    [accountKey]: {
+      ...data[accountKey],
+      customTransactions: updatedTransactions
+    }
+  };
+
+  saveTreasuryAccountsData(updatedData);
+  return updatedData;
+};
+
+export const resetTreasuryAccountToBaseline = (accountKey) => {
+  const data = getTreasuryAccountsData();
+  if (accountKey && data[accountKey]) {
+    data[accountKey] = {
+      ...INITIAL_TREASURY_ACCOUNTS[accountKey],
+      customTransactions: []
+    };
+  } else {
+    localStorage.removeItem('ony_treasury_accounts_data');
+    return INITIAL_TREASURY_ACCOUNTS;
+  }
+  saveTreasuryAccountsData(data);
+  return data;
+};
+
+// ==========================================
 // 👤 MEMBER CREATION & PENDING APPLICATIONS
 // ==========================================
 

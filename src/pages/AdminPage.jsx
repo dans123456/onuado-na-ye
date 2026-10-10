@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
 import PettyCashVehicleModal from '../components/PettyCashVehicleModal';
 import BankAccountTemaModal from '../components/BankAccountTemaModal';
+import TreasuryAccountModal from '../components/TreasuryAccountModal';
 
 export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('roster'); // 'roster', 'history', 'manual', 'announcement', 'treasury'
@@ -16,6 +17,13 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   // Petty Cash Vehicle Modal State
   const [isPettyCashVehicleModalOpen, setIsPettyCashVehicleModalOpen] = useState(false);
   const [isBankTemaModalOpen, setIsBankTemaModalOpen] = useState(false);
+
+  // Dynamic Treasury Accounts State
+  const [treasuryAccountsData, setTreasuryAccountsData] = useState(() => getTreasuryAccountsData());
+  const [isTreasuryModalOpen, setIsTreasuryModalOpen] = useState(false);
+  const [selectedAccountKey, setSelectedAccountKey] = useState('momo');
+
+  const treasuryTotals = calculateTreasuryTotals(treasuryAccountsData);
 
   // Dynamic Trial Balance State
   const [trialBalanceItems, setTrialBalanceItems] = useState(() => getTrialBalanceItems());
@@ -776,8 +784,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </span>
                 <span className="badge badge-dues" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem' }}>MTN MOMO</span>
               </div>
-              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#059669', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
-                GH₵ 1.95
+              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: treasuryTotals.momo.endingBalance >= 0 ? '#059669' : '#dc2626', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
+                GH₵ {treasuryTotals.momo.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
               <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
                 Ending MoMo Balance (Line: <strong>0530486443</strong>)
@@ -785,11 +793,18 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             </div>
             <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.2rem', color: 'var(--text-muted)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Total Inflows:</span> <strong style={{ color: '#059669' }}>GH₵ 102,088.75</strong>
+                <span>Total Inflows:</span> <strong style={{ color: '#059669' }}>GH₵ {treasuryTotals.momo.totalInflows.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Disbursements:</span> <strong>GH₵ 102,086.80</strong>
+                <span>Disbursements:</span> <strong>GH₵ {treasuryTotals.momo.disbursements.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
+              <button 
+                onClick={() => { setSelectedAccountKey('momo'); setIsTreasuryModalOpen(true); }}
+                className="btn btn-secondary"
+                style={{ width: '100%', marginTop: '0.4rem', padding: '0.3rem 0.5rem', fontSize: '0.72rem', fontWeight: 800, color: '#d97706', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
+              >
+                ✏️ Manage & Recalculate &rarr;
+              </button>
             </div>
           </div>
 
@@ -802,8 +817,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </span>
                 <span className="badge badge-dues" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem' }}>FIDELITY</span>
               </div>
-              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#059669', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
-                GH₵ 10,698.88
+              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: treasuryTotals.fidelity.endingBalance >= 0 ? '#059669' : '#dc2626', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
+                GH₵ {treasuryTotals.fidelity.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
               <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
                 Ending Bank Balance (Acc: <strong>2090182444410</strong>)
@@ -811,11 +826,18 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             </div>
             <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.2rem', color: 'var(--text-muted)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Cash Deposited:</span> <strong>GH₵ 125,113.88</strong>
+                <span>Cash Deposited:</span> <strong>GH₵ {treasuryTotals.fidelity.cashDeposited.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Withdrawals/Inv:</span> <strong>GH₵ 114,415.00</strong>
+                <span>Withdrawals/Inv:</span> <strong>GH₵ {treasuryTotals.fidelity.withdrawals.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
+              <button 
+                onClick={() => { setSelectedAccountKey('fidelity'); setIsTreasuryModalOpen(true); }}
+                className="btn btn-secondary"
+                style={{ width: '100%', marginTop: '0.4rem', padding: '0.3rem 0.5rem', fontSize: '0.72rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
+              >
+                ✏️ Manage & Recalculate &rarr;
+              </button>
             </div>
           </div>
 
@@ -829,7 +851,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 <span className="badge" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem', background: 'rgba(37, 99, 235, 0.15)', color: '#2563eb' }}>CREDIT UNION</span>
               </div>
               <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#2563eb', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
-                GH₵ 366.24
+                GH₵ {treasuryTotals.bankTema.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
               <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
                 Net Balance (Acc: <strong>2161006002421201</strong>)
@@ -837,18 +859,27 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             </div>
             <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', color: 'var(--text-muted)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Total Income (Inflows):</span> <strong style={{ color: '#059669' }}>+GH₵ 5,766.24</strong>
+                <span>Total Income (Inflows):</span> <strong style={{ color: '#059669' }}>+GH₵ {treasuryTotals.bankTema.totalIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Total Expenses (Outflows):</span> <strong style={{ color: '#dc2626' }}>-GH₵ 5,400.00</strong>
+                <span>Total Expenses (Outflows):</span> <strong style={{ color: '#dc2626' }}>-GH₵ {treasuryTotals.bankTema.totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
-              <button 
-                onClick={() => setIsBankTemaModalOpen(true)}
-                className="btn btn-secondary"
-                style={{ width: '100%', marginTop: '0.5rem', padding: '0.3rem 0.5rem', fontSize: '0.72rem', fontWeight: 800, color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
-              >
-                <FileSpreadsheet size={12} /> View Particulars Breakdown &rarr;
-              </button>
+              <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.4rem' }}>
+                <button 
+                  onClick={() => setIsBankTemaModalOpen(true)}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '0.3rem 0.4rem', fontSize: '0.7rem', fontWeight: 800, color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.2rem' }}
+                >
+                  <FileSpreadsheet size={11} /> Particulars
+                </button>
+                <button 
+                  onClick={() => { setSelectedAccountKey('bankTema'); setIsTreasuryModalOpen(true); }}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '0.3rem 0.4rem', fontSize: '0.7rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.2rem' }}
+                >
+                  ✏️ Recalculate
+                </button>
+              </div>
             </div>
           </div>
 
@@ -880,7 +911,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           const sharesTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.shares_value) || 0), 0);
           const treasBillTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.treasurer_bill) || 0), 0);
           const grandMasterTotalVal = sharesTotalVal + treasBillTotalVal;
-          const combinedNetWorth = grandMasterTotalVal + 11067.07;
+          const combinedNetWorth = grandMasterTotalVal + treasuryTotals.grandLiquidTotal;
 
           return (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
@@ -950,13 +981,6 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             <History size={16} color="#2563eb" /> Key-In Entry History ({keyInHistory.length})
           </button>
           <button 
-            onClick={() => setActiveTab('manual')} 
-            className={`btn ${activeTab === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
-          >
-            <PlusCircle size={16} /> Log Single Transaction
-          </button>
-          <button 
             onClick={() => setActiveTab('announcement')} 
             className={`btn ${activeTab === 'announcement' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
@@ -1017,15 +1041,23 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
               <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending MoMo Balance</div>
-                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#059669', marginTop: '0.15rem' }}>
-                  GH₵ 1.95
+                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: treasuryTotals.momo.endingBalance >= 0 ? '#059669' : '#dc2626', marginTop: '0.15rem' }}>
+                  GH₵ {treasuryTotals.momo.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </div>
 
               <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ 102,088.75</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Vouchers:</span><strong>GH₵ 102,086.80</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ {treasuryTotals.momo.totalInflows.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Vouchers:</span><strong>GH₵ {treasuryTotals.momo.disbursements.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Account Name:</span><strong>ONUADO NA EYE FELLOWSHIP</strong></div>
+                <button
+                  type="button"
+                  onClick={() => { setSelectedAccountKey('momo'); setIsTreasuryModalOpen(true); }}
+                  className="btn btn-secondary"
+                  style={{ marginTop: '0.4rem', padding: '0.45rem 0.75rem', fontSize: '0.78rem', fontWeight: 800, color: '#d97706', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', width: '100%' }}
+                >
+                  ✏️ Manage & Recalculate MoMo &rarr;
+                </button>
               </div>
             </div>
 
@@ -1041,16 +1073,24 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               
               <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending Bank Balance</div>
-                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#059669', marginTop: '0.15rem' }}>
-                  GH₵ 10,698.88
+                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: treasuryTotals.fidelity.endingBalance >= 0 ? '#059669' : '#dc2626', marginTop: '0.15rem' }}>
+                  GH₵ {treasuryTotals.fidelity.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </div>
 
               <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Cash Deposited:</span><strong>GH₵ 125,113.88</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Withdrawals / Investments:</span><strong>GH₵ 114,415.00</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Cash Deposited:</span><strong>GH₵ {treasuryTotals.fidelity.cashDeposited.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Withdrawals / Investments:</span><strong>GH₵ {treasuryTotals.fidelity.withdrawals.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Matured Bills Reversed:</span><strong style={{ color: '#2563eb' }}>GH₵ 62,425.51</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Interest Earned:</span><strong style={{ color: '#d97706' }}>GH₵ 88.37</strong></div>
+                <button
+                  type="button"
+                  onClick={() => { setSelectedAccountKey('fidelity'); setIsTreasuryModalOpen(true); }}
+                  className="btn btn-secondary"
+                  style={{ marginTop: '0.4rem', padding: '0.45rem 0.75rem', fontSize: '0.78rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', width: '100%' }}
+                >
+                  ✏️ Manage & Recalculate Fidelity &rarr;
+                </button>
               </div>
             </div>
 
@@ -1067,27 +1107,36 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Net Ending Bank Balance</div>
                 <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#2563eb', marginTop: '0.15rem' }}>
-                  GH₵ 366.24
+                  GH₵ {treasuryTotals.bankTema.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div style={{ fontSize: '0.7rem', color: '#059669', marginTop: '0.15rem', fontWeight: 700 }}>
-                  Calculated: Income (GH₵ 5,766.24) - Expenses (GH₵ 5,400.00)
+                  Calculated: Income (GH₵ {treasuryTotals.bankTema.totalIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}) - Expenses (GH₵ {treasuryTotals.bankTema.totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2 })})
                 </div>
               </div>
 
               <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Bank Inflows (Income):</span><strong style={{ color: '#059669' }}>+GH₵ 5,766.24</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Outflows (Withdrawals):</span><strong style={{ color: '#dc2626' }}>-GH₵ 5,400.00</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Bank Inflows (Income):</span><strong style={{ color: '#059669' }}>+GH₵ {treasuryTotals.bankTema.totalIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Outflows (Withdrawals):</span><strong style={{ color: '#dc2626' }}>-GH₵ {treasuryTotals.bankTema.totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Shares Held:</span><strong>GH₵ 100.00</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Bank Interest:</span><strong style={{ color: '#d97706' }}>GH₵ 166.24</strong></div>
               </div>
 
-              <button
-                onClick={() => setIsBankTemaModalOpen(true)}
-                className="btn btn-secondary"
-                style={{ width: '100%', marginTop: '0.85rem', padding: '0.4rem', fontSize: '0.78rem', fontWeight: 800, color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
-              >
-                <FileSpreadsheet size={14} /> Particulars & Ledger Breakdown &rarr;
-              </button>
+              <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.85rem' }}>
+                <button
+                  onClick={() => setIsBankTemaModalOpen(true)}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
+                >
+                  <FileSpreadsheet size={13} /> Particulars
+                </button>
+                <button
+                  onClick={() => { setSelectedAccountKey('bankTema'); setIsTreasuryModalOpen(true); }}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
+                >
+                  ✏️ Recalculate
+                </button>
+              </div>
             </div>
 
             {/* 4TH CARD: Petty Cash Vehicle Fund */}
@@ -1103,22 +1152,32 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending Vehicle Fund Balance</div>
                 <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#ea580c', marginTop: '0.15rem' }}>
-                  GH₵ 68,000.00
+                  GH₵ {treasuryTotals.pettyCashVehicle.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </div>
 
               <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Reserve Capital:</span><strong>GH₵ 62,000.00</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Member Vehicle Shares:</span><strong style={{ color: '#059669' }}>GH₵ 6,000.00</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Reserve Capital:</span><strong>GH₵ {treasuryTotals.pettyCashVehicle.bankReserve.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Member Vehicle Shares:</span><strong style={{ color: '#059669' }}>GH₵ {treasuryTotals.pettyCashVehicle.memberShares.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Vehicle Shares Paid:</span><strong>120 Shares</strong></div>
-                <button
-                  type="button"
-                  onClick={() => setIsPettyCashVehicleModalOpen(true)}
-                  className="btn btn-primary"
-                  style={{ marginTop: '0.4rem', padding: '0.45rem 0.75rem', fontSize: '0.78rem', fontWeight: 800, background: '#ea580c', borderColor: '#ea580c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', width: '100%' }}
-                >
-                  📋 View Particulars &rarr;
-                </button>
+                <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.4rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsPettyCashVehicleModalOpen(true)}
+                    className="btn btn-primary"
+                    style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', fontWeight: 800, background: '#ea580c', borderColor: '#ea580c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
+                  >
+                    📋 Particulars
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedAccountKey('pettyCashVehicle'); setIsTreasuryModalOpen(true); }}
+                    className="btn btn-secondary"
+                    style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#ea580c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
+                  >
+                    ✏️ Recalculate
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -3200,6 +3259,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           </div>
         </div>
       )}
+
+      {/* 💳 DYNAMIC TREASURY ACCOUNTS MODAL */}
+      <TreasuryAccountModal 
+        isOpen={isTreasuryModalOpen}
+        onClose={() => setIsTreasuryModalOpen(false)}
+        accountKey={selectedAccountKey}
+        onAccountUpdated={() => setTreasuryAccountsData(getTreasuryAccountsData())}
+      />
 
     </div>
   );
