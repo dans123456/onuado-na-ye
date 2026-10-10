@@ -1373,7 +1373,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-10-10-v10-exact-68564-fix';
+const DATA_VERSION = '2026-10-10-v12-exact-68564-final';
 
 export const getMembers = () => {
   try {
