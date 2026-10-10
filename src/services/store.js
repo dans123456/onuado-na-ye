@@ -1351,7 +1351,7 @@ export const recalculateMemberFinancials = (member) => {
   
   // If rawBaseSharesVal was pre-combined with vehicle shares in seed data (> 5000), extract base dues shares value
   if (rawBaseSharesVal > 5000 && vehSharesCount > 0) {
-    rawBaseSharesVal = rawBaseSharesVal - (vehSharesCount * 50);
+    rawBaseSharesVal = rawBaseSharesVal - (vehSharesCount * SHARE_BASE_RATE);
   }
 
   const duesDelta = duesPaid - baseDues;
@@ -1373,7 +1373,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-10-10-v12-exact-68564-final';
+const DATA_VERSION = '2026-10-10-v13-mathematical-perfection-68564';
 
 export const getMembers = () => {
   try {
