@@ -100,8 +100,10 @@ The application is **100% built, fully mobile-responsive, connected to live Supa
      - Childbirth / Naming: GH₵ 1,000.00
      - Weddings: 80% Voluntary Levy Pool + Rep Transport
 
-5. **Database Roster**:
+5. **Database Roster & Granular Audit Trail**:
    - Database roster contains exactly the **24 real fellowship members** (`ONY-001` to `ONY-024`).
+   - Every key-in entry recorded in the **Key-In Entry History** tab features a granular **`🗑️ Undo`** button.
+   - Deleting an entry cleanly subtracts only that specific transaction's amount and automatically recalculates member shares, dividends, and grand totals without touching any other member or transaction data.
 
 ---
 
@@ -117,3 +119,4 @@ The application is **100% built, fully mobile-responsive, connected to live Supa
 ---
 
 *Created automatically for ONUADO NA EYE MENS' FELLOWSHIP.*
+
