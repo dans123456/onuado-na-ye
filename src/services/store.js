@@ -1,6 +1,25 @@
 // Real Seed Data Extracted from Excel Workbook "ONUADO NA EYE ACCOUNT.xlsx"
 // Total Verified Members: 24
 
+export const OFFICIAL_BRANCHES = [
+  "Aburi",
+  "Ashaiman",
+  "Atonsu",
+  "Dansoman",
+  "Darkuman",
+  "Kasoa",
+  "Koforidua",
+  "Kotobabi",
+  "Akuapem Mampong",
+  "Mankessim",
+  "Noyem",
+  "Nsawam",
+  "Odorkor",
+  "Suame",
+  "Takoradi",
+  "Teshie"
+];
+
 const INITIAL_MEMBERS = [
   {
     "id": "m-001",
@@ -11,13 +30,13 @@ const INITIAL_MEMBERS = [
     "name_in_capitals": "ALEX ACKAH",
     "title": "Elder",
     "position": "Youth Chairman",
-    "branch": "Tema",
+    "branch": "Takoradi",
     "date_joined": "January 2024",
     "phone_number": "0243430617",
     "phone_number_2": "",
     "house_no": "6A/5A Airport Ridge",
     "gps_address": "",
-    "town": "Tema",
+    "town": "Takoradi",
     "email": "alexackah26@gmail.com",
     "ghana_card": "GHA-720659099-3",
     "occupation": "Driver",
@@ -65,7 +84,7 @@ const INITIAL_MEMBERS = [
     "name_in_capitals": "DANSO KINGSLEY",
     "title": "Elder",
     "position": "Men's Fellowship Chairman",
-    "branch": "Mampong",
+    "branch": "Akuapem Mampong",
     "date_joined": "January 2025",
     "phone_number": "0244991855",
     "phone_number_2": "0208304466",
@@ -549,13 +568,13 @@ const INITIAL_MEMBERS = [
     "name_in_capitals": "JOHNSON WOOD",
     "title": "Elder",
     "position": "Secretary",
-    "branch": "Tema",
+    "branch": "Takoradi",
     "date_joined": "January 2023",
     "phone_number": "0240466830",
     "phone_number_2": "",
     "house_no": "Mpintsin New Site",
     "gps_address": "WS-107-326",
-    "town": "Tema",
+    "town": "Takoradi",
     "email": "jbwoode30@gmail.com",
     "ghana_card": "GHA-719844260-5",
     "occupation": "Sales Representative",

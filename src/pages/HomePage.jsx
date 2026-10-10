@@ -128,7 +128,7 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
             </div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.6rem' }}>Nationwide Fellowship Branches</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', lineHeight: 1.6 }}>
-              Connecting members across Aburi, Ashaiman, Atensu, Dansoman, Darkoman, Kasoa, Koforidua, Kotobabi, Mampong, Mankessim, Noyem, Nsawam, Odorkor, Suame, Tema, and Teshie.
+              Connecting members across Aburi, Ashaiman, Atonsu, Dansoman, Darkuman, Kasoa, Koforidua, Kotobabi, Akuapem Mampong, Mankessim, Noyem, Nsawam, Odorkor, Suame, Takoradi, and Teshie.
             </p>
           </div>
 

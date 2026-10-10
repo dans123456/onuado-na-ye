@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, CheckCircle2, UserPlus, CreditCard, ShieldCheck, Heart, AlertCircle } from 'lucide-react';
-import { savePendingApplication } from '../services/store';
+import { savePendingApplication, OFFICIAL_BRANCHES } from '../services/store';
 
 export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) {
   const [step, setStep] = useState('form'); // 'form', 'payment', 'success'
@@ -8,7 +8,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
     full_name: '',
     phone_number: '',
     email: '',
-    branch: 'Tema',
+    branch: 'Aburi',
     title: 'Brother',
     occupation: '',
     hometown: '',
@@ -68,7 +68,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
       full_name: '',
       phone_number: '',
       email: '',
-      branch: 'Tema',
+      branch: 'Aburi',
       title: 'Brother',
       occupation: '',
       hometown: '',
@@ -136,12 +136,9 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
               <div>
                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>Branch / Location *</label>
                 <select name="branch" value={formData.branch} onChange={handleChange} style={{ width: '100%', padding: '0.65rem 0.8rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.88rem', fontWeight: 700 }}>
-                  <option value="Tema">Tema Branch</option>
-                  <option value="Mampong">Mampong Branch</option>
-                  <option value="Accra">Accra Central</option>
-                  <option value="Kumasi">Kumasi Branch</option>
-                  <option value="Takoradi">Takoradi Branch</option>
-                  <option value="Other">Other Branch</option>
+                  {OFFICIAL_BRANCHES.map(b => (
+                    <option key={b} value={b}>{b} Branch</option>
+                  ))}
                 </select>
               </div>
             </div>

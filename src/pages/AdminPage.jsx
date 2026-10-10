@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -73,7 +73,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   const [newMemberForm, setNewMemberForm] = useState({
     full_name: '',
     phone_number: '',
-    branch: 'Tema',
+    branch: 'Aburi',
     title: 'Brother',
     position: 'Member',
     occupation: '',
@@ -738,11 +738,11 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   Active Fellowship Branches
                 </div>
                 <div style={{ fontSize: '2.1rem', fontWeight: 900, color: '#d97706', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
-                  {new Set(members.map(m => m.branch || 'Tema')).size} <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>Branches</span>
+                  {new Set(members.map(m => m.branch || 'Aburi')).size} <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>Branches</span>
                 </div>
               </div>
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px solid var(--border-color)', fontWeight: 600 }}>
-                Includes Tema, Mampong, Accra, Kumasi & regional branches.
+                Includes Aburi, Ashaiman, Atonsu, Dansoman, Darkuman, Kasoa & 10 other regional branches.
               </div>
             </div>
 
@@ -3154,12 +3154,9 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                     onChange={(e) => setNewMemberForm({ ...newMemberForm, branch: e.target.value })}
                     style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: 700 }}
                   >
-                    <option value="Tema">Tema Branch</option>
-                    <option value="Mampong">Mampong Branch</option>
-                    <option value="Accra">Accra Central</option>
-                    <option value="Kumasi">Kumasi Branch</option>
-                    <option value="Takoradi">Takoradi Branch</option>
-                    <option value="Other">Other Branch</option>
+                    {OFFICIAL_BRANCHES.map(b => (
+                      <option key={b} value={b}>{b} Branch</option>
+                    ))}
                   </select>
                 </div>
               </div>
