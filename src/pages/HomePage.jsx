@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Heart, Wallet, ShieldCheck, ArrowRight, BellRing, Sparkles, Building2, Award, BookOpen } from 'lucide-react';
+import { Users, Heart, Wallet, ShieldCheck, ArrowRight, BellRing, Sparkles, Building2, Award, BookOpen, Video } from 'lucide-react';
 import ConstitutionModal from '../components/ConstitutionModal';
 
 export default function HomePage({ setActivePage, membersCount, contributionsCount }) {
