@@ -22,6 +22,8 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
   const [pinError, setPinError] = useState('');
 
   const [rememberMe, setRememberMe] = useState(false);
+  const [showDevDrawer, setShowDevDrawer] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState(() => members?.[0]?.id || '');
 
   // Central Session Finalizer: handles temporary (sessionStorage) vs permanent (localStorage)
   const finalizeLogin = (user) => {
