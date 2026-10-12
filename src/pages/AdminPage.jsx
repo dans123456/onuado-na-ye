@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
 import PettyCashVehicleModal from '../components/PettyCashVehicleModal';
 import BankAccountTemaModal from '../components/BankAccountTemaModal';
 import TreasuryAccountModal from '../components/TreasuryAccountModal';
+import OfficialRegistrationPrintModal from '../components/OfficialRegistrationPrintModal';
 
 export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('roster'); // 'roster', 'history', 'manual', 'announcement', 'treasury'
@@ -89,6 +90,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   // Member Roster Status Filter & Registration Management
   const [rosterStatusFilter, setRosterStatusFilter] = useState('all'); // 'all', 'ACTIVE', 'PROBATION', 'REMOVED', 'PENDING'
   const [pendingApps, setPendingApps] = useState(() => getPendingApplications());
+  const [printModalMember, setPrintModalMember] = useState(null);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [newMemberForm, setNewMemberForm] = useState({
     full_name: '',
@@ -1985,7 +1987,15 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                             <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ 200.00 ✓</td>
                             <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{app.payment_reference}</td>
                             <td>
-                              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                                <button
+                                  onClick={() => setPrintModalMember(app)}
+                                  className="btn btn-secondary"
+                                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', fontWeight: 800, color: '#1e40af', border: '1px solid rgba(37, 99, 235, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                                  title="View full registration sheet and print"
+                                >
+                                  <Printer size={13} color="#2563eb" /> View Form
+                                </button>
                                 <button
                                   onClick={() => handleApproveApplicant(app.id, 'PROBATION')}
                                   className="btn btn-primary"
@@ -2288,6 +2298,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
 
               <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexShrink: 0 }}>
+                <button 
+                  onClick={() => setPrintModalMember(selectedDossierMember)}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.45rem 0.95rem', fontSize: '0.82rem', fontWeight: 800, color: '#1e40af', border: '1px solid rgba(37, 99, 235, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                  title="Print official physical form matching church records"
+                >
+                  <Printer size={15} color="#2563eb" /> Print Form
+                </button>
                 <button 
                   onClick={() => {
                     const m = selectedDossierMember;
@@ -3304,6 +3322,15 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         accountKey={selectedAccountKey}
         onAccountUpdated={() => setTreasuryAccountsData(getTreasuryAccountsData())}
       />
+
+      {/* 📄 OFFICIAL REGISTRATION FORM PRINT MODAL */}
+      {printModalMember && (
+        <OfficialRegistrationPrintModal 
+          isOpen={!!printModalMember}
+          onClose={() => setPrintModalMember(null)}
+          memberData={printModalMember}
+        />
+      )}
 
     </div>
   );

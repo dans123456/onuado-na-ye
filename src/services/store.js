@@ -20,6 +20,41 @@ export const OFFICIAL_BRANCHES = [
   "Teshie"
 ];
 
+export const GHANA_REGIONS = [
+  "Ahafo",
+  "Ashanti",
+  "Bono",
+  "Bono East",
+  "Central",
+  "Eastern",
+  "Greater Accra",
+  "North East",
+  "Northern",
+  "Oti",
+  "Savannah",
+  "Upper East",
+  "Upper West",
+  "Volta",
+  "Western",
+  "Western North"
+];
+
+export const CHURCH_TITLES = [
+  "Brother",
+  "Elder",
+  "Deacon",
+  "Pastor",
+  "Reverend",
+  "Mr"
+];
+
+export const MARITAL_STATUSES = [
+  "Married",
+  "Single",
+  "Widowed",
+  "Divorced"
+];
+
 const INITIAL_MEMBERS = [
   {
     "id": "m-001",
@@ -2379,19 +2414,53 @@ export const getPendingApplications = () => {
 
 export const savePendingApplication = (appData) => {
   const pending = getPendingApplications();
+  const maleCount = parseInt(appData.children_male) || 0;
+  const femaleCount = parseInt(appData.children_female) || 0;
+  const totalChildren = (maleCount + femaleCount > 0) ? `${maleCount + femaleCount} (${maleCount}M, ${femaleCount}F)` : (appData.children_count || '');
+
   const application = {
     id: 'app-' + Date.now(),
     date_submitted: new Date().toISOString().split('T')[0],
     timestamp: new Date().toISOString(),
-    full_name: appData.full_name,
-    phone_number: appData.phone_number,
-    email: appData.email || '',
-    branch: appData.branch || 'Tema',
+    // 1. Personal & Church
+    full_name: appData.full_name?.trim() || '',
     title: appData.title || 'Brother',
-    occupation: appData.occupation || '',
-    hometown: appData.hometown || '',
-    next_of_kin: appData.next_of_kin || '',
-    next_of_kin_contact: appData.next_of_kin_contact || '',
+    position: appData.position || appData.position_in_church || 'Member',
+    branch: appData.branch || 'Tema',
+    date_joined: appData.date_joined || new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+    phone_number: appData.phone_number?.trim() || '',
+    phone_number_2: appData.phone_number_2?.trim() || '',
+    email: appData.email?.trim() || '',
+    ghana_card: appData.ghana_card || appData.ghana_card_no || '',
+    // 2. Residence & Location
+    house_no: appData.house_no?.trim() || '',
+    gps_address: appData.gps_address?.trim() || '',
+    town: appData.town?.trim() || '',
+    hometown: appData.hometown?.trim() || '',
+    district: appData.district?.trim() || '',
+    region: appData.region || 'Greater Accra',
+    tribe: appData.tribe?.trim() || '',
+    // 3. Work & Birth
+    occupation: appData.occupation?.trim() || '',
+    place_of_work: appData.place_of_work?.trim() || '',
+    date_of_birth: appData.date_of_birth || appData.dob || '',
+    place_of_birth: appData.place_of_birth?.trim() || '',
+    // 4. Next of Kin & Family
+    next_of_kin: appData.next_of_kin?.trim() || '',
+    next_of_kin_relation: appData.next_of_kin_relation || appData.relationship || '',
+    next_of_kin_contact: appData.next_of_kin_contact?.trim() || '',
+    marital_status: appData.marital_status || 'Single',
+    spouse_name: appData.spouse_name?.trim() || '',
+    spouse_contact: appData.spouse_contact || appData.spouse_contact_address || '',
+    children_male: maleCount,
+    children_female: femaleCount,
+    children_count: totalChildren,
+    // 5. Lineage / Parents
+    father_name: appData.father_name?.trim() || '',
+    father_contact: appData.father_contact || appData.father_contact_address || '',
+    mother_name: appData.mother_name?.trim() || '',
+    mother_contact: appData.mother_contact || appData.mother_contact_address || '',
+    // Payment & Status
     reg_fee_paid: 200,
     payment_reference: appData.payment_reference || `REG-${Date.now()}`,
     payment_method: appData.payment_method || 'Mobile Money',

@@ -6,6 +6,7 @@ import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSha
 import { getMemberSharesSchedule } from '../utils/sharesDividendData';
 import PaystackModal from '../components/PaystackModal';
 import PettyCashVehicleModal from '../components/PettyCashVehicleModal';
+import OfficialRegistrationPrintModal from '../components/OfficialRegistrationPrintModal';
 
 export default function DashboardPage({ currentUser, setCurrentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('record'); // 'record', 'dues_matrix', 'levies_matrix', 'history'
@@ -15,6 +16,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isPettyCashVehicleModalOpen, setIsPettyCashVehicleModalOpen] = useState(false);
   const [isSharesModalOpen, setIsSharesModalOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({
     phone_number: currentUser?.phone_number || '',
     momo_number: currentUser?.momo_number || '',
@@ -447,6 +449,14 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                 >
                   {showPII ? <EyeOff size={14} color="#d97706" /> : <Eye size={14} color="#059669" />}
                   {showPII ? 'Hide PII' : 'Reveal PII'}
+                </button>
+                <button 
+                  onClick={() => setIsPrintModalOpen(true)}
+                  className="btn btn-secondary" 
+                  title="Print your official fellowship registration sheet"
+                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: '#1e40af', border: '1px solid rgba(37, 99, 235, 0.4)' }}
+                >
+                  <Printer size={14} color="#2563eb" /> Print Form
                 </button>
                 {!isEditing ? (
                   <button onClick={() => setIsEditing(true)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
@@ -1363,6 +1373,15 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         isOpen={isPettyCashVehicleModalOpen}
         onClose={() => setIsPettyCashVehicleModalOpen(false)}
       />
+
+      {/* 📄 OFFICIAL REGISTRATION FORM PRINT MODAL */}
+      {isPrintModalOpen && (
+        <OfficialRegistrationPrintModal 
+          isOpen={isPrintModalOpen}
+          onClose={() => setIsPrintModalOpen(false)}
+          memberData={currentMember || currentUser}
+        />
+      )}
 
     </div>
   );
