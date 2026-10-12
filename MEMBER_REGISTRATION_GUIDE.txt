@@ -1,0 +1,108 @@
+================================================================================
+ONUADƆ NA ƐYƐ MEN'S FELLOWSHIP PORTAL
+OFFICIAL MEMBER REGISTRATION & SIGN-IN LIFECYCLE GUIDE
+================================================================================
+
+Step 1: Where the New User Starts
+--------------------------------------------------------------------------------
+The user visits the website and can click "Join Fellowship / Register" in two places:
+1. On the Navigation Bar / Home Page Hero
+2. Directly on the Sign-In Page under the action button:
+   "New member or haven't registered yet? [Join Fellowship / Register Here]"
+
+The interactive 5-step registration wizard opens automatically.
+
+
+Step 2: What the User Fills
+--------------------------------------------------------------------------------
+The user is guided through the 5 steps matching the official physical form:
+
+* Step 1: Identity & Church
+  - Title (Brother, Elder, Deacon, Pastor, Reverend, Mr)
+  - Full Name
+  - Church Position (e.g. Member, Committee, Deacon)
+  - Branch (All 16 branches: Aburi, Tema, Suame, etc.)
+  - Date Joined Fellowship (e.g. January 2026)
+  - Telephone No. 1 (Primary)
+  - Telephone No. 2 (Alternative)
+  - Ghana Identity Card No. (GHA-7XXXXXXXX-X)
+  - E-mail Address (if any)
+
+* Step 2: Residence & Location
+  - House No (e.g. M/E 163 or Plot 12 Block B)
+  - GPS Code Address (Ghana Post Digital GPS e.g. E2-0793-9218)
+  - Town (Current residential town e.g. Mampong Akuapem, Tema)
+  - Region (Dropdown with all 16 Ghana regions)
+  - District (e.g. Akuapem North)
+  - Hometown (e.g. Wassa Daurampong)
+  - Tribe (e.g. Akan / Asante, Fante, Wassa, Ewe, Ga-Dangme)
+
+* Step 3: Vocation & Birth
+  - Occupation (e.g. Teacher, Driver, Businessman)
+  - Place of Work (e.g. Somanya, Tema Harbour)
+  - Date of Birth (e.g. June 1980)
+  - Place of Birth (e.g. Asankragwa, Accra)
+
+* Step 4: Family & Lineage
+  - Next of Kin
+  - Relationship (e.g. Son, Wife, Brother, Sister)
+  - Contact: Next of Kin Phone
+  - Marital Status (Married, Single, Widowed, Divorced)
+  - Name of Spouse (if married)
+  - Contact Address (Spouse / Residence)
+  - Number of Children (Dedicated counters for Male & Female children)
+  - Father's Name & Contact Address
+  - Mother's Name & Contact Address
+
+* Step 5: Review & Fee
+  - Review summary card with all submitted details
+  - Official Registration Fee confirmation: GH₵ 200.00
+  - Payment Method selection:
+    * Mobile Money (MTN MoMo, Telecel Cash, AT Money)
+    * Debit Card / Paystack
+    * Cash to Branch Treasurer
+  - Click "Confirm & Submit Application"
+
+
+Step 3: What Happens Right After Submitting
+--------------------------------------------------------------------------------
+The applicant instantly receives:
+1. Application Reference Code (e.g., app-1728753901234)
+2. Confirmation notice that their application has been logged with the Executive Council.
+3. A "View / Print Official Registration Form" button to print or download their filled physical form sheet matching church archives.
+
+If the applicant tries to log in before the Executive approves them:
+The Sign-In page automatically detects their phone number and displays a friendly notice:
+"⏳ Application Received! Your fellowship registration (Samuel Mensah — Aburi Branch) has been logged and is awaiting Executive Council Approval. As soon as approved, you will sign in using this phone number and the last 4 digits as your default PIN."
+
+
+Step 4: Executive Council Approves the Member
+--------------------------------------------------------------------------------
+1. The Executive Council logs into the Executive Console and clicks "📩 Pending Registrations".
+2. The applicant appears with their submitted date, branch, and payment reference.
+3. The Executive can click "🖨️ View Form" to review or print the full official physical form for church filing.
+4. The Executive clicks "Admit as Active" (or "Admit as Probation"):
+   - The system automatically generates their official Member ID (e.g., ONY-025).
+   - The system sets their initial login PIN as the last 4 digits of their phone number.
+   - The GH₵ 200.00 registration fee is automatically credited into the fellowship financial ledger.
+
+
+Step 5: How the Approved User Signs In
+--------------------------------------------------------------------------------
+Now the member can sign in immediately:
+
+1. They go to "Member Sign In".
+2. Phone Number or Member ID:
+   - They type their Phone Number (e.g., 0241234567) or Member ID (ONY-025).
+3. Password / PIN:
+   - They type the last 4 digits of their phone number (e.g., 4567).
+4. First-Time Security Prompt:
+   - The portal greets them: "Welcome, Samuel! For your security, please create your custom 4-digit Security PIN".
+   - They enter and confirm their new private PIN (e.g., 5824).
+5. Portal Access Granted:
+   - Their personal dashboard opens with their member badge, shares holding, dues tracker, and payment receipts.
+   - On all future visits, they simply sign in with their phone number and their secret PIN.
+
+================================================================================
+Generated for: ONUADƆ NA ƐYƐ Men's Fellowship Portal
+================================================================================
