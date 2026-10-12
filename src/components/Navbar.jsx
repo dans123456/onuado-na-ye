@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy, Megaphone, UserPlus } from 'lucide-react';
+import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy, Megaphone, UserPlus, RefreshCw } from 'lucide-react';
 import { getAnnouncement, getMembers } from '../services/store';
 
 export default function Navbar({ activePage, setActivePage, currentUser, setCurrentUser, isDarkMode, setIsDarkMode, onOpenRegister, onLogout }) {
@@ -218,11 +218,17 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <button onClick={() => handleNav('login')} className="btn btn-primary nav-signin-btn" style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)', whiteSpace: 'nowrap', fontWeight: 700 }}>
-                <User size={15} /> <span className="signin-text">Member Sign In</span>
-              </button>
-            </div>
+            activePage !== 'login' ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <button 
+                  onClick={() => handleNav('login')} 
+                  className="btn btn-primary nav-signin-btn" 
+                  style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)', whiteSpace: 'nowrap', fontWeight: 700 }}
+                >
+                  <User size={15} /> <span className="signin-text">Member Sign In</span>
+                </button>
+              </div>
+            ) : null
           )}
 
           {/* Mobile Toggle Button */}
@@ -230,9 +236,9 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="btn btn-secondary mobile-toggle"
             aria-label="Toggle navigation menu"
-            style={{ padding: '0.4rem', width: '34px', height: '34px', display: 'none', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+            style={{ padding: '0.4rem', width: '36px', height: '36px', display: 'none', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
           >
-            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
@@ -268,9 +274,23 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           </button>
 
           {!currentUser ? (
-            <button onClick={() => handleNav('login')} className="btn btn-primary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
-              <User size={16} /> Member Sign In
-            </button>
+            <>
+              {onOpenRegister && (
+                <button 
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenRegister();
+                  }} 
+                  className="btn btn-primary" 
+                  style={{ justifyContent: 'flex-start', fontWeight: 800, background: '#059669', borderColor: '#059669' }}
+                >
+                  <UserPlus size={16} /> Join Fellowship / Register
+                </button>
+              )}
+              <button onClick={() => handleNav('login')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
+                <User size={16} /> Member Sign In
+              </button>
+            </>
           ) : (
             <>
               <button onClick={() => handleNav('dashboard')} className="btn btn-primary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
@@ -299,6 +319,30 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
               </button>
             </>
           )}
+
+          {/* Quick Clear Cache & Update Action */}
+          <button 
+            onClick={() => {
+              setMobileMenuOpen(false);
+              try {
+                localStorage.removeItem('ony_active_page');
+                sessionStorage.clear();
+                if ('caches' in window) {
+                  caches.keys().then((names) => {
+                    names.forEach((name) => caches.delete(name));
+                  });
+                }
+              } catch (e) {
+                console.error(e);
+              }
+              window.location.reload(true);
+            }} 
+            className="btn btn-secondary" 
+            style={{ justifyContent: 'flex-start', fontWeight: 600, fontSize: '0.78rem', color: 'var(--text-muted)', borderStyle: 'dashed', marginTop: '0.35rem' }}
+            title="Clear mobile cache and reload newest fellowship updates"
+          >
+            <RefreshCw size={14} /> Refresh & Clear App Cache
+          </button>
         </div>
       )}
 
@@ -459,21 +503,20 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
         @media (max-width: 899px) {
           .mobile-toggle { display: inline-flex !important; }
         }
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
+          .nav-register-btn { display: none !important; }
           .momo-desktop-btn { display: none !important; }
+        }
+        @media (max-width: 640px) {
           .top-ticker-subtitle { display: none !important; }
           .nav-admin-switch-btn { display: none !important; }
           .nav-theme-btn { display: none !important; }
-        }
-        @media (max-width: 580px) {
           .signin-text { display: none !important; }
-          .nav-signin-btn { padding: 0.35rem 0.6rem !important; }
-          .logout-text { display: none !important; }
-          .nav-logout-top-btn { width: 34px !important; height: 34px !important; padding: 0 !important; justify-content: center !important; border-radius: 50% !important; }
+          .nav-signin-btn { padding: 0.35rem 0.55rem !important; }
         }
         @media (max-width: 480px) {
           .brand-subtitle { display: none !important; }
-          .brand-title { font-size: 0.98rem !important; }
+          .brand-title { font-size: 0.95rem !important; }
         }
       `}</style>
     </nav>

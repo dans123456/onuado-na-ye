@@ -57,6 +57,25 @@ export default function App() {
   const [members, setMembers] = useState([]);
   const [contributions, setContributions] = useState([]);
 
+  // Automatic App Version & Stale Mobile Cache Cleaner
+  const APP_VERSION = '2.7.0-20261012-patch';
+  useEffect(() => {
+    try {
+      const storedVersion = localStorage.getItem('ony_app_version');
+      if (storedVersion !== APP_VERSION) {
+        localStorage.setItem('ony_app_version', APP_VERSION);
+        localStorage.removeItem('ony_active_page');
+        if ('caches' in window) {
+          caches.keys().then((names) => {
+            names.forEach((name) => caches.delete(name));
+          });
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
   useEffect(() => {
     setMembers(getMembers());
     setContributions(getContributions());
