@@ -3077,7 +3077,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       {/* 📊 ADD TRIAL BALANCE ITEM MODAL */}
       {isTBModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '1.8rem', borderRadius: '20px', background: 'var(--bg-card)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)', border: '1px solid var(--border-color)' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '1.8rem', borderRadius: '20px', background: 'var(--bg-card)', backgroundColor: 'var(--bg-card)', backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)', border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <PlusCircle size={20} color="#059669" />
@@ -3183,7 +3183,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       {/* 👤 REGISTER NEW MEMBER MODAL (DIRECT EXECUTIVE ADD) */}
       {isAddMemberModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '560px', padding: '2rem', borderRadius: '24px', background: 'var(--bg-card)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)', border: '1px solid var(--border-color)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '560px', padding: '2rem', borderRadius: '24px', background: 'var(--bg-card)', backgroundColor: 'var(--bg-card)', backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)', border: '1px solid var(--border-color)', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <UserPlus size={22} color="#059669" />

@@ -54,8 +54,23 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.25rem' }}>
-      <div className="glass-card" style={{ width: '100%', maxWidth: '450px', padding: '2rem', borderRadius: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', border: '1px solid rgba(217, 119, 6, 0.4)', background: 'var(--bg-card)', position: 'relative' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15, 23, 42, 0.82)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.25rem' }}>
+      <div 
+        style={{ 
+          width: '100%', 
+          maxWidth: '450px', 
+          padding: '2rem', 
+          borderRadius: '20px', 
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45)', 
+          border: '1px solid rgba(217, 119, 6, 0.45)', 
+          background: 'var(--bg-card)', 
+          backgroundColor: 'var(--bg-card)',
+          position: 'relative',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+          isolation: 'isolate'
+        }}
+      >
         
         <button 
           onClick={onClose} 
@@ -97,6 +112,7 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ paddingLeft: '2.5rem' }}
                 placeholder="onuadonaeye@gmail.com"
+                autoComplete="username"
               />
             </div>
           </div>
@@ -116,7 +132,7 @@ export default function ExecutiveAuthModal({ isOpen, onClose, onSuccess, current
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                 placeholder="Enter password (e.g. Executive2026!)"
-                autoFocus
+                autoComplete="current-password"
               />
               <button 
                 type="button" 

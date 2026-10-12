@@ -283,7 +283,7 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
         {/* First-Time Password Setup Modal */}
         {showSetPasswordModal && pendingUser && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-            <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '1.75rem', borderRadius: '18px', background: 'var(--bg-card)', border: '1px solid var(--primary-600)' }}>
+            <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '1.75rem', borderRadius: '18px', background: 'var(--bg-card)', backgroundColor: 'var(--bg-card)', backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate', border: '1px solid var(--primary-600)' }}>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
                 <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(5, 150, 105, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669', flexShrink: 0 }}>
@@ -358,7 +358,7 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
         {/* Forgot PIN Modal */}
         {showForgotModal && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-            <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '1.75rem', borderRadius: '18px', background: 'var(--bg-card)' }}>
+            <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '1.75rem', borderRadius: '18px', background: 'var(--bg-card)', backgroundColor: 'var(--bg-card)', backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', gap: '0.75rem' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, margin: 0 }}>
                   <HelpCircle size={18} color="#059669" /> Security PIN Assistance

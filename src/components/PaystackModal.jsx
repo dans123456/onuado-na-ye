@@ -57,7 +57,7 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.25rem' }}>
-      <div className="glass-card" style={{ width: '100%', maxWidth: '500px', padding: '2.25rem', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)', border: '1.5px solid rgba(5, 150, 105, 0.4)', background: 'var(--bg-card)', position: 'relative' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '500px', padding: '2.25rem', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)', border: '1.5px solid rgba(5, 150, 105, 0.4)', background: 'var(--bg-card)', backgroundColor: 'var(--bg-card)', backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate', position: 'relative' }}>
         
         <button 
           onClick={onClose} 

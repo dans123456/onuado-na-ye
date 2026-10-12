@@ -82,7 +82,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '1rem' }}>
-      <div className="glass-card" style={{ width: '100%', maxWidth: '540px', padding: '2rem', borderRadius: '24px', background: 'var(--bg-card)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)', border: '1px solid var(--border-color)', position: 'relative' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '540px', padding: '2rem', borderRadius: '24px', background: 'var(--bg-card)', backgroundColor: 'var(--bg-card)', backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)', border: '1px solid var(--border-color)', position: 'relative' }}>
         
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
