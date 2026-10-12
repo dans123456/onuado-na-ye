@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { User, Lock, Phone, Shield, ArrowRight, CheckCircle2, ChevronDown, KeyRound, Sparkles, Eye, EyeOff, HelpCircle, X, ShieldCheck } from 'lucide-react';
-import { updateMemberPin } from '../services/store';
+import { User, Lock, Phone, Shield, ArrowRight, CheckCircle2, ChevronDown, KeyRound, Sparkles, Eye, EyeOff, HelpCircle, X, ShieldCheck, UserPlus } from 'lucide-react';
+import { updateMemberPin, getPendingApplications } from '../services/store';
 import LoadingModal from '../components/LoadingModal';
 
-export default function LoginPage({ members, setCurrentUser, setActivePage }) {
+export default function LoginPage({ members, setCurrentUser, setActivePage, onOpenRegister }) {
   const [phoneOrEmail, setPhoneOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -54,7 +54,24 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
     });
 
     if (!found) {
-      setError('No registered member record found. Please verify your phone number or Member ID (e.g. ONY-001).');
+      const pending = getPendingApplications();
+      const pendingMatch = pending.find(p => {
+        const pPhone = (p.phone_number || '').replace(/\D/g, '');
+        const pPhone2 = (p.phone_number_2 || '').replace(/\D/g, '');
+        const pName = (p.full_name || '').toLowerCase();
+        return (
+          (cleanDigits.length >= 4 && (pPhone.includes(cleanDigits) || pPhone2.includes(cleanDigits))) ||
+          pName.includes(rawInput) ||
+          (cleanId && p.id.toLowerCase().includes(cleanId))
+        );
+      });
+
+      if (pendingMatch) {
+        setError(`⏳ Application Received! Your fellowship registration (${pendingMatch.title} ${pendingMatch.full_name} — ${pendingMatch.branch} Branch) has been logged and is awaiting Executive Council Approval. As soon as the Executive approves your admission, you will sign in using this phone number and the last 4 digits as your default PIN.`);
+        return;
+      }
+
+      setError('No registered member record found. Please verify your phone number or Member ID (e.g. ONY-001). If you are a new applicant, please complete fellowship registration below.');
       return;
     }
 
@@ -232,7 +249,22 @@ export default function LoginPage({ members, setCurrentUser, setActivePage }) {
             </button>
           </form>
 
-          <div style={{ marginTop: '1.25rem', textAlign: 'center', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)', fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+          {/* New Member Registration CTA */}
+          <div style={{ marginTop: '1.25rem', paddingTop: '1.1rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.55rem', fontWeight: 600 }}>
+              New member or haven't registered yet?
+            </div>
+            <button 
+              type="button"
+              onClick={onOpenRegister}
+              className="btn btn-secondary"
+              style={{ width: '100%', padding: '0.65rem', fontWeight: 800, color: 'var(--primary-600)', border: '1.5px solid var(--primary-600)', background: 'rgba(5, 150, 105, 0.05)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', borderRadius: '10px' }}
+            >
+              <UserPlus size={16} /> Join Fellowship / Register Here
+            </button>
+          </div>
+
+          <div style={{ marginTop: '1.1rem', textAlign: 'center', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)', fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
             For registration or PIN resets, email <strong>onuadonaeye@gmail.com</strong> or call MoMo line <strong>0530486443</strong>.
           </div>
         </div>

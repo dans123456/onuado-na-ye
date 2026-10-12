@@ -168,6 +168,7 @@ export default function App() {
             members={members}
             setCurrentUser={setCurrentUser}
             setActivePage={handleNavigate}
+            onOpenRegister={() => setIsRegisterModalOpen(true)}
           />
         )}
 
