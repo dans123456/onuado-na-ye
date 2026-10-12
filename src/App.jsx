@@ -13,17 +13,13 @@ import MemberRegistrationModal from './components/MemberRegistrationModal';
 import { getMembers, getContributions } from './services/store';
 
 export default function App() {
-  const [activePage, setActivePage] = useState(() => {
-    try {
-      return localStorage.getItem('ony_active_page') || 'home';
-    } catch {
-      return 'home';
-    }
-  });
+  // Always start on the public Home page so opening the site link never auto-jumps into someone's private portal
+  const [activePage, setActivePage] = useState('home');
 
   const [currentUser, setCurrentUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('ony_current_user');
+      // Check session storage first (tab session), then localStorage (if user chose "Remember Me")
+      const saved = sessionStorage.getItem('ony_current_user') || localStorage.getItem('ony_current_user');
       if (saved) {
         const parsed = JSON.parse(saved);
         const membersList = getMembers();
@@ -85,20 +81,21 @@ export default function App() {
     }
   }, [members]);
 
-  // Save auth & page state to localStorage
+  // Save auth state cleanly according to persistence mode
   useEffect(() => {
     if (currentUser) {
-      localStorage.setItem('ony_current_user', JSON.stringify(currentUser));
+      if (localStorage.getItem('ony_current_user')) {
+        localStorage.setItem('ony_current_user', JSON.stringify(currentUser));
+      } else {
+        sessionStorage.setItem('ony_current_user', JSON.stringify(currentUser));
+      }
     } else {
       localStorage.removeItem('ony_current_user');
+      sessionStorage.removeItem('ony_current_user');
       sessionStorage.removeItem('ony_admin_auth');
       setIsAdminAuthenticated(false);
     }
   }, [currentUser]);
-
-  useEffect(() => {
-    localStorage.setItem('ony_active_page', activePage);
-  }, [activePage]);
 
   useEffect(() => {
     localStorage.setItem('ony_dark_mode', isDarkMode ? 'true' : 'false');
@@ -112,6 +109,21 @@ export default function App() {
   useEffect(() => {
     sessionStorage.setItem('ony_admin_auth', isAdminAuthenticated ? 'true' : 'false');
   }, [isAdminAuthenticated]);
+
+  // Complete Multi-Storage Clean Logout Handler
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('ony_current_user');
+      sessionStorage.removeItem('ony_current_user');
+      sessionStorage.removeItem('ony_admin_auth');
+      localStorage.removeItem('ony_active_page');
+    } catch (e) {
+      console.error(e);
+    }
+    setCurrentUser(null);
+    setIsAdminAuthenticated(false);
+    setActivePage('home');
+  };
 
   // Guarded Navigation Handler
   const handleNavigate = (page) => {
@@ -139,6 +151,7 @@ export default function App() {
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
         onOpenRegister={() => setIsRegisterModalOpen(true)}
+        onLogout={handleLogout}
       />
 
       <main style={{ flex: 1 }}>
@@ -218,6 +231,7 @@ export default function App() {
         setActivePage={handleNavigate} 
         currentUser={currentUser}
         setCurrentUser={setCurrentUser}
+        onLogout={handleLogout}
       />
 
       {/* Executive Re-Authentication Password Security Modal */}

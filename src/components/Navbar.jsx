@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy, Megaphone, UserPlus } from 'lucide-react';
 import { getAnnouncement, getMembers } from '../services/store';
 
-export default function Navbar({ activePage, setActivePage, currentUser, setCurrentUser, isDarkMode, setIsDarkMode, onOpenRegister }) {
+export default function Navbar({ activePage, setActivePage, currentUser, setCurrentUser, isDarkMode, setIsDarkMode, onOpenRegister, onLogout }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showMoMoModal, setShowMoMoModal] = useState(false);
   const [copiedMoMo, setCopiedMoMo] = useState(false);
@@ -28,8 +28,20 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
   };
 
   const handleLogout = () => {
-    setCurrentUser(null);
-    setActivePage('home');
+    if (onLogout) {
+      onLogout();
+    } else {
+      try {
+        localStorage.removeItem('ony_current_user');
+        sessionStorage.removeItem('ony_current_user');
+        sessionStorage.removeItem('ony_admin_auth');
+        localStorage.removeItem('ony_active_page');
+      } catch (e) {
+        console.error(e);
+      }
+      setCurrentUser(null);
+      setActivePage('home');
+    }
   };
 
   const copyMoMoNumber = (textToCopy = '0530486443') => {
@@ -54,9 +66,9 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
 
       <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
         
-        {/* Brand / Logo */}
+        {/* Brand / Logo (Always Navigates to Public Home) */}
         <div 
-          onClick={() => handleNav(currentUser ? 'dashboard' : 'home')} 
+          onClick={() => handleNav('home')} 
           style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer', flexShrink: 0 }}
         >
           <img 
@@ -80,39 +92,35 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           </div>
         </div>
 
-        {/* Desktop Navigation Links */}
+        {/* Desktop Navigation Links (Always Accessible) */}
         <div style={{ display: 'none', gap: '1.25rem', alignItems: 'center', flexShrink: 0 }} className="desktop-links">
-          {!currentUser ? (
-            <>
-              <button 
-                onClick={() => handleNav('home')}
-                className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
-              >
-                Home
-              </button>
-              <button 
-                onClick={() => handleNav('about')}
-                className={`nav-link ${activePage === 'about' ? 'active' : ''}`}
-              >
-                About Us
-              </button>
-              <button 
-                onClick={() => handleNav('contact')}
-                className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}
-              >
-                Contact Us
-              </button>
-            </>
-          ) : (
-            <>
-              <button 
-                onClick={() => handleNav('dashboard')}
-                className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800 }}
-              >
-                <User size={16} /> My Member Portal
-              </button>
-            </>
+          <button 
+            onClick={() => handleNav('home')}
+            className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
+          >
+            Home
+          </button>
+          <button 
+            onClick={() => handleNav('about')}
+            className={`nav-link ${activePage === 'about' ? 'active' : ''}`}
+          >
+            About Us
+          </button>
+          <button 
+            onClick={() => handleNav('contact')}
+            className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}
+          >
+            Contact Us
+          </button>
+
+          {currentUser && (
+            <button 
+              onClick={() => handleNav('dashboard')}
+              className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: '#059669' }}
+            >
+              <User size={16} /> My Member Portal
+            </button>
           )}
         </div>
 
@@ -251,13 +259,9 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             );
           })()}
 
-          {!currentUser && (
-            <>
-              <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
-              <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>
-              <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Contact Us</button>
-            </>
-          )}
+          <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
+          <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>
+          <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Contact Us</button>
 
           <button onClick={() => setIsDarkMode(!isDarkMode)} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
             {isDarkMode ? <Sun size={16} color="#f59e0b" /> : <Moon size={16} color="#047857" />} {isDarkMode ? 'Light Theme' : 'Dark Theme'}

@@ -21,9 +21,24 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
   const [confirmPin, setConfirmPin] = useState('');
   const [pinError, setPinError] = useState('');
 
-  // Developer Helper Drawer
-  const [showDevDrawer, setShowDevDrawer] = useState(false);
-  const [selectedMemberId, setSelectedMemberId] = useState(members[0]?.id || '');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Central Session Finalizer: handles temporary (sessionStorage) vs permanent (localStorage)
+  const finalizeLogin = (user) => {
+    try {
+      if (rememberMe) {
+        localStorage.setItem('ony_current_user', JSON.stringify(user));
+        sessionStorage.removeItem('ony_current_user');
+      } else {
+        sessionStorage.setItem('ony_current_user', JSON.stringify(user));
+        localStorage.removeItem('ony_current_user');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setCurrentUser(user);
+    setActivePage('dashboard');
+  };
 
   const handleCustomLogin = (e) => {
     e.preventDefault();
@@ -98,8 +113,7 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
     setIsLoading(true);
 
     setTimeout(() => {
-      setCurrentUser(found);
-      setActivePage('dashboard');
+      finalizeLogin(found);
       setIsLoading(false);
     }, 650);
   };
@@ -128,8 +142,7 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
     setIsLoading(true);
 
     setTimeout(() => {
-      setCurrentUser(finalUser);
-      setActivePage('dashboard');
+      finalizeLogin(finalUser);
       setIsLoading(false);
     }, 650);
   };
@@ -144,8 +157,7 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
       setIsLoading(true);
 
       setTimeout(() => {
-        setCurrentUser(member);
-        setActivePage('dashboard');
+        finalizeLogin(member);
         setIsLoading(false);
       }, 550);
     }
@@ -240,10 +252,26 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
               </div>
             </div>
 
+            {/* Session Persistence / Remember Me Option */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.2rem 0', userSelect: 'none' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-main)', fontWeight: 600 }}>
+                <input 
+                  type="checkbox" 
+                  checked={rememberMe} 
+                  onChange={(e) => setRememberMe(e.target.checked)} 
+                  style={{ accentColor: '#059669', width: '16px', height: '16px', cursor: 'pointer' }}
+                />
+                <span>Keep me signed in</span>
+              </label>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                {rememberMe ? 'Remembered on this device' : 'Exits on browser close'}
+              </span>
+            </div>
+
             <button 
               type="submit" 
               className="btn btn-primary"
-              style={{ padding: '0.75rem', fontSize: '0.95rem', fontWeight: 700, borderRadius: '10px', marginTop: '0.35rem', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)', width: '100%', justifyContent: 'center' }}
+              style={{ padding: '0.75rem', fontSize: '0.95rem', fontWeight: 700, borderRadius: '10px', marginTop: '0.25rem', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)', width: '100%', justifyContent: 'center' }}
             >
               Sign In to Portal <ArrowRight size={18} />
             </button>
