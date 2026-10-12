@@ -136,24 +136,14 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
 
   return (
     <>
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.82)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '1rem', overflowY: 'auto' }}>
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '0.75rem 0.5rem', overflowY: 'auto' }}>
         <div 
-          className="glass-card" 
+          className="glass-card reg-modal-card" 
           style={{ 
-            width: '100%', 
-            maxWidth: '680px', 
-            padding: '2rem', 
-            borderRadius: '24px', 
-            background: 'var(--bg-card)', 
             backgroundColor: 'var(--bg-card)', 
             backdropFilter: 'none', 
             WebkitBackdropFilter: 'none', 
-            isolation: 'isolate', 
-            boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5)', 
-            border: '1px solid var(--border-color)', 
-            position: 'relative',
-            maxHeight: '92vh',
-            overflowY: 'auto'
+            isolation: 'isolate'
           }}
         >
           
@@ -161,22 +151,23 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
           <button 
             onClick={resetAndClose}
             aria-label="Close"
-            style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+            className="modal-close-btn"
+            style={{ position: 'absolute', top: '1rem', right: '1rem' }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
 
           {/* Header */}
-          <div style={{ marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <div style={{ padding: '0.55rem', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.15)', color: '#059669', display: 'flex' }}>
-                <UserPlus size={24} />
+          <div style={{ marginBottom: '1.15rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', paddingRight: '2.75rem' }}>
+              <div style={{ padding: '0.55rem', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.15)', color: '#059669', display: 'flex', flexShrink: 0 }}>
+                <UserPlus size={22} />
               </div>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '-0.01em', lineHeight: 1.25 }}>
                   ONUADƆ NA ƐYƐ Registration Form
                 </h3>
-                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                   Official Men's Fellowship Membership Enrolment & Registry
                 </p>
               </div>
@@ -184,50 +175,121 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
 
             {/* Stepper Progress Bar (Steps 1 to 5) */}
             {currentStep <= 5 && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1.25rem', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
-                {stepTitles.map((s) => {
-                  const isActive = currentStep === s.num;
-                  const isDone = currentStep > s.num;
-                  return (
-                    <div 
-                      key={s.num} 
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '0.35rem', 
-                        flex: 1, 
-                        minWidth: '95px',
-                        cursor: isDone ? 'pointer' : 'default' 
-                      }}
-                      onClick={() => isDone && setCurrentStep(s.num)}
-                    >
-                      <div style={{ 
-                        width: '24px', 
-                        height: '24px', 
-                        borderRadius: '50%', 
-                        background: isDone ? '#059669' : isActive ? 'var(--primary-600)' : 'var(--border-color)', 
-                        color: isDone || isActive ? '#ffffff' : 'var(--text-muted)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        fontSize: '0.72rem', 
-                        fontWeight: 800,
-                        flexShrink: 0
-                      }}>
-                        {isDone ? '✓' : s.num}
+              <>
+                {/* Desktop Stepper */}
+                <div className="reg-stepper-desktop">
+                  {stepTitles.map((s) => {
+                    const isActive = currentStep === s.num;
+                    const isDone = currentStep > s.num;
+                    return (
+                      <div 
+                        key={s.num} 
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '0.35rem', 
+                          flex: 1, 
+                          cursor: isDone ? 'pointer' : 'default' 
+                        }}
+                        onClick={() => isDone && setCurrentStep(s.num)}
+                      >
+                        <div style={{ 
+                          width: '24px', 
+                          height: '24px', 
+                          borderRadius: '50%', 
+                          background: isDone ? '#059669' : isActive ? 'var(--primary-600)' : 'var(--border-color)', 
+                          color: isDone || isActive ? '#ffffff' : 'var(--text-muted)', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          fontSize: '0.72rem', 
+                          fontWeight: 800,
+                          flexShrink: 0
+                        }}>
+                          {isDone ? '✓' : s.num}
+                        </div>
+                        <span style={{ 
+                          fontSize: '0.73rem', 
+                          fontWeight: isActive ? 800 : 600, 
+                          color: isActive ? 'var(--primary-600)' : 'var(--text-muted)',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {s.label}
+                        </span>
                       </div>
+                    );
+                  })}
+                </div>
+
+                {/* Mobile Responsive Stepper */}
+                <div className="reg-stepper-mobile">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.45rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                       <span style={{ 
-                        fontSize: '0.73rem', 
-                        fontWeight: isActive ? 800 : 600, 
-                        color: isActive ? 'var(--primary-600)' : 'var(--text-muted)',
-                        whiteSpace: 'nowrap'
+                        background: 'rgba(5, 150, 105, 0.14)', 
+                        color: '#059669', 
+                        fontSize: '0.72rem', 
+                        fontWeight: 800, 
+                        padding: '0.2rem 0.55rem', 
+                        borderRadius: '6px',
+                        letterSpacing: '0.03em'
                       }}>
-                        {s.label}
+                        STEP {currentStep} OF 5
+                      </span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                        {stepTitles[currentStep - 1]?.label}
                       </span>
                     </div>
-                  );
-                })}
-              </div>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#059669' }}>
+                      {currentStep * 20}%
+                    </span>
+                  </div>
+
+                  {/* Progress Fill Bar */}
+                  <div style={{ height: '6px', width: '100%', background: 'var(--border-color)', borderRadius: '999px', overflow: 'hidden', marginBottom: '0.65rem' }}>
+                    <div style={{ 
+                      height: '100%', 
+                      width: `${currentStep * 20}%`, 
+                      background: 'linear-gradient(90deg, #059669, #10b981)', 
+                      borderRadius: '999px', 
+                      transition: 'width 0.3s ease' 
+                    }} />
+                  </div>
+
+                  {/* 5 Tap-able Step Number Badges */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.35rem' }}>
+                    {stepTitles.map((s) => {
+                      const isActive = currentStep === s.num;
+                      const isDone = currentStep > s.num;
+                      return (
+                        <button
+                          key={s.num}
+                          type="button"
+                          onClick={() => isDone && setCurrentStep(s.num)}
+                          disabled={!isDone && !isActive}
+                          style={{
+                            flex: 1,
+                            height: '32px',
+                            borderRadius: '8px',
+                            border: isActive ? '1.5px solid #059669' : '1px solid var(--border-color)',
+                            background: isDone ? 'rgba(5, 150, 105, 0.15)' : isActive ? 'rgba(5, 150, 105, 0.08)' : 'transparent',
+                            color: isDone || isActive ? '#059669' : 'var(--text-muted)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.75rem',
+                            fontWeight: 800,
+                            cursor: isDone ? 'pointer' : 'default',
+                            gap: '0.2rem'
+                          }}
+                        >
+                          {isDone ? '✓' : s.num}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
             )}
           </div>
 
@@ -242,7 +304,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
           {/* ================= STEP 1: PERSONAL & CHURCH ================= */}
           {currentStep === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '0.85rem' }}>
+              <div className="reg-grid-title-name">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>TITLE *</label>
                   <select name="title" value={formData.title} onChange={handleChange} className="form-select" style={{ fontWeight: 700 }}>
@@ -255,7 +317,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>POSITION IN CHURCH</label>
                   <input type="text" name="position_in_church" placeholder="e.g. Member, Youth Leader, Deacon" value={formData.position_in_church} onChange={handleChange} className="form-input" />
@@ -268,7 +330,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>DATE JOINED THE FELLOWSHIP</label>
                   <input type="text" name="date_joined" placeholder="e.g. January 2026" value={formData.date_joined} onChange={handleChange} className="form-input" />
@@ -279,7 +341,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>TELEPHONE NO. 2 (OPTIONAL)</label>
                   <input type="tel" name="phone_number_2" placeholder="020 XXX XXXX" value={formData.phone_number_2} onChange={handleChange} className="form-input" />
@@ -300,7 +362,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
           {/* ================= STEP 2: RESIDENCE & LOCATION ================= */}
           {currentStep === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>HOUSE NO</label>
                   <input type="text" name="house_no" placeholder="e.g. M/E 163 or Plot 12 Block B" value={formData.house_no} onChange={handleChange} className="form-input" />
@@ -311,7 +373,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>TOWN (CURRENT RESIDENCE) *</label>
                   <input type="text" name="town" required placeholder="e.g. Mampong Akuapem, Tema" value={formData.town} onChange={handleChange} className="form-input" style={{ fontWeight: 700 }} />
@@ -324,7 +386,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>DISTRICT</label>
                   <input type="text" name="district" placeholder="e.g. Akuapem North, Amanfie East" value={formData.district} onChange={handleChange} className="form-input" />
@@ -345,7 +407,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
           {/* ================= STEP 3: VOCATION & BIRTH ================= */}
           {currentStep === 3 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>OCCUPATION *</label>
                   <input type="text" name="occupation" required placeholder="e.g. Teacher, Driver, Civil Servant, Businessman" value={formData.occupation} onChange={handleChange} className="form-input" style={{ fontWeight: 700 }} />
@@ -356,7 +418,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>DATE OF BIRTH</label>
                   <input type="text" name="dob" placeholder="e.g. 14th June 1980 or June 1980" value={formData.dob} onChange={handleChange} className="form-input" />
@@ -376,7 +438,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
           {/* ================= STEP 4: FAMILY & LINEAGE ================= */}
           {currentStep === 4 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.2fr', gap: '0.85rem' }}>
+              <div className="reg-grid-3">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>NEXT OF KIN *</label>
                   <input type="text" name="next_of_kin" required placeholder="Full Name of Next of Kin" value={formData.next_of_kin} onChange={handleChange} className="form-input" style={{ fontWeight: 700 }} />
@@ -391,7 +453,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>MARITAL STATUS</label>
                   <select name="marital_status" value={formData.marital_status} onChange={handleChange} className="form-select" style={{ fontWeight: 700 }}>
@@ -414,7 +476,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                 <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.6rem' }}>
                   NUMBER OF CHILDREN
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="reg-grid-2">
                   <div>
                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.25rem' }}>👦 Male Children</label>
                     <input type="number" min="0" max="25" name="children_male" value={formData.children_male} onChange={handleChange} className="form-input" style={{ fontWeight: 800 }} />
@@ -427,7 +489,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
               </div>
 
               {/* Parents' Info */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div className="reg-grid-2">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>FATHER'S NAME</label>
                   <input type="text" name="father_name" placeholder="Father's Full Name" value={formData.father_name} onChange={handleChange} className="form-input" />
@@ -445,20 +507,20 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
           {/* ================= STEP 5: REVIEW & REGISTRATION FEE ================= */}
           {currentStep === 5 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ padding: '1.25rem', borderRadius: '16px', background: 'var(--bg-main)', border: '1.5px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.65rem', fontSize: '0.86rem' }}>
+              <div style={{ padding: '1.25rem', borderRadius: '16px', background: 'var(--bg-main)', border: '1.5px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.86rem' }}>
                 <div style={{ fontWeight: 800, color: 'var(--primary-600)', fontSize: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.45rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <ShieldCheck size={18} /> Application Summary
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Applicant:</span><strong>{formData.title} {formData.full_name}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Branch & Position:</span><strong>{formData.branch} Branch ({formData.position_in_church})</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Primary Telephone:</span><strong>{formData.phone_number}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Residence & Town:</span><strong>{formData.town}, {formData.region} Region</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Next of Kin:</span><strong>{formData.next_of_kin} ({formData.relationship}) - {formData.next_of_kin_contact}</strong></div>
+                <div className="reg-summary-row"><span style={{ color: 'var(--text-muted)' }}>Applicant:</span><strong>{formData.title} {formData.full_name}</strong></div>
+                <div className="reg-summary-row"><span style={{ color: 'var(--text-muted)' }}>Branch & Position:</span><strong>{formData.branch} Branch ({formData.position_in_church})</strong></div>
+                <div className="reg-summary-row"><span style={{ color: 'var(--text-muted)' }}>Primary Telephone:</span><strong>{formData.phone_number}</strong></div>
+                <div className="reg-summary-row"><span style={{ color: 'var(--text-muted)' }}>Residence & Town:</span><strong>{formData.town}, {formData.region} Region</strong></div>
+                <div className="reg-summary-row"><span style={{ color: 'var(--text-muted)' }}>Next of Kin:</span><strong>{formData.next_of_kin} ({formData.relationship}) - {formData.next_of_kin_contact}</strong></div>
               </div>
 
               {/* Official Registration Fee Card */}
               <div style={{ padding: '1.25rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(217, 119, 6, 0.08))', border: '1.5px solid rgba(5, 150, 105, 0.3)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div>
                     <div style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: '#059669' }}>Fellowship Registration Fee</div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Official One-Time Admission Fee</div>
