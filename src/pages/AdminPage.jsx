@@ -92,16 +92,39 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   const [pendingApps, setPendingApps] = useState(() => getPendingApplications());
   const [printModalMember, setPrintModalMember] = useState(null);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [showFullBioData, setShowFullBioData] = useState(false);
   const [newMemberForm, setNewMemberForm] = useState({
     full_name: '',
     phone_number: '',
+    phone_number_2: '',
     branch: 'Aburi',
     title: 'Brother',
     position: 'Member',
-    occupation: '',
-    next_of_kin: '',
-    next_of_kin_contact: '',
+    date_joined: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+    house_no: '',
+    gps_address: '',
+    town: '',
+    region: 'Greater Accra',
+    district: '',
     hometown: '',
+    tribe: '',
+    ghana_card: '',
+    occupation: '',
+    place_of_work: '',
+    date_of_birth: '',
+    place_of_birth: '',
+    next_of_kin: '',
+    next_of_kin_relation: '',
+    next_of_kin_contact: '',
+    marital_status: 'Married',
+    spouse_name: '',
+    spouse_contact: '',
+    children_male: 0,
+    children_female: 0,
+    father_name: '',
+    father_contact: '',
+    mother_name: '',
+    mother_contact: '',
     status: 'PROBATION',
     initial_dues: '',
     initial_levy: ''
@@ -3298,6 +3321,78 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                     style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '10px', border: '1.5px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)', fontSize: '0.88rem' }}
                   />
                 </div>
+              </div>
+
+              {/* Collapsible Full Physical Sheet Details Toggle */}
+              <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.85rem' }}>
+                <button 
+                  type="button"
+                  onClick={() => setShowFullBioData(!showFullBioData)}
+                  style={{ background: 'none', border: 'none', color: '#059669', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', padding: 0 }}
+                >
+                  {showFullBioData ? '▾ Hide Detailed Physical Sheet Fields' : '▸ Key In Detailed Physical Sheet Fields (GPS, Kin, Town, Spouse...)'}
+                </button>
+
+                {showFullBioData && (
+                  <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.85rem', background: 'var(--bg-main)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Ghana Post GPS Address</label>
+                        <input type="text" placeholder="e.g. E2-0793-9218" value={newMemberForm.gps_address} onChange={(e) => setNewMemberForm({ ...newMemberForm, gps_address: e.target.value })} className="form-input" style={{ fontSize: '0.82rem' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>House No</label>
+                        <input type="text" placeholder="e.g. M/E 163" value={newMemberForm.house_no} onChange={(e) => setNewMemberForm({ ...newMemberForm, house_no: e.target.value })} className="form-input" style={{ fontSize: '0.82rem' }} />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Residential Town</label>
+                        <input type="text" placeholder="e.g. Tema, Mampong" value={newMemberForm.town} onChange={(e) => setNewMemberForm({ ...newMemberForm, town: e.target.value })} className="form-input" style={{ fontSize: '0.82rem' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Region (Ghana)</label>
+                        <select value={newMemberForm.region} onChange={(e) => setNewMemberForm({ ...newMemberForm, region: e.target.value })} className="form-select" style={{ fontSize: '0.82rem' }}>
+                          {GHANA_REGIONS.map(r => <option key={r} value={r}>{r} Region</option>)}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Occupation</label>
+                        <input type="text" placeholder="e.g. Businessman" value={newMemberForm.occupation} onChange={(e) => setNewMemberForm({ ...newMemberForm, occupation: e.target.value })} className="form-input" style={{ fontSize: '0.82rem' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Hometown</label>
+                        <input type="text" placeholder="e.g. Wassa Daurampong" value={newMemberForm.hometown} onChange={(e) => setNewMemberForm({ ...newMemberForm, hometown: e.target.value })} className="form-input" style={{ fontSize: '0.82rem' }} />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '0.75rem' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Next of Kin</label>
+                        <input type="text" placeholder="Full name of next of kin" value={newMemberForm.next_of_kin} onChange={(e) => setNewMemberForm({ ...newMemberForm, next_of_kin: e.target.value })} className="form-input" style={{ fontSize: '0.82rem' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Contact: Next of Kin</label>
+                        <input type="tel" placeholder="024 XXX XXXX" value={newMemberForm.next_of_kin_contact} onChange={(e) => setNewMemberForm({ ...newMemberForm, next_of_kin_contact: e.target.value })} className="form-input" style={{ fontSize: '0.82rem' }} />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>👦 Male Children</label>
+                        <input type="number" min="0" value={newMemberForm.children_male} onChange={(e) => setNewMemberForm({ ...newMemberForm, children_male: parseInt(e.target.value) || 0 })} className="form-input" style={{ fontSize: '0.82rem', fontWeight: 700 }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>👧 Female Children</label>
+                        <input type="number" min="0" value={newMemberForm.children_female} onChange={(e) => setNewMemberForm({ ...newMemberForm, children_female: parseInt(e.target.value) || 0 })} className="form-input" style={{ fontSize: '0.82rem', fontWeight: 700 }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div style={{ padding: '0.85rem 1rem', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.08)', border: '1px solid rgba(5, 150, 105, 0.25)', fontSize: '0.82rem', color: '#059669', fontWeight: 700 }}>
