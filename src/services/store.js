@@ -2173,13 +2173,21 @@ export const getTrialBalanceItems = () => {
       if (item.particulars === 'BANK TEMA ENDING BALANCE' || item.id === 'tb-11') {
         return { ...item, amount: bankTemaEnding };
       }
-      // 4. Update Income line items (e.g. 2025 Monthly Dues) so Trial Balance stays balanced with the bank/momo inflows
+      // 4. Update Income line items so Trial Balance stays balanced with the bank/momo inflows
       if (item.particulars === 'TOTAL MONTHLY DUES FOR 2025' || item.id === 'tb-04') {
         const base2025 = 22350.00;
+        // All dues key-ins (default is 2025 unless explicitly 2023, 2024, or 2026)
         const totalExtraDues = history
-          .filter(h => (h.duesYear === '2025' || h.entryType?.includes('2025')) && (h.delta > 0 || h.amount > 0))
+          .filter(h => (h.category === 'dues' || !h.category) && (h.duesYear === '2025' || !h.duesYear || h.duesYear === 'General Dues Pool' || h.entryType?.includes('2025')) && (h.delta > 0 || h.amount > 0))
           .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
         return { ...item, amount: base2025 + totalExtraDues };
+      }
+      if (item.particulars === 'LEVY BALANCE' || item.id === 'tb-07') {
+        const baseLevy = 1250.50;
+        const totalExtraLevy = history
+          .filter(h => h.category === 'levy' && (h.delta > 0 || h.amount > 0))
+          .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
+        return { ...item, amount: baseLevy + totalExtraLevy };
       }
       return item;
     });
@@ -2284,6 +2292,14 @@ export const calculateTreasuryTotals = (data = getTreasuryAccountsData()) => {
   const bankTemaData = data.bankTema || INITIAL_TREASURY_ACCOUNTS.bankTema;
   const vehicleData = data.pettyCashVehicle || INITIAL_TREASURY_ACCOUNTS.pettyCashVehicle;
 
+  // Retrieve key-in history for live aggregation
+  const history = getKeyInHistory();
+
+  // Helper: check if a history entry has already been explicitly tracked in customTransactions
+  const hasHistoryInCustom = (customList, histId) => {
+    return Array.isArray(customList) && customList.some(tx => tx.sourceKeyInId === histId);
+  };
+
   // 1. MoMo Calculations
   const momoCustomInflows = (momoData.customTransactions || [])
     .filter(tx => tx.type === 'inflow')
@@ -2292,7 +2308,16 @@ export const calculateTreasuryTotals = (data = getTreasuryAccountsData()) => {
     .filter(tx => tx.type === 'outflow')
     .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
 
-  const momoTotalInflows = (parseFloat(momoData.baseInflows) || 102088.75) + momoCustomInflows;
+  // Dynamic MoMo Key-Ins from history (if not already recorded in customTransactions)
+  const momoKeyInExtra = history
+    .filter(h => {
+      const m = (h.paymentMethod || '').trim().toLowerCase();
+      const isMomo = m.includes('momo') || m.includes('mobile money');
+      return isMomo && !hasHistoryInCustom(momoData.customTransactions, h.id);
+    })
+    .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
+
+  const momoTotalInflows = (parseFloat(momoData.baseInflows) || 102088.75) + momoCustomInflows + momoKeyInExtra;
   const momoTotalDisbursements = (parseFloat(momoData.baseDisbursements) || 102086.80) + momoCustomOutflows;
   const momoEndingBalance = momoTotalInflows - momoTotalDisbursements;
 
@@ -2304,7 +2329,16 @@ export const calculateTreasuryTotals = (data = getTreasuryAccountsData()) => {
     .filter(tx => tx.type === 'outflow' || tx.type === 'withdrawal')
     .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
 
-  const fidelityTotalCashDeposited = (parseFloat(fidelityData.baseCashDeposited) || 125113.88) + fidelityCustomDeposits;
+  // Dynamic Fidelity Key-Ins from history (if not already recorded in customTransactions)
+  const fidelityKeyInExtra = history
+    .filter(h => {
+      const m = (h.paymentMethod || '').trim().toLowerCase();
+      const isFidelity = m.includes('fidelity') || m.includes('bank');
+      return isFidelity && !hasHistoryInCustom(fidelityData.customTransactions, h.id);
+    })
+    .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
+
+  const fidelityTotalCashDeposited = (parseFloat(fidelityData.baseCashDeposited) || 125113.88) + fidelityCustomDeposits + fidelityKeyInExtra;
   const fidelityTotalWithdrawals = (parseFloat(fidelityData.baseWithdrawals) || 114415.00) + fidelityCustomWithdrawals;
   const fidelityEndingBalance = fidelityTotalCashDeposited - fidelityTotalWithdrawals;
 
@@ -2328,7 +2362,15 @@ export const calculateTreasuryTotals = (data = getTreasuryAccountsData()) => {
     .filter(tx => tx.type === 'outflow')
     .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
 
-  const vehicleBankReserve = (parseFloat(vehicleData.baseBankReserve) || 62000.00) + vehicleCustomInflows;
+  const vehicleKeyInExtra = history
+    .filter(h => {
+      const m = (h.paymentMethod || '').trim().toLowerCase();
+      const isCash = m.includes('cash') || m.includes('petty');
+      return isCash && !hasHistoryInCustom(vehicleData.customTransactions, h.id);
+    })
+    .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
+
+  const vehicleBankReserve = (parseFloat(vehicleData.baseBankReserve) || 62000.00) + vehicleCustomInflows + vehicleKeyInExtra;
   const vehicleMemberShares = parseFloat(vehicleData.baseMemberShares) || 6000.00;
   const vehicleEndingBalance = vehicleBankReserve + vehicleMemberShares - vehicleCustomOutflows;
 
