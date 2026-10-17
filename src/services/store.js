@@ -1691,6 +1691,82 @@ export const clearKeyInHistory = () => {
   return [];
 };
 
+// ==========================================
+// 🏦 TREASURY LINKAGE & DIRECT KEY-IN ENGINE
+// ==========================================
+
+export const syncKeyInToTreasury = ({ historyId, memberName, amount, paymentMethod, category, detailTag, paymentDate }) => {
+  const parsedAmount = Math.abs(parseFloat(amount) || 0);
+  if (parsedAmount <= 0) return null;
+
+  const methodClean = (paymentMethod || '').trim().toLowerCase();
+  let targetAccount = null;
+  let type = 'inflow';
+
+  if (methodClean.includes('momo') || methodClean.includes('mobile money')) {
+    targetAccount = 'momo';
+  } else if (methodClean.includes('fidelity') || methodClean.includes('bank')) {
+    targetAccount = 'fidelity';
+  } else if (methodClean.includes('cash') || methodClean.includes('petty')) {
+    targetAccount = 'pettyCashVehicle';
+  }
+
+  if (!targetAccount) return null;
+
+  const accountsData = getTreasuryAccountsData();
+  const account = accountsData[targetAccount] || { ...INITIAL_TREASURY_ACCOUNTS[targetAccount], customTransactions: [] };
+  const customList = account.customTransactions || [];
+
+  // Prevent duplicate insertion for same historyId
+  const existingIdx = customList.findIndex(tx => tx.sourceKeyInId === historyId);
+  const entryDescription = `Direct Key-In: ${memberName || 'Member'} (${detailTag || category || 'Payment'})`;
+
+  const newTx = {
+    id: 'tx-keyin-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+    sourceKeyInId: historyId,
+    description: entryDescription,
+    amount: parsedAmount,
+    type: type,
+    date: paymentDate || new Date().toISOString().split('T')[0]
+  };
+
+  if (existingIdx !== -1) {
+    customList[existingIdx] = newTx;
+  } else {
+    customList.push(newTx);
+  }
+
+  accountsData[targetAccount] = {
+    ...account,
+    customTransactions: customList
+  };
+
+  saveTreasuryAccountsData(accountsData);
+  return { targetAccount, transaction: newTx };
+};
+
+export const removeKeyInFromTreasury = (historyId) => {
+  if (!historyId) return;
+  const accountsData = getTreasuryAccountsData();
+  let changed = false;
+
+  ['momo', 'fidelity', 'bankTema', 'pettyCashVehicle'].forEach(accKey => {
+    if (accountsData[accKey] && Array.isArray(accountsData[accKey].customTransactions)) {
+      const initialLen = accountsData[accKey].customTransactions.length;
+      accountsData[accKey].customTransactions = accountsData[accKey].customTransactions.filter(
+        tx => tx.sourceKeyInId !== historyId
+      );
+      if (accountsData[accKey].customTransactions.length !== initialLen) {
+        changed = true;
+      }
+    }
+  });
+
+  if (changed) {
+    saveTreasuryAccountsData(accountsData);
+  }
+};
+
 export const deleteKeyInHistoryEntry = (entryId) => {
   const history = getKeyInHistory();
   const entry = history.find(h => h.id === entryId);
@@ -1719,6 +1795,9 @@ export const deleteKeyInHistoryEntry = (entryId) => {
     recalculateMemberFinancials(member);
     saveMembers(members);
   }
+
+  // Safely reverse from linked Treasury Account ledger
+  removeKeyInFromTreasury(entryId);
 
   const updatedHistory = history.filter(h => h.id !== entryId);
   saveKeyInHistory(updatedHistory);
@@ -1797,6 +1876,19 @@ export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMetho
     const existingHistory = getKeyInHistory();
     const updatedHistory = [historyEntry, ...existingHistory];
     saveKeyInHistory(updatedHistory);
+
+    // Live link into Treasury Accounts if delta is positive (Inflow)
+    if (delta > 0) {
+      syncKeyInToTreasury({
+        historyId: historyEntry.id,
+        memberName: member.full_name,
+        amount: delta,
+        paymentMethod: paymentMethod,
+        category: 'dues',
+        detailTag: duesYear && duesYear !== 'General Dues Pool' ? `${duesYear} Dues` : 'Yearly Dues',
+        paymentDate: paymentDate || new Date().toISOString().split('T')[0]
+      });
+    }
   }
 
   return {
@@ -1868,6 +1960,17 @@ export const updateMemberLevyDirectly = ({ memberId, levyName, levyAmount, payme
     const existingHistory = getKeyInHistory();
     const updatedHistory = [historyEntry, ...existingHistory];
     saveKeyInHistory(updatedHistory);
+
+    // Live link into Treasury Accounts
+    syncKeyInToTreasury({
+      historyId: historyEntry.id,
+      memberName: member.full_name,
+      amount: addedAmount,
+      paymentMethod: paymentMethod,
+      category: 'levy',
+      detailTag: levyName || 'Special Levy',
+      paymentDate: paymentDate || new Date().toISOString().split('T')[0]
+    });
   }
 
   return {
@@ -1940,6 +2043,17 @@ export const updateMemberVehicleSharesDirectly = ({ memberId, installmentName, a
     const existingHistory = getKeyInHistory();
     const updatedHistory = [historyEntry, ...existingHistory];
     saveKeyInHistory(updatedHistory);
+
+    // Live link into Treasury Accounts
+    syncKeyInToTreasury({
+      historyId: historyEntry.id,
+      memberName: member.full_name,
+      amount: addedAmount,
+      paymentMethod: paymentMethod,
+      category: 'vehicle',
+      detailTag: installmentName || 'Vehicle Shares',
+      paymentDate: paymentDate || new Date().toISOString().split('T')[0]
+    });
   }
 
   return {

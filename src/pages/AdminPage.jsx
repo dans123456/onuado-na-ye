@@ -82,6 +82,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       const { updatedMembers, updatedHistory } = deleteKeyInHistoryEntry(entry.id);
       setMembers(updatedMembers);
       setKeyInHistory(updatedHistory);
+      setTreasuryAccountsData(getTreasuryAccountsData());
       setImportSuccess(`Transaction for ${entry.memberName} (-GH₵ ${amountStr}) reverted successfully. Member shares recalculated.`);
       setTimeout(() => setImportSuccess(''), 5000);
     }
@@ -261,6 +262,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         if (setMembers) setMembers(result.updatedMembers);
         if (setContributions) setContributions(result.updatedContributions);
         setKeyInHistory(getKeyInHistory());
+        setTreasuryAccountsData(getTreasuryAccountsData());
 
         const diffLabel = result.delta >= 0 ? `+GH₵ ${result.delta.toFixed(2)}` : `-GH₵ ${Math.abs(result.delta).toFixed(2)}`;
         setImportSuccess(`✅ Successfully updated ${result.affectedMember.full_name}'s Yearly Dues to GH₵ ${result.newDues.toFixed(2)} (${diffLabel})! All Shares, Dividends, and Fellowship Grand Totals recalculated live.`);
@@ -280,6 +282,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         if (setMembers) setMembers(result.updatedMembers);
         if (setContributions) setContributions(result.updatedContributions);
         setKeyInHistory(getKeyInHistory());
+        setTreasuryAccountsData(getTreasuryAccountsData());
 
         setImportSuccess(`✅ Successfully recorded Special Levy payment (+GH₵ ${inputVal.toFixed(2)}) for ${result.affectedMember.full_name} under [${finalLevyName}]! New Special Levy Total: GH₵ ${result.newLevy.toFixed(2)}.`);
       } else if (editorCategory === 'vehicle') {
@@ -296,6 +299,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         if (setMembers) setMembers(result.updatedMembers);
         if (setContributions) setContributions(result.updatedContributions);
         setKeyInHistory(getKeyInHistory());
+        setTreasuryAccountsData(getTreasuryAccountsData());
 
         setImportSuccess(`✅ Successfully recorded Vehicle Shares payment (+GH₵ ${inputVal.toFixed(2)}) for ${result.affectedMember.full_name} under [${editorInstallment}]! Total Vehicle Shares: ${result.newVehicleSharesCount} Shares (GH₵ ${result.newVehiclePaid.toFixed(2)}).`);
       }
@@ -2960,6 +2964,33 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                     style={{ fontSize: '0.82rem' }}
                   />
                 </div>
+
+                {/* DYNAMIC TREASURY DESTINATION BADGE */}
+                {inputNum > 0 && (
+                  <div style={{
+                    padding: '0.65rem 0.85rem',
+                    borderRadius: '10px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    background: editorMethod.toLowerCase().includes('momo') ? 'rgba(217, 119, 6, 0.12)' : (editorMethod.toLowerCase().includes('fidelity') || editorMethod.toLowerCase().includes('bank') ? 'rgba(37, 99, 235, 0.12)' : 'rgba(5, 150, 105, 0.12)'),
+                    color: editorMethod.toLowerCase().includes('momo') ? '#d97706' : (editorMethod.toLowerCase().includes('fidelity') || editorMethod.toLowerCase().includes('bank') ? '#2563eb' : '#059669'),
+                    border: `1px solid ${editorMethod.toLowerCase().includes('momo') ? 'rgba(217, 119, 6, 0.3)' : (editorMethod.toLowerCase().includes('fidelity') || editorMethod.toLowerCase().includes('bank') ? 'rgba(37, 99, 235, 0.3)' : 'rgba(5, 150, 105, 0.3)')}`
+                  }}>
+                    <Zap size={14} />
+                    <span>
+                      {editorMethod.toLowerCase().includes('momo') ? (
+                        <>⚡ Auto Treasury Sync: Will credit <strong>MTN Mobile Money Account Inflow (+GH₵ {inputNum.toFixed(2)})</strong> live.</>
+                      ) : (editorMethod.toLowerCase().includes('fidelity') || editorMethod.toLowerCase().includes('bank')) ? (
+                        <>⚡ Auto Treasury Sync: Will credit <strong>Fidelity Bank Account Deposit (+GH₵ {inputNum.toFixed(2)})</strong> live.</>
+                      ) : (
+                        <>⚡ Auto Treasury Sync: Will credit <strong>Petty Cash Vehicle Fund (+GH₵ {inputNum.toFixed(2)})</strong> live.</>
+                      )}
+                    </span>
+                  </div>
+                )}
 
                 {/* 6. LIVE BEFORE & AFTER IMPACT PREVIEW */}
                 {editorCategory === 'dues' && impact && (
