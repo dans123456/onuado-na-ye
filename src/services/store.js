@@ -2133,15 +2133,62 @@ export const INITIAL_TRIAL_BALANCE = [
 ];
 
 export const getTrialBalanceItems = () => {
+  let items = INITIAL_TRIAL_BALANCE;
   const stored = localStorage.getItem('ony_trial_balance');
   if (stored) {
     try {
-      return JSON.parse(stored);
+      items = JSON.parse(stored);
     } catch (e) {
       console.error('Error parsing stored trial balance', e);
+      items = INITIAL_TRIAL_BALANCE;
     }
   }
-  return INITIAL_TRIAL_BALANCE;
+
+  // Dynamically link live Treasury Account ending balances into Trial Balance line items
+  try {
+    const treasury = calculateTreasuryTotals();
+    const momoEnding = treasury.momo?.endingBalance ?? 1.95;
+    const fidelityEnding = treasury.fidelity?.endingBalance ?? 10698.88;
+    const bankTemaEnding = treasury.bankTema?.endingBalance ?? 366.24;
+
+    // Calculate total extra key-in additions recorded across members
+    const history = getKeyInHistory();
+    const momoExtraKeyIns = history
+      .filter(h => (h.paymentMethod || '').toLowerCase().includes('momo') || (h.paymentMethod || '').toLowerCase().includes('mobile money'))
+      .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
+    const bankExtraKeyIns = history
+      .filter(h => (h.paymentMethod || '').toLowerCase().includes('fidelity') || (h.paymentMethod || '').toLowerCase().includes('bank'))
+      .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
+
+    const updated = items.map(item => {
+      // 1. MoMo Account Ending Balance
+      if (item.particulars === 'MOMO ACCOUNT ENDING BALANCE' || item.id === 'tb-12') {
+        return { ...item, amount: momoEnding };
+      }
+      // 2. Fidelity Bank Ending Balance
+      if (item.particulars === 'FIDELITY BANK ENDING BALANCE' || item.id === 'tb-10') {
+        return { ...item, amount: fidelityEnding };
+      }
+      // 3. Bank Tema Ending Balance
+      if (item.particulars === 'BANK TEMA ENDING BALANCE' || item.id === 'tb-11') {
+        return { ...item, amount: bankTemaEnding };
+      }
+      // 4. Update Income line items (e.g. 2025 Monthly Dues) so Trial Balance stays balanced with the bank/momo inflows
+      if (item.particulars === 'TOTAL MONTHLY DUES FOR 2025' || item.id === 'tb-04') {
+        const base2025 = 22350.00;
+        const totalExtraDues = history
+          .filter(h => (h.duesYear === '2025' || h.entryType?.includes('2025')) && (h.delta > 0 || h.amount > 0))
+          .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
+        return { ...item, amount: base2025 + totalExtraDues };
+      }
+      return item;
+    });
+
+    return updated;
+  } catch (err) {
+    console.error('Error linking live treasury to trial balance:', err);
+    return items;
+  }
 };
 
 export const saveTrialBalanceItems = (items) => {

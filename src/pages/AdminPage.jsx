@@ -83,6 +83,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       setMembers(updatedMembers);
       setKeyInHistory(updatedHistory);
       setTreasuryAccountsData(getTreasuryAccountsData());
+      setTrialBalanceItems(getTrialBalanceItems());
       setImportSuccess(`Transaction for ${entry.memberName} (-GH₵ ${amountStr}) reverted successfully. Member shares recalculated.`);
       setTimeout(() => setImportSuccess(''), 5000);
     }
@@ -263,6 +264,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         if (setContributions) setContributions(result.updatedContributions);
         setKeyInHistory(getKeyInHistory());
         setTreasuryAccountsData(getTreasuryAccountsData());
+        setTrialBalanceItems(getTrialBalanceItems());
 
         const diffLabel = result.delta >= 0 ? `+GH₵ ${result.delta.toFixed(2)}` : `-GH₵ ${Math.abs(result.delta).toFixed(2)}`;
         setImportSuccess(`✅ Successfully updated ${result.affectedMember.full_name}'s Yearly Dues to GH₵ ${result.newDues.toFixed(2)} (${diffLabel})! All Shares, Dividends, and Fellowship Grand Totals recalculated live.`);
@@ -283,6 +285,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         if (setContributions) setContributions(result.updatedContributions);
         setKeyInHistory(getKeyInHistory());
         setTreasuryAccountsData(getTreasuryAccountsData());
+        setTrialBalanceItems(getTrialBalanceItems());
 
         setImportSuccess(`✅ Successfully recorded Special Levy payment (+GH₵ ${inputVal.toFixed(2)}) for ${result.affectedMember.full_name} under [${finalLevyName}]! New Special Levy Total: GH₵ ${result.newLevy.toFixed(2)}.`);
       } else if (editorCategory === 'vehicle') {
@@ -300,6 +303,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         if (setContributions) setContributions(result.updatedContributions);
         setKeyInHistory(getKeyInHistory());
         setTreasuryAccountsData(getTreasuryAccountsData());
+        setTrialBalanceItems(getTrialBalanceItems());
 
         setImportSuccess(`✅ Successfully recorded Vehicle Shares payment (+GH₵ ${inputVal.toFixed(2)}) for ${result.affectedMember.full_name} under [${editorInstallment}]! Total Vehicle Shares: ${result.newVehicleSharesCount} Shares (GH₵ ${result.newVehiclePaid.toFixed(2)}).`);
       }
@@ -615,6 +619,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       setMembers(getMembers());
     }
     setKeyInHistory(getKeyInHistory());
+    setTreasuryAccountsData(getTreasuryAccountsData());
+    setTrialBalanceItems(getTrialBalanceItems());
     setManualSuccess(`Transaction of GH₵ ${parseFloat(manualForm.amount).toFixed(2)} recorded successfully!`);
     setManualForm({
       member_id: members[0]?.id || '',
@@ -3446,7 +3452,10 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         isOpen={isTreasuryModalOpen}
         onClose={() => setIsTreasuryModalOpen(false)}
         accountKey={selectedAccountKey}
-        onAccountUpdated={() => setTreasuryAccountsData(getTreasuryAccountsData())}
+        onAccountUpdated={() => {
+          setTreasuryAccountsData(getTreasuryAccountsData());
+          setTrialBalanceItems(getTrialBalanceItems());
+        }}
       />
 
       {/* 📄 OFFICIAL REGISTRATION FORM PRINT MODAL */}
