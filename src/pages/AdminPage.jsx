@@ -156,6 +156,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
     });
     setMembers(updatedMembers);
     setKeyInHistory(getKeyInHistory());
+    setTreasuryAccountsData(getTreasuryAccountsData());
+    setTrialBalanceItems(getTrialBalanceItems());
     setIsAddMemberModalOpen(false);
     setNewMemberForm({
       full_name: '',
@@ -180,6 +182,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       setMembers(res.updatedMembers);
       setPendingApps(res.remainingPending);
       setKeyInHistory(getKeyInHistory());
+      setTreasuryAccountsData(getTreasuryAccountsData());
+      setTrialBalanceItems(getTrialBalanceItems());
     }
   };
 

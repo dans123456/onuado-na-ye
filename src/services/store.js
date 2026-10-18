@@ -2189,6 +2189,13 @@ export const getTrialBalanceItems = () => {
           .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
         return { ...item, amount: baseLevy + totalExtraLevy };
       }
+      if (item.particulars === 'REGISTRATION FEES' || item.id === 'tb-01') {
+        const baseReg = 4800.00;
+        const totalExtraReg = history
+          .filter(h => h.category === 'member_registration' && (h.delta > 0 || h.amount > 0))
+          .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
+        return { ...item, amount: baseReg + totalExtraReg };
+      }
       return item;
     });
 
@@ -2524,7 +2531,7 @@ export const addNewMember = (newMemberData) => {
     dues_paid: parseFloat(newMemberData.initial_dues) || 0,
     levy_paid: parseFloat(newMemberData.initial_levy) || 0,
     total_payments: (parseFloat(newMemberData.initial_dues) || 0) + (parseFloat(newMemberData.initial_levy) || 0) + 200,
-    dues_fee_required: 3300,
+    dues_fee_required: 3900,
     shares_dividends: 0,
     shares_value: 0,
     treasurer_bill: 0,
