@@ -66,9 +66,9 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
 
       <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
         
-        {/* Brand / Logo (Always Navigates to Public Home) */}
+        {/* Brand / Logo */}
         <div 
-          onClick={() => handleNav('home')} 
+          onClick={() => handleNav(currentUser ? (currentUser.role === 'admin' && activePage === 'admin' ? 'admin' : 'dashboard') : 'home')} 
           style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer', flexShrink: 0 }}
         >
           <img 
@@ -92,35 +92,48 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           </div>
         </div>
 
-        {/* Desktop Navigation Links (Always Accessible) */}
+        {/* Desktop Navigation Links */}
         <div style={{ display: 'none', gap: '1.25rem', alignItems: 'center', flexShrink: 0 }} className="desktop-links">
-          <button 
-            onClick={() => handleNav('home')}
-            className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
-          >
-            Home
-          </button>
-          <button 
-            onClick={() => handleNav('about')}
-            className={`nav-link ${activePage === 'about' ? 'active' : ''}`}
-          >
-            About Us
-          </button>
-          <button 
-            onClick={() => handleNav('contact')}
-            className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}
-          >
-            Contact Us
-          </button>
-
-          {currentUser && (
-            <button 
-              onClick={() => handleNav('dashboard')}
-              className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: '#059669' }}
-            >
-              <User size={16} /> My Member Portal
-            </button>
+          {!currentUser ? (
+            <>
+              <button 
+                onClick={() => handleNav('home')}
+                className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
+              >
+                Home
+              </button>
+              <button 
+                onClick={() => handleNav('about')}
+                className={`nav-link ${activePage === 'about' ? 'active' : ''}`}
+              >
+                About Us
+              </button>
+              <button 
+                onClick={() => handleNav('contact')}
+                className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}
+              >
+                Contact Us
+              </button>
+            </>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+              <button 
+                onClick={() => handleNav('dashboard')}
+                className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: '#059669' }}
+              >
+                <User size={16} /> My Member Portal
+              </button>
+              {currentUser.role === 'admin' && (
+                <button 
+                  onClick={() => handleNav('admin')}
+                  className={`nav-link ${activePage === 'admin' ? 'active' : ''}`}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: '#d97706' }}
+                >
+                  <Shield size={16} /> Admin Console
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -265,9 +278,13 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             );
           })()}
 
-          <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
-          <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>
-          <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Contact Us</button>
+          {!currentUser && (
+            <>
+              <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
+              <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>
+              <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Contact Us</button>
+            </>
+          )}
 
           <button onClick={() => setIsDarkMode(!isDarkMode)} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
             {isDarkMode ? <Sun size={16} color="#f59e0b" /> : <Moon size={16} color="#047857" />} {isDarkMode ? 'Light Theme' : 'Dark Theme'}
