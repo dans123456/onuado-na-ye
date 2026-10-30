@@ -3,7 +3,8 @@
 **Date**: September 25, 2026  
 **Official Name**: **ONUADO NA EYE MENS' FELLOWSHIP**  
 **Repository**: [https://github.com/dans123456/onuado-na-ye](https://github.com/dans123456/onuado-na-ye)  
-**Live Production Site**: [https://onuado-na-ye.vercel.app](https://onuado-na-ye.vercel.app)  
+**Live Production Site (Official Custom Domain)**: [https://www.onuadonaeyemens.org](https://www.onuadonaeyemens.org) *(Apex redirect: [https://onuadonaeyemens.org](https://onuadonaeyemens.org))*  
+**Vercel Fallback**: [https://onuado-na-ye.vercel.app](https://onuado-na-ye.vercel.app)  
 **Database**: Supabase PostgreSQL (`https://dupxcvmbbjtvfcxteuvq.supabase.co`)  
 **Official Email**: `onuadonaeye@gmail.com`  
 **Official MoMo Line**: `0530486443`  
