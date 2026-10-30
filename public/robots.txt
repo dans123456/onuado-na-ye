@@ -1,0 +1,15 @@
+# Robots.txt for ONUADO NA EYE MENS' FELLOWSHIP
+# https://www.onuadonaeyemens.org
+
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /contact
+Allow: /login
+
+# Disallow authenticated private member dashboards & admin console from public crawling
+Disallow: /dashboard
+Disallow: /admin
+
+# Sitemap location
+Sitemap: https://www.onuadonaeyemens.org/sitemap.xml
