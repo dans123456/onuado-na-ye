@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Users, Heart, Wallet, ShieldCheck, ArrowRight, BellRing, Sparkles, Building2, Award, BookOpen, Video } from 'lucide-react';
 import ConstitutionModal from '../components/ConstitutionModal';
 
-export default function HomePage({ setActivePage, membersCount, contributionsCount }) {
+export default function HomePage({ setActivePage, currentUser, membersCount, contributionsCount }) {
   const [showConstitutionModal, setShowConstitutionModal] = useState(false);
 
   return (
@@ -24,9 +24,19 @@ export default function HomePage({ setActivePage, membersCount, contributionsCou
         </p>
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button onClick={() => setActivePage('login')} className="btn btn-primary" style={{ padding: '0.9rem 1.75rem', fontSize: '1.02rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(5, 150, 105, 0.3)' }}>
-            Login to Portal <ArrowRight size={18} />
-          </button>
+          {currentUser ? (
+            <button 
+              onClick={() => setActivePage(currentUser.role === 'admin' ? 'admin' : 'dashboard')} 
+              className="btn btn-primary" 
+              style={{ padding: '0.9rem 1.75rem', fontSize: '1.02rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(5, 150, 105, 0.3)' }}
+            >
+              {currentUser.role === 'admin' ? 'Open Admin Console' : 'Go to My Dashboard'} <ArrowRight size={18} />
+            </button>
+          ) : (
+            <button onClick={() => setActivePage('login')} className="btn btn-primary" style={{ padding: '0.9rem 1.75rem', fontSize: '1.02rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(5, 150, 105, 0.3)' }}>
+              Login to Portal <ArrowRight size={18} />
+            </button>
+          )}
           <button onClick={() => setActivePage('contact')} className="btn btn-accent" style={{ padding: '0.9rem 1.75rem', fontSize: '1.02rem', fontWeight: 700, boxShadow: '0 6px 20px rgba(217, 119, 6, 0.3)' }}>
             Fidelity Bank & MoMo Details <Wallet size={18} />
           </button>

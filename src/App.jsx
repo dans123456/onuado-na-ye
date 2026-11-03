@@ -13,9 +13,6 @@ import MemberRegistrationModal from './components/MemberRegistrationModal';
 import { getMembers, getContributions } from './services/store';
 
 export default function App() {
-  // Always start on the public Home page so opening the site link never auto-jumps into someone's private portal
-  const [activePage, setActivePage] = useState('home');
-
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       // Check session storage first (tab session), then localStorage (if user chose "Remember Me")
@@ -30,6 +27,19 @@ export default function App() {
     } catch {
       return null;
     }
+  });
+
+  // If user is already authenticated, take them directly to their member portal or executive console
+  const [activePage, setActivePage] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('ony_current_user') || localStorage.getItem('ony_current_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.role === 'admin') return 'admin';
+        if (parsed?.id || parsed?.excel_member_id) return 'dashboard';
+      }
+    } catch {}
+    return 'home';
   });
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -178,6 +188,7 @@ export default function App() {
         {activePage === 'home' && (
           <HomePage 
             setActivePage={handleNavigate} 
+            currentUser={currentUser}
             membersCount={members.length} 
             contributionsCount={contributions.length} 
           />

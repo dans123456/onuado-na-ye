@@ -118,9 +118,15 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
               <button 
+                onClick={() => handleNav('home')}
+                className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
+              >
+                Home
+              </button>
+              <button 
                 onClick={() => handleNav('dashboard')}
                 className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: '#059669' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, color: '#059669' }}
               >
                 <User size={16} /> My Member Portal
               </button>
@@ -128,7 +134,7 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 <button 
                   onClick={() => handleNav('admin')}
                   className={`nav-link ${activePage === 'admin' ? 'active' : ''}`}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: '#d97706' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, color: '#d97706' }}
                 >
                   <Shield size={16} /> Admin Console
                 </button>
@@ -170,33 +176,17 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             {isDarkMode ? <Sun size={17} color="#f59e0b" /> : <Moon size={17} color="#047857" />}
           </button>
 
-          {/* User Auth & Executive Controls */}
+          {/* User Auth Controls */}
           {currentUser ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
               
-              {/* Executive Admin Switcher Button (Desktop & Tablet) */}
-              {currentUser.role === 'admin' && (
-                <button 
-                  onClick={() => handleNav(activePage === 'admin' ? 'dashboard' : 'admin')}
-                  className="btn btn-secondary nav-admin-switch-btn"
-                  title={activePage === 'admin' ? "Switch to My Member Portal" : "Switch to Executive Admin Console"}
-                  style={{ padding: '0.45rem 0.75rem', fontSize: '0.8rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap', border: activePage === 'admin' ? '1px solid rgba(5, 150, 105, 0.4)' : '1px solid rgba(217, 119, 6, 0.4)', borderRadius: '8px' }}
-                >
-                  {activePage === 'admin' ? (
-                    <> <User size={15} color="#059669" /> <span className="admin-switch-text" style={{ color: '#059669' }}>My Portal</span> </>
-                  ) : (
-                    <> <Shield size={15} color="#d97706" /> <span className="admin-switch-text" style={{ color: '#d97706' }}>Executive Console</span> </>
-                  )}
-                </button>
-              )}
-
               {/* Avatar Pill Button (Click to go to My Member Portal) */}
               {(() => {
                 const userPhoto = currentUser.profile_picture || getMembers().find(m => m.id === currentUser.id || m.excel_member_id === currentUser.excel_member_id)?.profile_picture;
                 return (
                   <div 
                     onClick={() => handleNav('dashboard')}
-                    title="Go to My Personal Member Portal"
+                    title={`Signed in as ${currentUser.full_name} (${currentUser.excel_member_id || 'ONY'}) - Click for Member Portal`}
                     style={{ width: '34px', height: '34px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg, #059669, #d97706)', color: '#fff', fontSize: '0.78rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', border: '2px solid #059669', cursor: 'pointer', flexShrink: 0 }}
                   >
                     {userPhoto ? (
@@ -310,13 +300,16 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             </>
           ) : (
             <>
+              <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
+                Home
+              </button>
               <button onClick={() => handleNav('dashboard')} className="btn btn-primary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
                 <User size={16} /> My Member Portal
               </button>
 
               {currentUser.role === 'admin' && (
                 <button onClick={() => handleNav('admin')} className="btn btn-accent" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
-                  <Shield size={16} /> Executive Admin Console
+                  <Shield size={16} /> Admin Console
                 </button>
               )}
 
@@ -526,7 +519,6 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
         }
         @media (max-width: 640px) {
           .top-ticker-subtitle { display: none !important; }
-          .nav-admin-switch-btn { display: none !important; }
           .nav-theme-btn { display: none !important; }
           .signin-text { display: none !important; }
           .nav-signin-btn { padding: 0.35rem 0.55rem !important; }
