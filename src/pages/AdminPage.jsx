@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -29,13 +29,34 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   // Dynamic Trial Balance State
   const [trialBalanceItems, setTrialBalanceItems] = useState(() => getTrialBalanceItems());
   const [isTBModalOpen, setIsTBModalOpen] = useState(false);
+  const [editingTBItem, setEditingTBItem] = useState(null);
   const [tbParticulars, setTbParticulars] = useState('');
   const [tbAmount, setTbAmount] = useState('');
   const [tbType, setTbType] = useState('income'); // 'income' or 'expenditure'
   const [tbCategory, setTbCategory] = useState('Income');
   const [tbError, setTbError] = useState('');
 
-  const handleAddTrialBalanceSubmit = (e) => {
+  const openAddTBModal = () => {
+    setEditingTBItem(null);
+    setTbParticulars('');
+    setTbAmount('');
+    setTbType('income');
+    setTbCategory('Income');
+    setTbError('');
+    setIsTBModalOpen(true);
+  };
+
+  const openEditTBModal = (item) => {
+    setEditingTBItem(item);
+    setTbParticulars(item.particulars || '');
+    setTbAmount(item.amount !== undefined ? item.amount.toString() : '');
+    setTbType(item.type || 'income');
+    setTbCategory(item.category || (item.type === 'income' ? 'Income' : 'Expenditure'));
+    setTbError('');
+    setIsTBModalOpen(true);
+  };
+
+  const handleSaveTrialBalanceSubmit = (e) => {
     e.preventDefault();
     setTbError('');
     if (!tbParticulars.trim()) {
@@ -48,16 +69,29 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       return;
     }
 
-    const updated = addTrialBalanceItem({
-      particulars: tbParticulars,
-      amount: val,
-      type: tbType,
-      category: tbCategory || (tbType === 'income' ? 'Income' : 'Expenditure')
-    });
+    let updated;
+    if (editingTBItem) {
+      updated = updateTrialBalanceItem(editingTBItem.id, {
+        particulars: tbParticulars,
+        amount: val,
+        type: tbType,
+        category: tbCategory || (tbType === 'income' ? 'Income' : 'Expenditure')
+      });
+      setImportSuccess(`✅ Updated Trial Balance line item "${tbParticulars}".`);
+    } else {
+      updated = addTrialBalanceItem({
+        particulars: tbParticulars,
+        amount: val,
+        type: tbType,
+        category: tbCategory || (tbType === 'income' ? 'Income' : 'Expenditure')
+      });
+      setImportSuccess(`✅ Added "${tbParticulars}" to Trial Balance.`);
+    }
     setTrialBalanceItems(updated);
     setTbParticulars('');
     setTbAmount('');
     setTbError('');
+    setEditingTBItem(null);
     setIsTBModalOpen(false);
   };
 
@@ -1276,7 +1310,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <button 
                       type="button"
-                      onClick={() => setIsTBModalOpen(true)}
+                      onClick={openAddTBModal}
                       className="btn btn-primary"
                       style={{ padding: '0.55rem 1rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                     >
@@ -1310,7 +1344,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                         <th>Income (GH₵)</th>
                         <th>Expenditure & Assets (GH₵)</th>
                         <th>Category / Notes</th>
-                        <th style={{ width: '60px', textAlign: 'center' }}>Action</th>
+                        <th style={{ width: '90px', textAlign: 'center' }}>Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1328,11 +1362,19 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                           </td>
                           <td style={{ color: 'var(--text-muted)' }}>—</td>
                           <td><span className="badge badge-dues">{item.category || 'Income'}</span></td>
-                          <td style={{ textAlign: 'center' }}>
+                          <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                            <button
+                              type="button"
+                              onClick={() => openEditTBModal(item)}
+                              style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', padding: '0.2rem 0.35rem', opacity: 0.85 }}
+                              title="Edit line item"
+                            >
+                              <Edit3 size={15} />
+                            </button>
                             <button
                               type="button"
                               onClick={() => handleDeleteTBItem(item.id, item.particulars)}
-                              style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.2rem', opacity: 0.7 }}
+                              style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.2rem 0.35rem', opacity: 0.7 }}
                               title="Delete line item"
                             >
                               <Trash2 size={15} />
@@ -1355,11 +1397,19 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                             GH₵ {parseFloat(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                           <td><span className="badge badge-dues" style={{ background: item.category?.toLowerCase().includes('asset') ? 'rgba(5, 150, 105, 0.1)' : 'rgba(37, 99, 235, 0.1)', color: item.category?.toLowerCase().includes('asset') ? '#059669' : '#2563eb' }}>{item.category || 'Expenditure'}</span></td>
-                          <td style={{ textAlign: 'center' }}>
+                          <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                            <button
+                              type="button"
+                              onClick={() => openEditTBModal(item)}
+                              style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', padding: '0.2rem 0.35rem', opacity: 0.85 }}
+                              title="Edit line item"
+                            >
+                              <Edit3 size={15} />
+                            </button>
                             <button
                               type="button"
                               onClick={() => handleDeleteTBItem(item.id, item.particulars)}
-                              style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.2rem', opacity: 0.7 }}
+                              style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.2rem 0.35rem', opacity: 0.7 }}
                               title="Delete line item"
                             >
                               <Trash2 size={15} />
@@ -1693,7 +1743,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                                   Shares Owned: {Math.floor((item.newValue ?? 0) / 50)} Shares
                                 </div>
                                 <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginTop: '0.1rem' }}>
-                                  @ GH₵ 50.00 / Share
+                                  @ GH₵ 2.00 / Share
                                 </div>
                               </div>
                             ) : (
@@ -2737,7 +2787,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                         </div>
                         <div>
                           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>Vehicle Share Price</div>
-                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#059669' }}>GH₵ 50.00 / Share</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#059669' }}>GH₵ 2.00 / Share</div>
                         </div>
                       </div>
                     )}
@@ -3085,7 +3135,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 {editorCategory === 'vehicle' && inputNum > 0 && (
                   <div style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(37, 99, 235, 0.06)', border: '1.5px solid rgba(37, 99, 235, 0.35)' }}>
                     <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#2563eb', textTransform: 'uppercase', marginBottom: '0.65rem' }}>
-                      ⚡ Vehicle Shares Calculation Preview (@ GH₵ 50.00 / Share)
+                      ⚡ Vehicle Shares Calculation Preview (@ GH₵ 2.00 / Share)
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem', fontSize: '0.82rem' }}>
                       <div>
@@ -3156,16 +3206,18 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         onClose={() => setIsBankTemaModalOpen(false)}
       />
 
-      {/* 📊 ADD TRIAL BALANCE ITEM MODAL */}
+      {/* 📊 ADD / EDIT TRIAL BALANCE ITEM MODAL */}
       {isTBModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '1.8rem', borderRadius: '20px', background: 'var(--bg-card)', backgroundColor: 'var(--bg-card)', backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)', border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <PlusCircle size={20} color="#059669" />
-                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)' }}>Add Trial Balance Line Item</h3>
+                {editingTBItem ? <Edit3 size={20} color="#2563eb" /> : <PlusCircle size={20} color="#059669" />}
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                  {editingTBItem ? 'Edit Trial Balance Line Item' : 'Add Trial Balance Line Item'}
+                </h3>
               </div>
-              <button onClick={() => setIsTBModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}>
+              <button onClick={() => { setIsTBModalOpen(false); setEditingTBItem(null); }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}>
                 <X size={20} />
               </button>
             </div>
@@ -3176,7 +3228,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
             )}
 
-            <form onSubmit={handleAddTrialBalanceSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form onSubmit={handleSaveTrialBalanceSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
                   Particulars / Description *
@@ -3243,7 +3295,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
                 <button 
                   type="button"
-                  onClick={() => setIsTBModalOpen(false)}
+                  onClick={() => { setIsTBModalOpen(false); setEditingTBItem(null); }}
                   className="btn btn-secondary"
                   style={{ padding: '0.65rem 1.1rem', fontWeight: 700 }}
                 >
@@ -3252,9 +3304,9 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 <button 
                   type="submit"
                   className="btn btn-primary"
-                  style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                  style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: editingTBItem ? '#2563eb' : '#059669', borderColor: editingTBItem ? '#2563eb' : '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 >
-                  <CheckCircle2 size={16} /> Save Line Item
+                  <CheckCircle2 size={16} /> {editingTBItem ? 'Update Line Item' : 'Save Line Item'}
                 </button>
               </div>
             </form>

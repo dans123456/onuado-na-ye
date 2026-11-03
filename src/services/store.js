@@ -1407,7 +1407,9 @@ const INITIAL_CONTRIBUTIONS = [
   { id: "c-007", member_id: "m-024", amount: 3900, contribution_type: "Monthly Dues", payment_method: "Mobile Money", reference_note: "Dues Settlement", received_by_name: "Jonathan Danso Siaw", payment_date: "2026-01-20" }
 ];
 
-const SHARE_BASE_RATE = 50.56368731563422;
+// Official Share Rates: 1 Share = GH₵ 2.00
+export const SHARE_UNIT_PRICE = 2.00;
+export const SHARE_BASE_RATE = 2.00;
 
 export const recalculateMemberFinancials = (member) => {
   if (!member) return member;
@@ -1416,37 +1418,19 @@ export const recalculateMemberFinancials = (member) => {
   const regFees = parseFloat(member.reg_fees) || 200;
   const duesFeeRequired = parseFloat(member.dues_fee_required) || 3900;
   const vehPaid = member.vehicle_shares_paid !== undefined ? parseFloat(member.vehicle_shares_paid) : 0;
-  const vehSharesCount = member.vehicle_shares_count !== undefined ? parseInt(member.vehicle_shares_count, 10) : Math.floor(vehPaid / 50);
+  const vehSharesCount = member.vehicle_shares_count !== undefined ? parseInt(member.vehicle_shares_count, 10) : Math.floor(vehPaid / SHARE_UNIT_PRICE);
 
   member.vehicle_shares_paid = vehPaid;
   member.vehicle_shares_count = vehSharesCount;
   member.total_payments = regFees + duesPaid + levyPaid + vehPaid;
   member.balance_owed = Math.max(0, duesFeeRequired - duesPaid);
   
-  const baseDues = member.base_dues_paid !== undefined ? parseFloat(member.base_dues_paid) : duesPaid;
-  const baseShares = member.base_shares_value !== undefined ? parseFloat(member.base_shares_value) : 0;
-
-  if (baseShares === 0 && duesPaid === baseDues && vehPaid === 0) {
-    member.dues_shares_dividends = 0;
-    member.dues_shares_value = 0;
-    member.shares_dividends = 0;
-    member.total_shares_count = 0;
-    member.shares_value = 0;
-    member.shares_holding = (parseFloat(member.treasurer_bill) || 0);
-    return member;
-  }
-
-  const duesDelta = duesPaid - baseDues;
-  const duesSharesDeltaCount = Math.floor(duesDelta / 50);
-  const duesSharesDeltaVal = duesSharesDeltaCount * SHARE_BASE_RATE;
-
-  const totalBaseSharesCount = Math.round(baseShares / SHARE_BASE_RATE);
-  const totalSharesCount = totalBaseSharesCount + duesSharesDeltaCount;
-  const totalSharesValue = baseShares + duesSharesDeltaVal;
-
-  const duesSharesCount = Math.max(0, totalSharesCount - vehSharesCount);
+  // 1 Share = GH₵ 2.00
+  const duesSharesCount = Math.floor(duesPaid / SHARE_UNIT_PRICE);
   const duesSharesValue = duesSharesCount * SHARE_BASE_RATE;
   const vehSharesValue = vehSharesCount * SHARE_BASE_RATE;
+  const totalSharesCount = duesSharesCount + vehSharesCount;
+  const totalSharesValue = duesSharesValue + vehSharesValue;
 
   member.dues_shares_dividends = duesSharesCount;
   member.dues_shares_value = duesSharesValue;
@@ -1458,7 +1442,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-10-11-v15-excel-exact-68564';
+const DATA_VERSION = '2026-11-03-v16-shares-2cedis';
 
 export const getMembers = () => {
   try {
@@ -1789,7 +1773,7 @@ export const deleteKeyInHistoryEntry = (entryId) => {
     } else if (cat === 'vehicle') {
       const currentVeh = parseFloat(member.vehicle_shares_paid) || 0;
       member.vehicle_shares_paid = Math.max(0, currentVeh - delta);
-      member.vehicle_shares_count = Math.floor(member.vehicle_shares_paid / 50);
+      member.vehicle_shares_count = Math.floor(member.vehicle_shares_paid / SHARE_UNIT_PRICE);
     }
 
     recalculateMemberFinancials(member);
@@ -1994,7 +1978,7 @@ export const updateMemberVehicleSharesDirectly = ({ memberId, installmentName, a
   const oldVehiclePaid = parseFloat(member.vehicle_shares_paid) || 0;
   const addedAmount = Math.max(0, parseFloat(amount) || 0);
   const newVehiclePaid = oldVehiclePaid + addedAmount;
-  const newVehicleSharesCount = Math.floor(newVehiclePaid / 50);
+  const newVehicleSharesCount = Math.floor(newVehiclePaid / SHARE_UNIT_PRICE);
 
   member.vehicle_shares_paid = newVehiclePaid;
   member.vehicle_shares_count = newVehicleSharesCount;
@@ -2221,6 +2205,24 @@ export const addTrialBalanceItem = (newItem) => {
     category: newItem.category || (newItem.type === 'income' ? 'Income' : 'Expenditure')
   };
   const updated = [...items, entry];
+  saveTrialBalanceItems(updated);
+  return updated;
+};
+
+export const updateTrialBalanceItem = (id, updatedFields) => {
+  const items = getTrialBalanceItems();
+  const updated = items.map(item => {
+    if (item.id === id) {
+      return {
+        ...item,
+        particulars: updatedFields.particulars !== undefined ? updatedFields.particulars.toUpperCase().trim() : item.particulars,
+        amount: updatedFields.amount !== undefined ? (parseFloat(updatedFields.amount) || 0) : item.amount,
+        type: updatedFields.type || item.type,
+        category: updatedFields.category || item.category
+      };
+    }
+    return item;
+  });
   saveTrialBalanceItems(updated);
   return updated;
 };

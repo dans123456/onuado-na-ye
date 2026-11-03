@@ -1308,22 +1308,22 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                     <tr>
                       <td style={{ fontWeight: 800 }}>2023 Monthly Dues Shares</td>
                       <td style={{ fontWeight: 900, color: '#8b5cf6' }}>{sharesSchedule.s2023} Shares</td>
-                      <td>GH₵ {(sharesSchedule.s2023 * 50.584373).toFixed(2)}</td>
+                      <td>GH₵ {(sharesSchedule.s2023 * 2.00).toFixed(2)}</td>
                     </tr>
                     <tr>
                       <td style={{ fontWeight: 800 }}>2024 Monthly Dues Shares</td>
                       <td style={{ fontWeight: 900, color: '#8b5cf6' }}>{sharesSchedule.s2024} Shares</td>
-                      <td>GH₵ {(sharesSchedule.s2024 * 50.584373).toFixed(2)}</td>
+                      <td>GH₵ {(sharesSchedule.s2024 * 2.00).toFixed(2)}</td>
                     </tr>
                     <tr>
                       <td style={{ fontWeight: 800 }}>2025 Monthly Dues Shares</td>
                       <td style={{ fontWeight: 900, color: '#8b5cf6' }}>{sharesSchedule.s2025} Shares</td>
-                      <td>GH₵ {(sharesSchedule.s2025 * 50.584373).toFixed(2)}</td>
+                      <td>GH₵ {(sharesSchedule.s2025 * 2.00).toFixed(2)}</td>
                     </tr>
                     <tr>
                       <td style={{ fontWeight: 800 }}>2026 Monthly Dues Shares</td>
                       <td style={{ fontWeight: 900, color: '#8b5cf6' }}>{sharesSchedule.s2026} Shares</td>
-                      <td>GH₵ {(sharesSchedule.s2026 * 50.584373).toFixed(2)}</td>
+                      <td>GH₵ {(sharesSchedule.s2026 * 2.00).toFixed(2)}</td>
                     </tr>
                     {sharesSchedule.vehicleShares > 0 && (
                       <tr style={{ background: 'rgba(234, 88, 12, 0.08)' }}>
@@ -1345,7 +1345,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             {/* Note */}
             <div style={{ padding: '0.85rem 1rem', background: 'rgba(139, 92, 246, 0.08)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.25)', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
               <strong style={{ color: '#8b5cf6', display: 'block', marginBottom: '0.2rem' }}>📌 Shares Calculation Formula:</strong>
-              1 Share is allocated for every GH₵ 50.00 of dues paid. Total Shares Value is calculated at the official fellowship base rate of <strong>GH₵ 50.584373 per share</strong>, plus interest earned on Treasurer Bills.
+              1 Share is allocated for every GH₵ 2.00 of dues paid. Total Shares Value is calculated at the official fellowship rate of <strong>GH₵ 2.00 per share</strong>, plus interest earned on Treasurer Bills.
             </div>
 
             <button 

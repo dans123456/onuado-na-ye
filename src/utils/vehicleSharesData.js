@@ -1,34 +1,34 @@
 /**
  * Vehicle Shares Data extracted directly from Excel workbook "ONUADO NA EYE ACCOUNT.xlsx"
  * Sheet: "VEHICLE SHARES HOLDING"
- * Share Rate: GHc 50.00 per share
+ * Share Rate: GHc 2.00 per share
  */
 
 export const VEHICLE_SHARES_POOL = {
   totalPaid: 6000.00,
-  totalShares: 120,
+  totalShares: 3000,
   totalMembersPaid: 3,
   totalMembersNotPaid: 21,
-  ratePerShare: 50.00,
+  ratePerShare: 2.00,
   vehicleAcquisitionFund: 68000.00
 };
 
 export const VEHICLE_SHARES_BY_MEMBER = {
   "Jonathan Danso Siaw": {
     totalPaid: 2000.00,
-    sharesCount: 40,
+    sharesCount: 1000,
     payments: { p1: 2000.00, p2: 0, p3: 0, p4: 0 },
     status: "PAID"
   },
   "Moses Oduro": {
     totalPaid: 2000.00,
-    sharesCount: 40,
+    sharesCount: 1000,
     payments: { p1: 2000.00, p2: 0, p3: 0, p4: 0 },
     status: "PAID"
   },
   "Osei Kwame": {
     totalPaid: 2000.00,
-    sharesCount: 40,
+    sharesCount: 1000,
     payments: { p1: 2000.00, p2: 0, p3: 0, p4: 0 },
     status: "PAID"
   }
