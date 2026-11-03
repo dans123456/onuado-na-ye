@@ -994,18 +994,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
         {(() => {
           const sharesTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.shares_value) || 0), 0);
-          
-          // Smart Matcher: check if user edited, deleted, or added a Treasurer Bill item in trialBalanceItems (INCOME side only!)
-          const tbTreasurerItem = trialBalanceItems.find(item => {
-            if (item.type !== 'income') return false;
-            const p = (item.particulars || '').toUpperCase();
-            return p.includes('TREASURER') || p.includes('TRESURE') || p.includes('TREASURY') || p.includes('INTEREST') || p.includes('BILL');
-          });
-
-          const treasBillTotalVal = tbTreasurerItem 
-            ? parseFloat(tbTreasurerItem.amount) || 0 
-            : members.reduce((sum, m) => sum + (parseFloat(m.treasurer_bill) || 0), 0);
-
+          const treasBillTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.treasurer_bill) || 0), 0);
           const grandMasterTotalVal = sharesTotalVal + treasBillTotalVal;
           const combinedNetWorth = grandMasterTotalVal + treasuryTotals.grandLiquidTotal;
 

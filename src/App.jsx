@@ -90,6 +90,7 @@ export default function App() {
           liveUser.profile_picture !== currentUser.profile_picture ||
           liveUser.dues_paid !== currentUser.dues_paid || 
           liveUser.shares_value !== currentUser.shares_value ||
+          liveUser.treasurer_bill !== currentUser.treasurer_bill ||
           liveUser.balance_owed !== currentUser.balance_owed ||
           liveUser.total_payments !== currentUser.total_payments ||
           liveUser.shares_holding !== currentUser.shares_holding

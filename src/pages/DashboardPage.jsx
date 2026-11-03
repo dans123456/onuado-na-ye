@@ -72,10 +72,10 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const levyPaid = currentMember?.levy_paid !== undefined ? currentMember.levy_paid : 1000.00;
   const totalPayments = currentMember?.total_payments !== undefined ? currentMember.total_payments : (duesPaid + levyPaid + regFees);
   const duesFeeRequired = currentMember?.dues_fee_required || 3900.00;
-  const sharesDividends = currentMember?.shares_dividends !== undefined ? currentMember.shares_dividends : 60;
-  const sharesValue = currentMember?.shares_value !== undefined ? currentMember.shares_value : 3035.06;
-  const treasurerBill = currentMember?.treasurer_bill !== undefined ? currentMember.treasurer_bill : 828.36;
-  const sharesHolding = currentMember?.shares_holding !== undefined ? currentMember.shares_holding : 3863.42;
+  const sharesDividends = currentMember?.shares_dividends !== undefined ? currentMember.shares_dividends : 0;
+  const sharesValue = currentMember?.shares_value !== undefined ? currentMember.shares_value : 0;
+  const treasurerBill = currentMember?.treasurer_bill !== undefined ? currentMember.treasurer_bill : 0;
+  const sharesHolding = currentMember?.shares_holding !== undefined ? currentMember.shares_holding : (sharesValue + treasurerBill);
   const balanceOwed = currentMember?.balance_owed !== undefined ? currentMember.balance_owed : Math.max(0, duesFeeRequired - duesPaid);
   const netPayoutValue = Math.max(0, sharesHolding - balanceOwed);
   const memberLevyList = getMemberLevyDetails(currentMember);
