@@ -1345,7 +1345,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             {/* Note */}
             <div style={{ padding: '0.85rem 1rem', background: 'rgba(139, 92, 246, 0.08)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.25)', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
               <strong style={{ color: '#8b5cf6', display: 'block', marginBottom: '0.2rem' }}>📌 Shares Calculation Formula:</strong>
-              1 Share is allocated for every GH₵ 2.00 of dues paid. Total Shares Value is calculated at the official fellowship rate of <strong>GH₵ 2.00 per share</strong>, plus interest earned on Treasurer Bills.
+              1 Share is allocated for every GH₵ 2.00 of dues paid. Total Shares Value is backed by the official fellowship Cash on Hand Shares Pool (<strong>GH₵ 79,131.72</strong>), plus interest earned on Treasurer Bills.
             </div>
 
             <button 

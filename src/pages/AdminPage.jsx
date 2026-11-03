@@ -103,7 +103,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   };
 
   const handleResetTBToDefaults = () => {
-    if (window.confirm('Reset Trial Balance back to original Excel baseline (GH₵ 88,503.20)? Any custom added items will be cleared.')) {
+    if (window.confirm('Reset Trial Balance back to original Excel baseline (GH₵ 106,446.72)? Any custom added items will be cleared.')) {
       const updated = resetTrialBalanceToDefaults();
       setTrialBalanceItems(updated);
     }
@@ -693,8 +693,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       `"Master Shares Value Total","GHc ${totalSharesVal}"\n` +
       `"Master Treasurer Bill Total","GHc ${totalTreasBill}"\n` +
       `"Grand Total Shares Holding","GHc ${grandSharesHold}"\n` +
-      `"Verified Trial Balance Income","GHc 86,103.20"\n` +
-      `"Verified Trial Balance Expenditure","GHc 86,103.20"\n`;
+      `"Verified Trial Balance Income","GHc 106,446.72"\n` +
+      `"Verified Trial Balance Expenditure","GHc 106,446.72"\n`;
 
     const blob = new Blob([headers + rows + summarySection], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);

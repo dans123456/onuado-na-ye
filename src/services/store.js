@@ -1442,7 +1442,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-11-03-v16-shares-2cedis';
+const DATA_VERSION = '2026-11-03-v17-excel-sync-106446';
 
 export const getMembers = () => {
   try {
@@ -1451,6 +1451,7 @@ export const getMembers = () => {
       localStorage.removeItem('ony_members');
       localStorage.removeItem('association_members');
       localStorage.removeItem('ony_keyin_history');
+      localStorage.removeItem('ony_trial_balance');
       localStorage.setItem('ony_data_version', DATA_VERSION);
       const fresh = INITIAL_MEMBERS.map(m => recalculateMemberFinancials({ ...m }));
       localStorage.setItem('ony_members', JSON.stringify(fresh));
@@ -2088,32 +2089,40 @@ export const saveAnnouncement = (text) => {
 
 // ==========================================
 // 📊 TRIAL BALANCE DYNAMIC MANAGEMENT SYSTEM
+// Verified directly from Excel Sheet "TRAIL BALANCE" (Balanced at GH₵ 106,446.72)
 // ==========================================
 export const INITIAL_TRIAL_BALANCE = [
-  // Income Items (Total: GH₵ 88,503.20)
-  { id: 'tb-01', particulars: 'REGISTRATION FEES', amount: 4800.00, type: 'income', category: 'Income' },
+  // Income Items (Total: GH₵ 106,446.72)
+  { id: 'tb-01', particulars: 'REGISTRATION', amount: 4800.00, type: 'income', category: 'Income' },
   { id: 'tb-02', particulars: 'TOTAL MONTHLY DUES FOR 2023', amount: 10800.00, type: 'income', category: 'Income' },
   { id: 'tb-03', particulars: 'TOTAL MONTHLY DUES FOR 2024', amount: 16900.00, type: 'income', category: 'Income' },
   { id: 'tb-04', particulars: 'TOTAL MONTHLY DUES FOR 2025', amount: 22350.00, type: 'income', category: 'Income' },
-  { id: 'tb-05', particulars: 'TOTAL MONTHLY DUES FOR 2026', amount: 15900.00, type: 'income', category: 'Income' },
-  { id: 'tb-06', particulars: 'TREASURER BILL INTEREST', amount: 10502.70, type: 'income', category: 'Investment Returns' },
-  { id: 'tb-07', particulars: 'LEVY BALANCE', amount: 1250.50, type: 'income', category: 'Special Levy' },
-  { id: 'tb-08', particulars: 'SPECIAL CONTRIBUTIONS', amount: 6000.00, type: 'income', category: 'Income' },
+  { id: 'tb-05', particulars: 'TOTAL MONTHLY DUES FOR 2026', amount: 16600.00, type: 'income', category: 'Income' },
+  { id: 'tb-06', particulars: 'FIRST LEVY', amount: 3400.00, type: 'income', category: 'Special Levy' },
+  { id: 'tb-07', particulars: 'SECOND LEVY', amount: 1700.00, type: 'income', category: 'Special Levy' },
+  { id: 'tb-08', particulars: 'THIRD LEVI', amount: 3600.00, type: 'income', category: 'Special Levy' },
+  { id: 'tb-09', particulars: 'FORTH LEVY', amount: 3600.00, type: 'income', category: 'Special Levy' },
+  { id: 'tb-10', particulars: 'FIFTH LEVY', amount: 3600.00, type: 'income', category: 'Special Levy' },
+  { id: 'tb-11', particulars: 'SIX LEVY', amount: 2200.00, type: 'income', category: 'Special Levy' },
+  { id: 'tb-12', particulars: 'TREASURER BILL INTREST', amount: 10402.70, type: 'income', category: 'Investment Returns' },
+  { id: 'tb-13', particulars: 'INTREST FIDELITY BANK', amount: 88.37, type: 'income', category: 'Bank Interest' },
+  { id: 'tb-14', particulars: 'INTREST ASHAIMAN BANK', amount: 166.24, type: 'income', category: 'Bank Interest' },
+  { id: 'tb-15', particulars: 'INTREST MTM MOMO ACCOUNT', amount: 239.41, type: 'income', category: 'Bank Interest' },
+  { id: 'tb-16', particulars: 'VEHICLE CONTRIBUTIONS', amount: 6000.00, type: 'income', category: 'Vehicle Capital' },
 
-  // Expenditure & Asset Items (Total: GH₵ 88,503.20)
-  { id: 'tb-09', particulars: 'TRANSFER TO VEHICLE PURCHASE ACCOUNT', amount: 68000.00, type: 'expenditure', category: 'Asset Transfer' },
-  { id: 'tb-10', particulars: 'FIDELITY BANK ENDING BALANCE', amount: 10698.88, type: 'expenditure', category: 'Bank Asset' },
-  { id: 'tb-11', particulars: 'BANK TEMA ENDING BALANCE', amount: 366.24, type: 'expenditure', category: 'Bank Asset' },
-  { id: 'tb-12', particulars: 'MOMO ACCOUNT ENDING BALANCE', amount: 1.95, type: 'expenditure', category: 'MoMo Wallet' },
-  { id: 'tb-13', particulars: 'BANK TEMA SHARES', amount: 100.00, type: 'expenditure', category: 'Shares Investment' },
-  { id: 'tb-14', particulars: 'TRANSPORTATIONS', amount: 5100.00, type: 'expenditure', category: 'Expenditure' },
-  { id: 'tb-15', particulars: 'REGISTRAR GENERAL (RGD) FEES', amount: 1300.00, type: 'expenditure', category: 'Legal & Compliance' },
-  { id: 'tb-16', particulars: 'MOMO CHARGES & COMMISSIONS', amount: 1091.80, type: 'expenditure', category: 'Bank Fees' },
-  { id: 'tb-17', particulars: 'GENERAL EXPENSES', amount: 1010.00, type: 'expenditure', category: 'Expenditure' },
-  { id: 'tb-18', particulars: 'DOCUMENTATIONS', amount: 500.00, type: 'expenditure', category: 'Expenditure' },
-  { id: 'tb-19', particulars: 'PRINTING & STATIONERY', amount: 285.00, type: 'expenditure', category: 'Expenditure' },
-  { id: 'tb-20', particulars: 'TREASURER BILL CHARGES', amount: 34.34, type: 'expenditure', category: 'Bank Fees' },
-  { id: 'tb-21', particulars: 'FIDELITY BANK CHARGES', amount: 15.00, type: 'expenditure', category: 'Bank Fees' }
+  // Expenditure & Asset Items (Total: GH₵ 106,446.72)
+  { id: 'tb-17', particulars: 'VEHICLE CONTRIBUTION (Account)', amount: 68000.00, type: 'expenditure', category: 'Asset Transfer' },
+  { id: 'tb-18', particulars: 'CASH IN FIDELITY BANK BALANCE', amount: 10698.88, type: 'expenditure', category: 'Bank Asset' },
+  { id: 'tb-19', particulars: 'CASH IN BANK TEMA BALANCE', amount: 266.24, type: 'expenditure', category: 'Bank Asset' },
+  { id: 'tb-20', particulars: 'CASH IN MOMO ACCOUNT', amount: 166.60, type: 'expenditure', category: 'MoMo Wallet' },
+  { id: 'tb-21', particulars: 'BANK TEMA SHARES', amount: 100.00, type: 'expenditure', category: 'Shares Investment' },
+  { id: 'tb-22', particulars: 'DONATIONS FUNERAL', amount: 13720.00, type: 'expenditure', category: 'Welfare Benefit' },
+  { id: 'tb-23', particulars: 'DONATIONS CHILD NAMING', amount: 2000.00, type: 'expenditure', category: 'Welfare Benefit' },
+  { id: 'tb-24', particulars: 'TRANPORTATIONS', amount: 8200.00, type: 'expenditure', category: 'Expenditure' },
+  { id: 'tb-25', particulars: 'REGISREAL GENERAL', amount: 1300.00, type: 'expenditure', category: 'Legal & Compliance' },
+  { id: 'tb-26', particulars: 'GENERAL EXPENSES', amount: 810.00, type: 'expenditure', category: 'Expenditure' },
+  { id: 'tb-27', particulars: 'PRINTING & STATIONERY', amount: 785.00, type: 'expenditure', category: 'Expenditure' },
+  { id: 'tb-28', particulars: 'VEHICLE ACCOUNT', amount: 400.00, type: 'expenditure', category: 'Expenditure' }
 ];
 
 export const getTrialBalanceItems = () => {
@@ -2131,9 +2140,9 @@ export const getTrialBalanceItems = () => {
   // Dynamically link live Treasury Account ending balances into Trial Balance line items
   try {
     const treasury = calculateTreasuryTotals();
-    const momoEnding = treasury.momo?.endingBalance ?? 1.95;
+    const momoEnding = treasury.momo?.endingBalance ?? 166.60;
     const fidelityEnding = treasury.fidelity?.endingBalance ?? 10698.88;
-    const bankTemaEnding = treasury.bankTema?.endingBalance ?? 366.24;
+    const bankTemaEnding = treasury.bankTema?.endingBalance ?? 266.24;
 
     // Calculate total extra key-in additions recorded across members
     const history = getKeyInHistory();
@@ -2146,15 +2155,15 @@ export const getTrialBalanceItems = () => {
 
     const updated = items.map(item => {
       // 1. MoMo Account Ending Balance
-      if (item.particulars === 'MOMO ACCOUNT ENDING BALANCE' || item.id === 'tb-12') {
+      if (item.particulars === 'CASH IN MOMO ACCOUNT' || item.particulars === 'MOMO ACCOUNT ENDING BALANCE' || item.id === 'tb-20' || item.id === 'tb-12') {
         return { ...item, amount: momoEnding };
       }
       // 2. Fidelity Bank Ending Balance
-      if (item.particulars === 'FIDELITY BANK ENDING BALANCE' || item.id === 'tb-10') {
+      if (item.particulars === 'CASH IN FIDELITY BANK BALANCE' || item.particulars === 'FIDELITY BANK ENDING BALANCE' || item.id === 'tb-18' || item.id === 'tb-10') {
         return { ...item, amount: fidelityEnding };
       }
       // 3. Bank Tema Ending Balance
-      if (item.particulars === 'BANK TEMA ENDING BALANCE' || item.id === 'tb-11') {
+      if (item.particulars === 'CASH IN BANK TEMA BALANCE' || item.particulars === 'BANK TEMA ENDING BALANCE' || item.id === 'tb-19' || item.id === 'tb-11') {
         return { ...item, amount: bankTemaEnding };
       }
       // 4. Update Income line items so Trial Balance stays balanced with the bank/momo inflows

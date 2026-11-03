@@ -1,49 +1,37 @@
 /**
- * Member Shares Dividend & Yearly Breakdown extracted directly from Excel Sheet "MEMBERS SHARES DEVIDENT"
- * Rate: 1 Share = GH₵ 2.00 (Base Shares Rate: GH₵ 2.00 per share)
+ * Member Shares Dividend & Yearly Breakdown extracted directly from Excel Sheet "SHARES DEVIDENT"
+ * Rate: 1 Share = GH₵ 2.00
+ * Cash on Hand Shares Pool: GH₵ 79,131.72
  */
 
-export const BASE_SHARES_SCHEDULE_RAW = {
-  "Alex Ackah": { baseShares: 60, vehicleShares: 0, s2023: 0, s2024: 18, s2025: 24, s2026: 18 },
-  "Danso Kingsley": { baseShares: 30, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 24, s2026: 6 },
-  "Fanuel Hagan": { baseShares: 68, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 14 },
-  "Frederick Wortey Tawiah": { baseShares: 68, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 14 },
-  "George Yeboah": { baseShares: 10, vehicleShares: 0, s2023: 0, s2024: 4, s2025: 0, s2026: 6 },
-  "Isaac Darko": { baseShares: 78, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 24 },
-  "Isaac Donkor": { baseShares: 66, vehicleShares: 0, s2023: 0, s2024: 18, s2025: 24, s2026: 24 },
-  "John Aidoo": { baseShares: 18, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 0, s2026: 18 },
-  "John Darbo": { baseShares: 10, vehicleShares: 0, s2023: 0, s2024: 7, s2025: 0, s2026: 3 },
-  "John Ofosuhene Asare": { baseShares: 68, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 14 },
-  "Johnson Wood": { baseShares: 70, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 16 },
-  "Jonas Wereko": { baseShares: 72, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 18 },
-  "Jonathan Danso Siaw": { baseShares: 118, vehicleShares: 40, s2023: 12, s2024: 18, s2025: 24, s2026: 24 },
-  "Joseph Kofi Amanfo": { baseShares: 20, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 0, s2026: 20 },
-  "Justice Kojo Acheampong": { baseShares: 60, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 6 },
-  "Just-Mark Kwabena Quansah": { baseShares: 60, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 6 },
-  "Maxwell Ofei Siaw": { baseShares: 74, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 20 },
-  "Moses Oduro": { baseShares: 118, vehicleShares: 40, s2023: 12, s2024: 18, s2025: 24, s2026: 24 },
-  "Osei Kwame": { baseShares: 110, vehicleShares: 40, s2023: 12, s2024: 18, s2025: 24, s2026: 16 },
-  "Peter Kingsford Nkrumah": { baseShares: 30, vehicleShares: 0, s2023: 12, s2024: 6, s2025: 0, s2026: 12 },
-  "Prince Asante Ahwireng": { baseShares: 66, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 12 },
-  "Samuel Yaw Nkansah": { baseShares: 34, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 4, s2026: 0 },
-  "Vincent Agamatey": { baseShares: 74, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 20 },
-  "William Kojo Anane": { baseShares: 78, vehicleShares: 0, s2023: 12, s2024: 18, s2025: 24, s2026: 24 }
-};
+export const CASH_ON_HAND_SHARES_POOL = 79131.72;
 
-// Re-scaled for 1 share = GH₵ 2.00 (each GH₵ 50 payment tranche = 25 shares)
-export const SHARES_DIVIDENDS_SCHEDULE = Object.fromEntries(
-  Object.entries(BASE_SHARES_SCHEDULE_RAW).map(([name, d]) => [
-    name,
-    {
-      totalShares: d.baseShares * 25,
-      vehicleShares: d.vehicleShares * 25,
-      s2023: d.s2023 * 25,
-      s2024: d.s2024 * 25,
-      s2025: d.s2025 * 25,
-      s2026: d.s2026 * 25
-    }
-  ])
-);
+export const SHARES_DIVIDENDS_SCHEDULE = {
+  "Alex Ackah": { totalShares: 1550, vehicleShares: 0, s2023: 0, s2024: 450, s2025: 600, s2026: 500, poolAmount: 2744.50, tBill: 2.15 },
+  "Danso Kingsley": { totalShares: 750, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 600, s2026: 150, poolAmount: 1425.47, tBill: 56.17 },
+  "Fanuel Hagan": { totalShares: 1700, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 350, poolAmount: 4470.64, tBill: 828.36 },
+  "Frederick Wortey Tawiah": { totalShares: 1850, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 500, poolAmount: 4735.87, tBill: 828.36 },
+  "George Yeboah": { totalShares: 0, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 0, s2026: 0, poolAmount: 0, tBill: 0 },
+  "Isaac Darko": { totalShares: 1950, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 600, poolAmount: 3451.78, tBill: 2.15 },
+  "Isaac Donkor": { totalShares: 1650, vehicleShares: 0, s2023: 0, s2024: 450, s2025: 600, s2026: 600, poolAmount: 3016.85, tBill: 56.17 },
+  "John Aidoo": { totalShares: 450, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 0, s2026: 450, poolAmount: 795.69, tBill: 0 },
+  "John Darbo": { totalShares: 0, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 0, s2026: 0, poolAmount: 0, tBill: 0 },
+  "John Ofosuhene Asare": { totalShares: 1700, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 350, poolAmount: 3889.74, tBill: 499.83 },
+  "Johnson Wood": { totalShares: 1750, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 400, poolAmount: 4559.05, tBill: 828.36 },
+  "Jonas Wereko": { totalShares: 1800, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 450, poolAmount: 3186.55, tBill: 2.15 },
+  "Jonathan Danso Siaw": { totalShares: 2950, vehicleShares: 1000, s2023: 300, s2024: 450, s2025: 600, s2026: 600, poolAmount: 6680.89, tBill: 828.36 },
+  "Joseph Kofi Amanfo": { totalShares: 0, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 0, s2026: 0, poolAmount: 0, tBill: 0 },
+  "Justice Kojo Acheampong": { totalShares: 1500, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 150, poolAmount: 4017.68, tBill: 772.19 },
+  "Just-Mark Kwabena Quansah": { totalShares: 1650, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 300, poolAmount: 4382.23, tBill: 828.36 },
+  "Maxwell Ofei Siaw": { totalShares: 1850, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 500, poolAmount: 4735.87, tBill: 828.36 },
+  "Moses Oduro": { totalShares: 2950, vehicleShares: 1000, s2023: 300, s2024: 450, s2025: 600, s2026: 600, poolAmount: 6680.89, tBill: 828.36 },
+  "Osei Kwame": { totalShares: 2750, vehicleShares: 1000, s2023: 300, s2024: 450, s2025: 600, s2026: 400, poolAmount: 6327.25, tBill: 828.36 },
+  "Peter Kingsford Nkrumah": { totalShares: 0, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 0, s2026: 0, poolAmount: 0, tBill: 0 },
+  "Prince Asante Ahwireng": { totalShares: 1650, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 300, poolAmount: 4382.23, tBill: 828.36 },
+  "Samuel Yaw Nkansah": { totalShares: 0, vehicleShares: 0, s2023: 0, s2024: 0, s2025: 0, s2026: 0, poolAmount: 0, tBill: 0 },
+  "Vincent Agamatey": { totalShares: 1850, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 500, poolAmount: 4735.87, tBill: 828.36 },
+  "William Kojo Anane": { totalShares: 1950, vehicleShares: 0, s2023: 300, s2024: 450, s2025: 600, s2026: 600, poolAmount: 4912.69, tBill: 828.36 }
+};
 
 export const getMemberSharesSchedule = (fullName, duesPaid = 0) => {
   if (!fullName) {
