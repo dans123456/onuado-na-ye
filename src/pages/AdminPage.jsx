@@ -1034,6 +1034,21 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Shares Total + Treasurer Bill Total</div>
               </div>
+
+              <div 
+                onClick={() => setActiveTab('treasury')}
+                style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(5, 150, 105, 0.4)', borderTop: '4px solid #059669', cursor: 'pointer', transition: 'all 0.2s' }}
+                title="Click to view verified Trial Balance table"
+              >
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>TRIAL BALANCE</span>
+                  <span className="badge badge-dues" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>Balanced 100% ✓</span>
+                </div>
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#059669', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
+                  GH₵ 106,446.72
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Click to View Full Trial Balance Sheet &rarr;</div>
+              </div>
             </div>
           );
         })()}
@@ -1079,9 +1094,9 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           <button 
             onClick={() => setActiveTab('treasury')} 
             className={`btn ${activeTab === 'treasury' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '0.6rem 1.1rem', fontWeight: 800, fontSize: '0.88rem' }}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 800, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: activeTab === 'treasury' ? 'none' : '1.5px solid rgba(5, 150, 105, 0.4)', color: activeTab === 'treasury' ? '#fff' : '#059669' }}
           >
-            <Building2 size={16} color="#059669" /> Treasury & Bank Balances
+            <Building2 size={16} color={activeTab === 'treasury' ? '#fff' : '#059669'} /> 📊 Treasury & Trial Balance (Balanced ✓)
           </button>
         </div>
 

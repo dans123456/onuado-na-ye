@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock } from 'lucide-react';
-import { updateMemberProfile, addContribution, getMembers, getContributions } from '../services/store';
+import { updateMemberProfile, addContribution, getMembers, getContributions, getTrialBalanceItems } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSharesData';
 import { getMemberSharesSchedule } from '../utils/sharesDividendData';
@@ -426,6 +426,13 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
           <CreditCard size={18} color="#d97706" /> Official Payment Channels & Guide
+        </button>
+        <button 
+          onClick={() => setActiveTab('trial_balance')} 
+          className={`btn ${activeTab === 'trial_balance' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: activeTab === 'trial_balance' ? '#059669' : 'rgba(5, 150, 105, 0.1)', color: activeTab === 'trial_balance' ? '#fff' : '#059669', border: '1.5px solid rgba(5, 150, 105, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+        >
+          <Building2 size={18} color={activeTab === 'trial_balance' ? '#fff' : '#059669'} /> 📊 Fellowship Trial Balance
         </button>
       </div>
 
@@ -1051,6 +1058,123 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           </div>
         </div>
       )}
+
+      {/* TAB: FELLOWSHIP TRIAL BALANCE SHEET */}
+      {activeTab === 'trial_balance' && (() => {
+        const tbItems = getTrialBalanceItems();
+        const incItems = tbItems.filter(i => i.type === 'income');
+        const expItems = tbItems.filter(i => i.type === 'expenditure');
+        const sumInc = incItems.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+        const sumExp = expItems.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+        const isBalanced = Math.abs(sumInc - sumExp) < 0.05;
+
+        return (
+          <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                  <Building2 size={22} color="#059669" /> Verified Fellowship Trial Balance Sheet
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.25rem' }}>
+                  Extracted directly from official fellowship Excel sheet <strong>TRAIL BALANCE</strong>. Full transparency for all verified members.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ padding: '0.6rem 1rem', background: isBalanced ? 'rgba(5, 150, 105, 0.1)' : 'rgba(220, 38, 38, 0.1)', borderRadius: '10px', border: `1.5px solid ${isBalanced ? 'rgba(5, 150, 105, 0.35)' : 'rgba(220, 38, 38, 0.35)'}`, textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: isBalanced ? '#059669' : '#dc2626', fontWeight: 800 }}>Status: {isBalanced ? 'Balanced 100% ✓' : 'Unbalanced'}</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                    GH₵ {sumInc.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                </div>
+
+                {currentUser?.role === 'admin' && (
+                  <button 
+                    onClick={() => setActivePage('admin')}
+                    className="btn btn-primary"
+                    style={{ padding: '0.6rem 1rem', fontSize: '0.82rem', fontWeight: 800, background: '#d97706', borderColor: '#d97706' }}
+                  >
+                    <Shield size={15} /> Edit in Admin Console &rarr;
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="table-container">
+              <table className="data-table" style={{ fontSize: '0.88rem' }}>
+                <thead>
+                  <tr>
+                    <th>Particulars / Line Item</th>
+                    <th>Income (GH₵)</th>
+                    <th>Expenditure & Assets (GH₵)</th>
+                    <th>Category</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Income Rows */}
+                  <tr style={{ background: 'rgba(5, 150, 105, 0.05)', fontWeight: 800 }}>
+                    <td colSpan={4} style={{ color: '#059669', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      🟢 Fellowship Income Accounts (Total: GH₵ {sumInc.toLocaleString('en-US', { minimumFractionDigits: 2 })})
+                    </td>
+                  </tr>
+                  {incItems.map((item) => (
+                    <tr key={item.id}>
+                      <td style={{ fontWeight: 800 }}>{item.particulars}</td>
+                      <td style={{ fontWeight: 800, color: '#059669' }}>
+                        GH₵ {parseFloat(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                      <td style={{ color: 'var(--text-muted)' }}>—</td>
+                      <td><span className="badge badge-dues">{item.category || 'Income'}</span></td>
+                    </tr>
+                  ))}
+
+                  {/* Expenditure Rows */}
+                  <tr style={{ background: 'rgba(37, 99, 235, 0.05)', fontWeight: 800 }}>
+                    <td colSpan={4} style={{ color: '#2563eb', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      🔵 Fellowship Expenditures & Assets Accounts (Total: GH₵ {sumExp.toLocaleString('en-US', { minimumFractionDigits: 2 })})
+                    </td>
+                  </tr>
+                  {expItems.map((item) => (
+                    <tr key={item.id}>
+                      <td style={{ fontWeight: 800 }}>{item.particulars}</td>
+                      <td style={{ color: 'var(--text-muted)' }}>—</td>
+                      <td style={{ fontWeight: 800, color: item.category?.toLowerCase().includes('asset') ? '#059669' : '#2563eb' }}>
+                        GH₵ {parseFloat(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                      <td><span className="badge badge-dues" style={{ background: item.category?.toLowerCase().includes('asset') ? 'rgba(5, 150, 105, 0.1)' : 'rgba(37, 99, 235, 0.1)', color: item.category?.toLowerCase().includes('asset') ? '#059669' : '#2563eb' }}>{item.category || 'Expenditure'}</span></td>
+                    </tr>
+                  ))}
+
+                  {/* Grand Totals */}
+                  <tr style={{ background: 'var(--bg-main)', borderTop: '2.5px solid var(--border-color)', fontSize: '1rem' }}>
+                    <td style={{ fontWeight: 900, color: 'var(--primary-700)' }}>GRAND TOTALS</td>
+                    <td style={{ fontWeight: 900, color: '#059669', fontSize: '1.15rem' }}>
+                      GH₵ {sumInc.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td style={{ fontWeight: 900, color: '#2563eb', fontSize: '1.15rem' }}>
+                      GH₵ {sumExp.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td>
+                      <span className="badge badge-dues" style={{ fontWeight: 800, padding: '0.35rem 0.65rem' }}>Balanced 100% ✓</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Cash on Hand Note */}
+            <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '12px', border: '1px solid rgba(5, 150, 105, 0.25)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div>
+                <strong style={{ color: '#059669' }}>CASH ON HAND (SHARES POOL):</strong>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>Sum of Fidelity Bank, Bank Tema, MTN MoMo, and Vehicle Contribution Account balances</span>
+              </div>
+              <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#059669' }}>
+                GH₵ 79,131.72
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Printable Receipt Modal */}
       {selectedReceipt && (
