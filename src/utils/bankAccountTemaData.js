@@ -8,11 +8,11 @@ export const BANK_ACCOUNT_TEMA_DATA = {
   accountTitle: "North Tema Co-Operative Credit Union",
   accountNumber: "2161006002421201",
   sheetName: "BANK ACCOUNT TEMA",
-  totalIncome: 5766.24,
+  totalIncome: 5666.24,
   totalExpenses: 5400.00,
-  netBalance: 366.24,
+  netBalance: 266.24,
   breakdown: {
-    cashDeposits: 5500.00,
+    cashDeposits: 5400.00,
     bankShares: 100.00,
     bankInterest: 166.24,
     withdrawals: 5400.00
@@ -27,27 +27,19 @@ export const BANK_ACCOUNT_TEMA_DATA = {
       category: 'Savings Deposit'
     },
     {
-      date: '06-Apr-2023',
-      particulars: 'Shares from the Bank',
+      date: '03-May-2023',
+      particulars: 'Cash Deposited',
       income: 100.00,
       expenses: 0.00,
       runningBalance: 5500.00,
       category: 'Bank Shares'
     },
     {
-      date: '03-May-2023',
-      particulars: 'Cash Deposited',
-      income: 100.00,
-      expenses: 0.00,
-      runningBalance: 5600.00,
-      category: 'Savings Deposit'
-    },
-    {
       date: '31-Dec-2023',
       particulars: 'Bank Interest for the year',
       income: 166.24,
       expenses: 0.00,
-      runningBalance: 5766.24,
+      runningBalance: 5666.24,
       category: 'Bank Interest'
     },
     {
@@ -55,7 +47,7 @@ export const BANK_ACCOUNT_TEMA_DATA = {
       particulars: 'Cash Withdrawal',
       income: 0.00,
       expenses: 5400.00,
-      runningBalance: 366.24,
+      runningBalance: 266.24,
       category: 'Cash Withdrawal'
     }
   ]
