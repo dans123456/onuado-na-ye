@@ -1136,7 +1136,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             className={`btn ${activeTab === 'treasury' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 800, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: activeTab === 'treasury' ? 'none' : '1.5px solid rgba(5, 150, 105, 0.4)', color: activeTab === 'treasury' ? '#fff' : '#059669' }}
           >
-            <Building2 size={16} color={activeTab === 'treasury' ? '#fff' : '#059669'} /> 📊 Treasury & Trial Balance (Balanced ✓)
+            <Building2 size={16} color={activeTab === 'treasury' ? '#fff' : '#059669'} /> 📊 Trial Balance Sheet (Balanced ✓)
           </button>
         </div>
 
@@ -1156,176 +1156,9 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         </div>
       )}
 
-      {/* TAB 0: EXECUTIVE TREASURY ACCOUNTS & TRIAL BALANCE */}
+      {/* TAB 0: VERIFIED TRIAL BALANCE SHEET */}
       {activeTab === 'treasury' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          
-          {/* Header Note */}
-          <div style={{ marginBottom: '0.5rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary-600)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-              <Building2 size={24} color="#059669" /> Official Fellowship Treasury & Bank Balances
-            </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginTop: '0.25rem' }}>
-              Extracted directly from Excel sheets <strong>MTN MOMO ACCOUNT</strong>, <strong>FIDELITY BANK</strong>, <strong>BANK ACCOUNT TEMA</strong>, and <strong>TRIAL BALANCE</strong>.
-            </p>
-          </div>
-
-          {/* 4 Treasury Account Cards Grid (MTN MoMo, Fidelity Bank, Bank Tema, and Grand Liquid Total) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1.25rem' }}>
-            
-            {/* 1ST CARD: MTN Mobile Money Account */}
-            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #d97706', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(255, 255, 255, 0.02))' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  MTN Mobile Money Account
-                </span>
-                <span className="badge badge-dues" style={{ fontSize: '0.7rem' }}>MTN MOMO</span>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>MoMo Line: <strong style={{ color: '#d97706' }}>0530486443</strong> • Code: <strong style={{ color: '#2563eb' }}>293658</strong></div>
-
-              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending MoMo Balance</div>
-                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: treasuryTotals.momo.endingBalance >= 0 ? '#059669' : '#dc2626', marginTop: '0.15rem' }}>
-                  GH₵ {treasuryTotals.momo.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
-              </div>
-
-              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total MoMo Inflows:</span><strong style={{ color: '#059669' }}>GH₵ {treasuryTotals.momo.totalInflows.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Expenses & Vouchers:</span><strong>GH₵ {treasuryTotals.momo.disbursements.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Account Name:</span><strong>ONUADO NA EYE FELLOWSHIP</strong></div>
-                <button
-                  type="button"
-                  onClick={() => { setSelectedAccountKey('momo'); setIsTreasuryModalOpen(true); }}
-                  className="btn btn-secondary"
-                  style={{ marginTop: '0.4rem', padding: '0.45rem 0.75rem', fontSize: '0.78rem', fontWeight: 800, color: '#d97706', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', width: '100%' }}
-                >
-                  ✏️ Manage & Recalculate MoMo &rarr;
-                </button>
-              </div>
-            </div>
-
-            {/* 2ND CARD: Fidelity Bank Ghana */}
-            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #059669', background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(255, 255, 255, 0.02))' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Fidelity Bank Ghana
-                </span>
-                <span className="badge badge-dues" style={{ fontSize: '0.7rem' }}>FIDELITY</span>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Account No: <strong style={{ color: 'var(--text-main)', fontFamily: 'monospace' }}>2090182444410</strong></div>
-              
-              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending Bank Balance</div>
-                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: treasuryTotals.fidelity.endingBalance >= 0 ? '#059669' : '#dc2626', marginTop: '0.15rem' }}>
-                  GH₵ {treasuryTotals.fidelity.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
-              </div>
-
-              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Cash Deposited:</span><strong>GH₵ {treasuryTotals.fidelity.cashDeposited.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Withdrawals / Investments:</span><strong>GH₵ {treasuryTotals.fidelity.withdrawals.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Matured Bills Reversed:</span><strong style={{ color: '#2563eb' }}>GH₵ 62,425.51</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Interest Earned:</span><strong style={{ color: '#d97706' }}>GH₵ 88.37</strong></div>
-                <button
-                  type="button"
-                  onClick={() => { setSelectedAccountKey('fidelity'); setIsTreasuryModalOpen(true); }}
-                  className="btn btn-secondary"
-                  style={{ marginTop: '0.4rem', padding: '0.45rem 0.75rem', fontSize: '0.78rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', width: '100%' }}
-                >
-                  ✏️ Manage & Recalculate Fidelity &rarr;
-                </button>
-              </div>
-            </div>
-
-            {/* 3RD CARD: North Tema Co-Operative Credit Union */}
-            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #2563eb', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(255, 255, 255, 0.02))' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Bank Account Tema (Credit Union)
-                </span>
-                <span className="badge" style={{ fontSize: '0.7rem', background: 'rgba(37, 99, 235, 0.15)', color: '#2563eb' }}>TEMA</span>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Account No: <strong style={{ color: 'var(--text-main)', fontFamily: 'monospace' }}>2161006002421201</strong></div>
-
-              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Net Ending Bank Balance</div>
-                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#2563eb', marginTop: '0.15rem' }}>
-                  GH₵ {treasuryTotals.bankTema.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
-                <div style={{ fontSize: '0.7rem', color: '#059669', marginTop: '0.15rem', fontWeight: 700 }}>
-                  Calculated: Income (GH₵ {treasuryTotals.bankTema.totalIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}) - Expenses (GH₵ {treasuryTotals.bankTema.totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2 })})
-                </div>
-              </div>
-
-              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Bank Inflows (Income):</span><strong style={{ color: '#059669' }}>+GH₵ {treasuryTotals.bankTema.totalIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Outflows (Withdrawals):</span><strong style={{ color: '#dc2626' }}>-GH₵ {treasuryTotals.bankTema.totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Shares Held:</span><strong>GH₵ 100.00</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Total Bank Interest:</span><strong style={{ color: '#d97706' }}>GH₵ 166.24</strong></div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.85rem' }}>
-                <button
-                  onClick={() => setIsBankTemaModalOpen(true)}
-                  className="btn btn-secondary"
-                  style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
-                >
-                  <FileSpreadsheet size={13} /> Particulars
-                </button>
-                <button
-                  onClick={() => { setSelectedAccountKey('bankTema'); setIsTreasuryModalOpen(true); }}
-                  className="btn btn-secondary"
-                  style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
-                >
-                  ✏️ Recalculate
-                </button>
-              </div>
-            </div>
-
-            {/* 4TH CARD: Petty Cash Vehicle Fund */}
-            <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', borderTop: '5px solid #ea580c', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.08), rgba(255, 255, 255, 0.02))' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Petty Cash Vehicle Fund
-                </span>
-                <span className="badge" style={{ fontSize: '0.7rem', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c' }}>VEHICLE PETTY</span>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Excel Sheet: <strong style={{ color: '#ea580c' }}>PETTY CASH VEHICLE</strong></div>
-
-              <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ending Vehicle Fund Balance</div>
-                <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#ea580c', marginTop: '0.15rem' }}>
-                  GH₵ {treasuryTotals.pettyCashVehicle.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
-              </div>
-
-              <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Bank Reserve Capital:</span><strong>GH₵ {treasuryTotals.pettyCashVehicle.bankReserve.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Member Vehicle Shares:</span><strong style={{ color: '#059669' }}>GH₵ {treasuryTotals.pettyCashVehicle.memberShares.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Vehicle Shares Paid:</span><strong>120 Shares</strong></div>
-                <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.4rem' }}>
-                  <button
-                    type="button"
-                    onClick={() => setIsPettyCashVehicleModalOpen(true)}
-                    className="btn btn-primary"
-                    style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', fontWeight: 800, background: '#ea580c', borderColor: '#ea580c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
-                  >
-                    📋 Particulars
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setSelectedAccountKey('pettyCashVehicle'); setIsTreasuryModalOpen(true); }}
-                    className="btn btn-secondary"
-                    style={{ flex: 1, padding: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#ea580c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
-                  >
-                    ✏️ Recalculate
-                  </button>
-                </div>
-              </div>
-            </div>
-
-          </div>
 
           {/* MASTER TRIAL BALANCE TABLE */}
           {(() => {
@@ -2550,7 +2383,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       );
                     })()}
                   </div>
-                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Dividends Count</div><strong>{selectedDossierMember.shares_dividends || 0} Shares</strong></div>
+                  <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Dividends Count</div><strong>{(parseFloat(selectedDossierMember.shares_dividends) || 0).toFixed(2)} Shares</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Value</div><strong>GH₵ {(selectedDossierMember.shares_value || 0).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Treasurer Bill</div><strong>GH₵ {(selectedDossierMember.treasurer_bill || 0).toFixed(2)}</strong></div>
                   <div><div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700 }}>Shares Holding Total</div><strong style={{ color: '#8b5cf6', fontSize: '1rem' }}>GH₵ {(selectedDossierMember.shares_holding || 0).toFixed(2)}</strong></div>
