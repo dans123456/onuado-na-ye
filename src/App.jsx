@@ -68,7 +68,7 @@ export default function App() {
   const [contributions, setContributions] = useState([]);
 
   // Automatic App Version & Stale Mobile Cache Cleaner
-  const APP_VERSION = '2.9.0-20261105-patch';
+  const APP_VERSION = '2.9.1-20261105-patch';
   useEffect(() => {
     try {
       const storedVersion = localStorage.getItem('ony_app_version');

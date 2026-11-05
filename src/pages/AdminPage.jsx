@@ -968,6 +968,48 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             </div>
           </div>
 
+          {/* 4. PETTY CASH VEHICLE FUND SHEET */}
+          <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(234, 88, 12, 0.3)', borderTop: '4px solid #ea580c', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  PETTY CASH VEHICLE FUND
+                </span>
+                <span className="badge" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c' }}>VEHICLE PETTY</span>
+              </div>
+              <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#ea580c', marginTop: '0.35rem', fontFamily: 'var(--font-heading)' }}>
+                GH₵ {treasuryTotals.pettyCashVehicle.endingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+              <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                Ending Vehicle Fund (Excel: <strong>PETTY CASH VEHICLE</strong>)
+              </div>
+            </div>
+            <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Bank Reserve Capital:</span> <strong style={{ color: 'var(--text-main)' }}>GH₵ {treasuryTotals.pettyCashVehicle.bankReserve.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Member Shares Capital:</span> <strong style={{ color: '#059669' }}>GH₵ {treasuryTotals.pettyCashVehicle.memberShares.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+              </div>
+              <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.4rem' }}>
+                <button 
+                  onClick={() => setIsPettyCashVehicleModalOpen(true)}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '0.3rem 0.4rem', fontSize: '0.7rem', fontWeight: 800, color: '#ea580c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.2rem' }}
+                >
+                  <FileSpreadsheet size={11} /> Particulars
+                </button>
+                <button 
+                  onClick={() => { setSelectedAccountKey('pettyCashVehicle'); setIsTreasuryModalOpen(true); }}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '0.3rem 0.4rem', fontSize: '0.7rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.2rem' }}
+                >
+                  ✏️ Recalculate
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -993,48 +1035,46 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         </div>
 
         {(() => {
-          const sharesTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.shares_value) || 0), 0);
-          const treasBillTotalVal = members.reduce((sum, m) => sum + (parseFloat(m.treasurer_bill) || 0), 0);
-          const grandMasterTotalVal = sharesTotalVal + treasBillTotalVal;
-          const combinedNetWorth = grandMasterTotalVal + treasuryTotals.grandLiquidTotal;
-
           return (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+              
+              {/* CARD 1: TOTAL DIVIDENT */}
+              <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(220, 38, 38, 0.3)', borderTop: '4px solid #dc2626' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>TOTAL DIVIDENT</span>
+                  <span className="badge" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(220, 38, 38, 0.12)', color: '#dc2626' }}>Dividend Pool</span>
+                </div>
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
+                  GH₵ 79,231.72
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Total Liquid Dividend Pool Across Fellowship Accounts</div>
+              </div>
+
+              {/* CARD 2: TOTAL SHARES */}
               <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(37, 99, 235, 0.3)', borderTop: '4px solid #2563eb' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  SHARES TOTAL
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>TOTAL SHARES</span>
+                  <span className="badge" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(37, 99, 235, 0.12)', color: '#2563eb' }}>Shares Count</span>
                 </div>
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  GH₵ {sharesTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  44,853
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Sum of All Member Shares Values</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Cumulative Member Qualifying Shares</div>
               </div>
 
+              {/* CARD 3: 1 DIVIDENT */}
               <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(217, 119, 6, 0.3)', borderTop: '4px solid #d97706' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>TREASURER BILL TOTAL</span>
-                  <span className="badge badge-welfare" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>Net Balance</span>
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>1 DIVIDENT</span>
+                  <span className="badge badge-dues" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>Rate / Share</span>
                 </div>
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  GH₵ {treasBillTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  GH₵ 1.77
                 </div>
-                <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.72rem', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Gross Interest:</span><strong style={{ color: '#059669' }}>+GH₵ 10,502.70</strong></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-muted)' }}>Less Charges/Expenses:</span><strong style={{ color: '#dc2626' }}>-GH₵ 100.00</strong></div>
-                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Dividend Rate Per Qualifying Share (GH₵ 79,231.72 ÷ 44,853)</div>
               </div>
 
-              <div style={{ padding: '1.25rem', background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(124, 58, 237, 0.1))', borderRadius: '12px', border: '2px solid #dc2626', borderTop: '5px solid #dc2626' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>GRAND AMOUNT</span>
-                  <span className="badge badge-welfare" style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem' }}>Master Total</span>
-                </div>
-                <div style={{ fontSize: '2.05rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  GH₵ {grandMasterTotalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Shares Total + Treasurer Bill Total</div>
-              </div>
-
+              {/* CARD 4: TRIAL BALANCE */}
               <div 
                 onClick={() => setActiveTab('treasury')}
                 style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(5, 150, 105, 0.4)', borderTop: '4px solid #059669', cursor: 'pointer', transition: 'all 0.2s' }}
