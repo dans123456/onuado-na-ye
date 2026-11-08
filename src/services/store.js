@@ -1447,7 +1447,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-11-05-v21-tb-excel-sync-1793740200000';
+const DATA_VERSION = '2026-11-08-v22-shares-dividend-sync-1794140000000';
 
 export const getMembers = () => {
   try {
@@ -2098,28 +2098,30 @@ export const saveAnnouncement = (text) => {
 // Verified directly from Excel Sheet "TRAIL BALANCE" (Balanced at GH₵ 106,446.72)
 // ==========================================
 export const INITIAL_TRIAL_BALANCE = [
-  // Income Items (Total: GH₵ 106,446.72)
+  // Income Items (Total: GH₵ 107,646.72)
   { id: 'tb-inc-reg', particulars: 'REGISTRATION', amount: 4800.00, type: 'income', category: 'Registration Fees' },
   { id: 'tb-inc-dues-2023', particulars: 'TOTAL MONTHLY DUES FOR 2023', amount: 10800.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-dues-2024', particulars: 'TOTAL MONTHLY DUES FOR 2024', amount: 16900.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-dues-2025', particulars: 'TOTAL MONTHLY DUES FOR 2025', amount: 22350.00, type: 'income', category: 'Monthly Dues' },
-  { id: 'tb-inc-dues-2026', particulars: 'TOTAL MONTHLY DUES FOR 2026', amount: 16600.00, type: 'income', category: 'Monthly Dues' },
+  { id: 'tb-inc-dues-2026', particulars: 'TOTAL MONTHLY DUES FOR 2026', amount: 17400.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-dues-2027', particulars: 'TOTAL MONTHLY DUES FOR 2027', amount: 0.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-levy-1', particulars: 'FIRST LEVY', amount: 3400.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-levy-2', particulars: 'SECOND LEVY', amount: 1700.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-levy-3', particulars: 'THIRD LEVI', amount: 3600.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-levy-4', particulars: 'FORTH LEVY', amount: 3600.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-levy-5', particulars: 'FIFTH LEVY', amount: 3600.00, type: 'income', category: 'Special Levy' },
-  { id: 'tb-inc-levy-6', particulars: 'SIX LEVY', amount: 2200.00, type: 'income', category: 'Special Levy' },
+  { id: 'tb-inc-levy-6', particulars: 'SIXTH LEVY', amount: 2200.00, type: 'income', category: 'Special Levy' },
+  { id: 'tb-inc-levy-7', particulars: 'SEVENTH LEVY', amount: 400.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-tbill-int', particulars: 'TREASURER BILL INTREST', amount: 10402.70, type: 'income', category: 'Investment Returns' },
   { id: 'tb-inc-int-fidelity', particulars: 'INTREST FIDELITY BANK', amount: 88.37, type: 'income', category: 'Bank Interest' },
   { id: 'tb-inc-int-ashaiman', particulars: 'INTREST ASHAIMAN BANK', amount: 166.24, type: 'income', category: 'Bank Interest' },
   { id: 'tb-inc-int-momo', particulars: 'INTREST MTM MOMO ACCOUNT', amount: 239.41, type: 'income', category: 'Bank Interest' },
   { id: 'tb-inc-vehicle', particulars: 'VEHICLE CONTRIBUTIONS', amount: 6000.00, type: 'income', category: 'Vehicle Capital' },
 
-  // Expenditure & Asset Items (Total: GH₵ 106,446.72)
+  // Expenditure & Asset Items (Total: GH₵ 107,646.72)
   { id: 'tb-exp-bank-shares', particulars: 'BANK TEMA SHARES', amount: 100.00, type: 'expenditure', category: 'Shares Investment' },
-  { id: 'tb-exp-docs', particulars: 'DOCUMENTATIONS', amount: 0.00, type: 'expenditure', category: 'Administrative' },
+  { id: 'tb-exp-destitution', particulars: 'DESTITUTION', amount: 400.00, type: 'expenditure', category: 'Welfare Benefit' },
+  { id: 'tb-exp-docs', particulars: 'DOCUMENTATIONS', amount: 400.00, type: 'expenditure', category: 'Administrative' },
   { id: 'tb-exp-naming', particulars: 'DONATIONS CHILD NAMING', amount: 2000.00, type: 'expenditure', category: 'Welfare Benefit' },
   { id: 'tb-exp-funeral', particulars: 'DONATIONS FUNERAL', amount: 13720.00, type: 'expenditure', category: 'Welfare Benefit' },
   { id: 'tb-exp-gen-exp', particulars: 'GENERAL EXPENSES', amount: 810.00, type: 'expenditure', category: 'Expenditure' },
@@ -2129,8 +2131,8 @@ export const INITIAL_TRIAL_BALANCE = [
   { id: 'tb-exp-vehicle-acc', particulars: 'VEHICLE ACCOUNT', amount: 400.00, type: 'expenditure', category: 'Expenditure' },
   { id: 'tb-asset-fidelity', particulars: 'CASH IN FIDELITY BANK BALANCE', amount: 10698.88, type: 'expenditure', category: 'Bank Asset' },
   { id: 'tb-asset-bank-tema', particulars: 'CASH IN BANK TEMA BALANCE', amount: 266.24, type: 'expenditure', category: 'Bank Asset' },
-  { id: 'tb-asset-momo', particulars: 'CASH IN MOMO ACCOUNT', amount: 166.60, type: 'expenditure', category: 'MoMo Wallet' },
-  { id: 'tb-asset-vehicle', particulars: 'VEHICLE CONTRIBUTION (Account)', amount: 68000.00, type: 'expenditure', category: 'Asset Transfer' }
+  { id: 'tb-asset-momo', particulars: 'CASH IN MOMO ACCOUNT', amount: 566.60, type: 'expenditure', category: 'MoMo Wallet' },
+  { id: 'tb-asset-vehicle', particulars: 'CASH MENT FOR VEHICLE', amount: 68000.00, type: 'expenditure', category: 'Asset Transfer' }
 ];
 
 export const getTrialBalanceItems = () => {

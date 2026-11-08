@@ -3,7 +3,7 @@ import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Ca
 import { updateMemberProfile, addContribution, getMembers, getContributions, getTrialBalanceItems } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSharesData';
-import { getMemberSharesSchedule } from '../utils/sharesDividendData';
+import { getMemberSharesSchedule, FELLOWSHIP_TOTAL_DIVIDEND, FELLOWSHIP_TOTAL_SHARES, FELLOWSHIP_DIVIDEND_RATE } from '../utils/sharesDividendData';
 import PaystackModal from '../components/PaystackModal';
 import PettyCashVehicleModal from '../components/PettyCashVehicleModal';
 import OfficialRegistrationPrintModal from '../components/OfficialRegistrationPrintModal';
@@ -70,17 +70,25 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const regFees = currentMember?.reg_fees || 200.00;
   const duesPaid = currentMember?.dues_paid !== undefined ? currentMember.dues_paid : 3000.00;
   const levyPaid = currentMember?.levy_paid !== undefined ? currentMember.levy_paid : 1000.00;
-  const totalPayments = currentMember?.total_payments !== undefined ? currentMember.total_payments : (duesPaid + levyPaid + regFees);
+  const vehicleSharesData = getMemberVehicleShares(currentMember?.full_name || currentUser?.full_name);
+  const vehicleContribution = vehicleSharesData?.totalPaid || 0;
+
+  // Total payments = Registration (200) + Dues Paid + Levy Paid + Vehicle Contribution
+  const totalPayments = regFees + duesPaid + levyPaid + vehicleContribution;
+
   const duesFeeRequired = currentMember?.dues_fee_required || 3900.00;
   const sharesDividends = currentMember?.shares_dividends !== undefined ? currentMember.shares_dividends : 0;
   const sharesValue = currentMember?.shares_value !== undefined ? currentMember.shares_value : 0;
   const treasurerBill = currentMember?.treasurer_bill !== undefined ? currentMember.treasurer_bill : 0;
   const sharesHolding = currentMember?.shares_holding !== undefined ? currentMember.shares_holding : (sharesValue + treasurerBill);
   const balanceOwed = currentMember?.balance_owed !== undefined ? currentMember.balance_owed : Math.max(0, duesFeeRequired - duesPaid);
-  const netPayoutValue = Math.max(0, sharesHolding - balanceOwed);
   const memberLevyList = getMemberLevyDetails(currentMember);
-  const vehicleSharesData = getMemberVehicleShares(currentMember?.full_name || currentUser?.full_name);
   const sharesSchedule = getMemberSharesSchedule(currentMember?.full_name || currentUser?.full_name, duesPaid);
+
+  // Member's Individual Shares and Dividend from SHARES DEVIDENT schedule
+  const individualShares = sharesSchedule?.totalShares || (currentMember?.total_shares_count) || (currentMember?.shares_dividends || 0);
+  const individualDividend = sharesSchedule?.individualDividend || Number(((parseFloat(individualShares) || 0) * FELLOWSHIP_DIVIDEND_RATE).toFixed(2));
+  const netPayoutValue = Math.max(0, individualDividend - balanceOwed);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -111,10 +119,10 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
   const exportCSV = () => {
     const headers = ["ID,Date,Type,Amount (GHS),Payment Method,Reference Note,Received By\n"];
-    const rows = userContributions.map(c => 
+    const rows = userContributions.map(c =>
       `"${c.id}","${c.payment_date}","${c.contribution_type}","${c.amount}","${c.payment_method}","${c.reference_note}","${c.received_by_name || 'Admin'}"`
     ).join("\n");
-    
+
     const blob = new Blob([headers + rows], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -143,8 +151,8 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <button 
-            onClick={() => setIsPaystackOpen(true)} 
+          <button
+            onClick={() => setIsPaystackOpen(true)}
             className="btn btn-primary"
             style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: 'linear-gradient(135deg, #059669, #d97706)', border: 'none', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
           >
@@ -185,13 +193,13 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
       {/* 🔴🟣 TOP PURPLE & GOLD "CONK" HEADER BANNER (Matching Excel PERSONAL RECORD Header) */}
       <div className="glass-card" style={{ padding: '2rem', borderRadius: '20px', background: 'linear-gradient(135deg, #4c1d95, #6d28d9, #1e1b4b)', color: '#ffffff', marginBottom: '2rem', boxShadow: '0 12px 30px rgba(109, 40, 217, 0.3)', position: 'relative', overflow: 'hidden' }}>
-        
+
         <div style={{ position: 'absolute', right: '-20px', top: '-20px', opacity: 0.1, color: '#fff' }}>
           <Award size={200} />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', alignItems: 'center' }}>
-          
+
           {/* Member Photo Avatar & Name Details */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -220,16 +228,16 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             </div>
           </div>
 
-          {/* Shares Holding Box */}
+          {/* Your Individual Dividend Box (Image 2) */}
           <div style={{ padding: '1.25rem', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '14px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
-            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.85, fontWeight: 700 }}>
-              🏆 Shares Holding
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9, fontWeight: 700, color: '#fef08a' }}>
+              🏆 Your Individual Dividend
             </div>
             <div style={{ fontSize: '1.9rem', fontWeight: 900, color: '#fef08a', marginTop: '0.2rem' }}>
-              GH₵ {sharesHolding.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              GH₵ {individualDividend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
-            <div style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '0.3rem' }}>
-              Total entitlement value if fellowship winds up
+            <div style={{ fontSize: '0.75rem', opacity: 0.85, marginTop: '0.3rem' }}>
+              {(parseFloat(individualShares) || 0).toFixed(2)} Individual Shares × GH₵ 1.76 Rate
             </div>
           </div>
 
@@ -242,7 +250,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               GH₵ {balanceOwed.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </div>
             <div style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '0.3rem' }}>
-              {balanceOwed > 0 ? 'Deducted from Shares Holding' : 'Fully up to date ✓'}
+              {balanceOwed > 0 ? 'Deducted from Individual Dividend' : 'Fully up to date ✓'}
             </div>
           </div>
 
@@ -250,114 +258,126 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
       </div>
 
-      {/* 🟢🟡 GREEN & YELLOW FINANCIAL OVERVIEW GRID (Matching Excel PERSONAL RECORD Row 1) */}
+      {/* 🟢🟡 FINANCIAL OVERVIEW GRID (Restructured: Contribution Payments & Dividend Entitlement) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-        
+
+        {/* 1. REGISTRATION FEES */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #059669' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Registration Fees</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#059669', marginTop: '0.2rem' }}>GH₵ {regFees.toFixed(2)}</div>
         </div>
 
+        {/* 2. DUES PAID */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #10b981' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Dues Paid</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '0.2rem' }}>GH₵ {duesPaid.toFixed(2)}</div>
         </div>
 
+        {/* 3. LEVY PAID */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #3b82f6' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Levy Paid</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.2rem' }}>GH₵ {levyPaid.toFixed(2)}</div>
         </div>
 
-        {/* 🚗 VEHICLE SHARES CARD (Inserted right BEFORE Total Payments) */}
-        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #ea580c', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.06), rgba(255, 255, 255, 0.02))', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ fontSize: '0.75rem', color: '#ea580c', textTransform: 'uppercase', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span>Vehicle Shares</span>
-              <span className="badge" style={{ fontSize: '0.62rem', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', padding: '0.1rem 0.4rem', fontWeight: 800 }}>🚗 SHARES</span>
-            </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ea580c', marginTop: '0.2rem' }}>
-              GH₵ {vehicleSharesData.totalPaid.toFixed(2)}
-            </div>
+        {/* 4. VEHICLE CONTRIBUTIONS (Renamed, buttons removed) */}
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #ea580c', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.06), rgba(255, 255, 255, 0.02))' }}>
+          <div style={{ fontSize: '0.75rem', color: '#ea580c', textTransform: 'uppercase', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>Vehicle Contributions</span>
+            <span className="badge" style={{ fontSize: '0.62rem', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', padding: '0.1rem 0.4rem', fontWeight: 800 }}>🚗 CONTRIBUTIONS</span>
           </div>
-          <div style={{ marginTop: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.25rem' }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-              {vehicleSharesData.sharesCount} Shares ({vehicleSharesData.status})
-            </span>
-            <div style={{ display: 'flex', gap: '0.25rem' }}>
-              <button
-                onClick={() => setIsPettyCashVehicleModalOpen(true)}
-                className="btn"
-                style={{ padding: '0.22rem 0.45rem', fontSize: '0.7rem', fontWeight: 800, background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', border: '1px solid rgba(234, 88, 12, 0.3)', borderRadius: '6px', cursor: 'pointer' }}
-                title="View PETTY CASH VEHICLE total balance (GH₵ 68,000.00) & particulars ledger"
-              >
-                📋 Fund Particulars
-              </button>
-              <button
-                onClick={() => setIsVehicleModalOpen(true)}
-                className="btn"
-                style={{ padding: '0.22rem 0.55rem', fontSize: '0.72rem', fontWeight: 800, background: '#ea580c', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', boxShadow: '0 2px 6px rgba(234, 88, 12, 0.25)' }}
-              >
-                Details &rarr;
-              </button>
-            </div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ea580c', marginTop: '0.2rem' }}>
+            GH₵ {vehicleContribution.toFixed(2)}
+          </div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, marginTop: '0.35rem' }}>
+            {vehicleSharesData.sharesCount > 0 ? `${vehicleSharesData.sharesCount} Shares Allocated (${vehicleSharesData.status})` : '0 Shares Allocated'}
           </div>
         </div>
 
+        {/* 5. TOTAL PAYMENTS (4-item formula: Reg + Dues + Levy + Vehicle) */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #d97706' }}>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Total Payments</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#d97706', marginTop: '0.2rem' }}>GH₵ {totalPayments.toFixed(2)}</div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+            Reg + Dues + Levy + Vehicle
+          </div>
         </div>
 
+        {/* 6. TOTAL SHARES (From Admin Master Pool) */}
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #2563eb' }}>
+          <div style={{ fontSize: '0.75rem', color: '#2563eb', textTransform: 'uppercase', fontWeight: 800 }}>Total Shares</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#2563eb', marginTop: '0.2rem' }}>
+            {FELLOWSHIP_TOTAL_SHARES.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+            Fellowship Master Shares Pool
+          </div>
+        </div>
+
+        {/* 7. TOTAL DIVIDENT (From Admin Master Pool) */}
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #dc2626' }}>
+          <div style={{ fontSize: '0.75rem', color: '#dc2626', textTransform: 'uppercase', fontWeight: 800 }}>Total Divident</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#dc2626', marginTop: '0.2rem' }}>
+            GH₵ {FELLOWSHIP_TOTAL_DIVIDEND.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+            Fellowship Master Dividend Pool
+          </div>
+        </div>
+
+        {/* 8. INDIVIDUAL SHARES (From Shares Dividend Tab) */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #8b5cf6' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Shares Dividends</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.2rem' }}>{(parseFloat(sharesDividends) || 0).toFixed(2)} Shares</div>
-          {vehicleSharesData.sharesCount > 0 && (
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.35rem' }}>
-              <span>+{vehicleSharesData.sharesCount} Vehicle =</span>
-              <strong style={{ color: '#7c3aed', background: 'rgba(124, 58, 237, 0.12)', padding: '0.18rem 0.55rem', borderRadius: '6px', fontSize: '1.05rem', fontWeight: 900, border: '1px solid rgba(124, 58, 237, 0.25)', boxShadow: '0 1px 3px rgba(124, 58, 237, 0.15)' }}>
-                {(parseFloat(currentMember?.total_shares_count) || ((parseFloat(sharesDividends) || 0) + (parseFloat(vehicleSharesData.sharesCount) || 0))).toFixed(2)} Total
-              </strong>
-            </div>
-          )}
+          <div style={{ fontSize: '0.75rem', color: '#8b5cf6', textTransform: 'uppercase', fontWeight: 800 }}>Individual Shares</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.2rem' }}>
+            {(parseFloat(individualShares) || 0).toFixed(2)} Shares
+          </div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+            From Shares Dividend Schedule
+          </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #0284c7' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Shares Base Value</div>
-          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0284c7', marginTop: '0.2rem' }}>GH₵ {sharesValue.toFixed(2)}</div>
+        {/* 9. 1 DIVIDENT (Rate = 1.77) */}
+        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #d97706' }}>
+          <div style={{ fontSize: '0.75rem', color: '#d97706', textTransform: 'uppercase', fontWeight: 800 }}>1 Divident</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#d97706', marginTop: '0.2rem' }}>
+            GH₵ 1.77
+          </div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+            Rate per Share (Pool ÷ Shares)
+          </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #ec4899' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Treasurer Bill</div>
-          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ec4899', marginTop: '0.2rem' }}>GH₵ {treasurerBill.toFixed(2)}</div>
-        </div>
-
+        {/* 10. INDIVIDUAL DIVIDENTS (Individual Shares * 1 Divident) */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #7c3aed', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(217, 119, 6, 0.08))' }}>
           <div style={{ fontSize: '0.75rem', color: '#7c3aed', textTransform: 'uppercase', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>Grand Total Shares</span>
+            <span>Individual Dividents</span>
             <Sparkles size={12} color="#7c3aed" />
           </div>
-          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#7c3aed', marginTop: '0.2rem' }}>GH₵ {sharesHolding.toFixed(2)}</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>Shares Value + Treasurer Bill</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#7c3aed', marginTop: '0.2rem' }}>
+            GH₵ {individualDividend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+            Individual Shares × 1 Divident
+          </div>
         </div>
 
       </div>
 
-      {/* 💎 GRAND TOTAL SHARES HOLDING BREAKDOWN BANNER */}
+      {/* 💎 INDIVIDUAL DIVIDEND BREAKDOWN BANNER */}
       <div className="glass-card" style={{ padding: '1.25rem 1.5rem', marginBottom: '2.5rem', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(5, 150, 105, 0.08))', border: '1.5px solid rgba(124, 58, 237, 0.3)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(124, 58, 237, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed' }}>
               <TrendingUp size={24} />
             </div>
             <div>
               <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>
-                Member Shares Holding Grand Total
+                Member Individual Dividend Entitlement
               </div>
               <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#7c3aed', lineHeight: 1.1, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.1rem' }}>
-                <span>GH₵ {sharesHolding.toFixed(2)}</span>
+                <span>GH₵ {individualDividend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 <span style={{ fontSize: '0.95rem', color: '#7c3aed', fontWeight: 800, background: 'rgba(124, 58, 237, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '6px', border: '1px solid rgba(124, 58, 237, 0.25)' }}>
-                  ({(parseFloat(currentMember?.total_shares_count) || ((parseFloat(sharesDividends) || 0) + (parseFloat(vehicleSharesData.sharesCount) || 0))).toFixed(2)} Total Shares)
+                  ({(parseFloat(individualShares) || 0).toFixed(2)} Individual Shares)
                 </span>
               </div>
             </div>
@@ -365,18 +385,18 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
           <div style={{ display: 'flex', gap: '1.25rem', background: 'var(--bg-main)', padding: '0.65rem 1.25rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontSize: '0.85rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>Shares Base Value</span>
-              <strong style={{ color: 'var(--text-main)', fontSize: '0.95rem' }}>GH₵ {sharesValue.toFixed(2)}</strong>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>Individual Shares</span>
+              <strong style={{ color: '#8b5cf6', fontSize: '0.95rem' }}>{(parseFloat(individualShares) || 0).toFixed(2)} Shares</strong>
             </div>
-            <div style={{ color: 'var(--text-muted)', fontWeight: 800, fontSize: '1.1rem' }}>+</div>
+            <div style={{ color: 'var(--text-muted)', fontWeight: 800, fontSize: '1.1rem' }}>×</div>
             <div>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>Treasurer Bill</span>
-              <strong style={{ color: '#ec4899', fontSize: '0.95rem' }}>GH₵ {treasurerBill.toFixed(2)}</strong>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>1 Divident Rate</span>
+              <strong style={{ color: '#d97706', fontSize: '0.95rem' }}>GH₵ 1.77</strong>
             </div>
             <div style={{ color: '#7c3aed', fontWeight: 900, fontSize: '1.1rem' }}>=</div>
             <div style={{ background: 'rgba(124, 58, 237, 0.1)', padding: '0.35rem 0.75rem', borderRadius: '8px' }}>
-              <span style={{ color: '#7c3aed', fontSize: '0.72rem', display: 'block', fontWeight: 800, textTransform: 'uppercase' }}>Grand Total Shares</span>
-              <strong style={{ color: '#7c3aed', fontSize: '1.05rem', fontWeight: 900 }}>GH₵ {sharesHolding.toFixed(2)}</strong>
+              <span style={{ color: '#7c3aed', fontSize: '0.72rem', display: 'block', fontWeight: 800, textTransform: 'uppercase' }}>Individual Dividents</span>
+              <strong style={{ color: '#7c3aed', fontSize: '1.05rem', fontWeight: 900 }}>GH₵ {individualDividend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
             </div>
           </div>
 
@@ -385,50 +405,50 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
       {/* Navigation Tabs Mapped to Excel PERSONAL RECORD Breakdown */}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-        <button 
-          onClick={() => setActiveTab('record')} 
+        <button
+          onClick={() => setActiveTab('record')}
           className={`btn ${activeTab === 'record' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
           <FileText size={18} /> Full Personal Record
         </button>
-        <button 
-          onClick={() => setActiveTab('dues_matrix')} 
+        <button
+          onClick={() => setActiveTab('dues_matrix')}
           className={`btn ${activeTab === 'dues_matrix' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
           <CreditCard size={18} color="#ef4444" /> Yearly Dues Tracker (2023–2033)
         </button>
-        <button 
-          onClick={() => setActiveTab('levies_matrix')} 
+        <button
+          onClick={() => setActiveTab('levies_matrix')}
           className={`btn ${activeTab === 'levies_matrix' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
           <Heart size={18} color="#3b82f6" /> 1st–12th Levies Installment Grid
         </button>
-        <button 
-          onClick={() => setActiveTab('history')} 
+        <button
+          onClick={() => setActiveTab('history')}
           className={`btn ${activeTab === 'history' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
           <Wallet size={18} color="#8b5cf6" /> Transaction Ledger History
         </button>
-        <button 
-          onClick={() => setIsSharesModalOpen(true)} 
+        <button
+          onClick={() => setIsSharesModalOpen(true)}
           className="btn btn-secondary"
           style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: 'rgba(139, 92, 246, 0.12)', color: '#8b5cf6', border: '1.5px solid rgba(139, 92, 246, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
         >
           <Sparkles size={18} color="#8b5cf6" /> 📊 Member Shares Dividend Details &rarr;
         </button>
-        <button 
-          onClick={() => setActiveTab('payment_channels')} 
+        <button
+          onClick={() => setActiveTab('payment_channels')}
           className={`btn ${activeTab === 'payment_channels' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
           <CreditCard size={18} color="#d97706" /> Official Payment Channels & Guide
         </button>
-        <button 
-          onClick={() => setActiveTab('trial_balance')} 
+        <button
+          onClick={() => setActiveTab('trial_balance')}
           className={`btn ${activeTab === 'trial_balance' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: activeTab === 'trial_balance' ? '#059669' : 'rgba(5, 150, 105, 0.1)', color: activeTab === 'trial_balance' ? '#fff' : '#059669', border: '1.5px solid rgba(5, 150, 105, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
         >
@@ -439,250 +459,250 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
       {/* TAB 1: FULL PERSONAL RECORD & REGISTRATION PROFILE */}
       {activeTab === 'record' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', width: '100%' }}>
-          
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))', gap: '1.25rem', width: '100%' }}>
             {/* Member Registration Profile Details */}
             <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', width: '100%', boxSizing: 'border-box' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-600)' }}>
-                <User size={20} /> Verified Personal Profile
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-600)' }}>
+                  <User size={20} /> Verified Personal Profile
+                </h2>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button
+                    onClick={() => setShowPII(!showPII)}
+                    className="btn btn-secondary"
+                    title={showPII ? "Hide Sensitive Details" : "Show Unmasked Details"}
+                    style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, border: showPII ? '1px solid #d97706' : '1px solid var(--border-color)' }}
+                  >
+                    {showPII ? <EyeOff size={14} color="#d97706" /> : <Eye size={14} color="#059669" />}
+                    {showPII ? 'Hide PII' : 'Reveal PII'}
+                  </button>
+                  <button
+                    onClick={() => setIsPrintModalOpen(true)}
+                    className="btn btn-secondary"
+                    title="Print your official fellowship registration sheet"
+                    style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: '#1e40af', border: '1px solid rgba(37, 99, 235, 0.4)' }}
+                  >
+                    <Printer size={14} color="#2563eb" /> Print Form
+                  </button>
+                  {!isEditing ? (
+                    <button onClick={() => setIsEditing(true)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
+                      <Edit3 size={14} /> Edit Contact
+                    </button>
+                  ) : (
+                    <button onClick={() => setIsEditing(false)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {!isEditing ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.92rem' }}>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Full Name</div>
+                    <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>{currentUser.full_name}</div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Date Joined Fellowship</div>
+                    <div style={{ fontWeight: 700, color: 'var(--accent-600)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Calendar size={14} /> {currentUser.date_joined || 'January 2023'}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ghana Card National ID</div>
+                    <div style={{ fontWeight: 700, color: '#3b82f6', letterSpacing: '0.04em' }}>{maskID(currentUser.ghana_card || 'GHA-00134909-6')}</div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Occupation</div>
+                    <div style={{ fontWeight: 600 }}>{currentUser.occupation || 'Fellowship Member'}</div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Phone Numbers (Primary & Secondary)</div>
+                    <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      <Phone size={14} color="#059669" />
+                      <span>{maskPhone(currentUser.phone_number)}</span>
+                      {currentUser.phone_number_2 && (
+                        <span style={{ color: 'var(--primary-600)', background: 'rgba(5, 150, 105, 0.1)', padding: '0.12rem 0.5rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 700 }}>
+                          Secondary: {maskPhone(currentUser.phone_number_2)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Residency (Town)</div>
+                    <div style={{ fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <MapPin size={14} color="#059669" /> {currentUser.town || currentUser.home_address || `${currentUser.branch || 'Accra'}, Ghana`}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Emergency Contact & Next of Kin</div>
+                    <div style={{ fontWeight: 600, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <AlertCircle size={14} /> {maskPhone(currentUser.emergency_contact || '0244123456')}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleProfileSave} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Profile Photo (Upload File or Image Link)</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="form-input"
+                      style={{ padding: '0.4rem', fontSize: '0.85rem' }}
+                    />
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Or paste photo image URL"
+                      value={profileForm.profile_picture}
+                      onChange={(e) => setProfileForm({ ...profileForm, profile_picture: e.target.value })}
+                      style={{ marginTop: '0.35rem' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Primary Phone Number</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={profileForm.phone_number}
+                      onChange={(e) => setProfileForm({ ...profileForm, phone_number: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>MoMo Wallet Number</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={profileForm.momo_number}
+                      onChange={(e) => setProfileForm({ ...profileForm, momo_number: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Residential Address</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={profileForm.home_address}
+                      onChange={(e) => setProfileForm({ ...profileForm, home_address: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Emergency Contact</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={profileForm.emergency_contact}
+                      onChange={(e) => setProfileForm({ ...profileForm, emergency_contact: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Security Login PIN (4-Digits)</label>
+                    <input
+                      type="password"
+                      maxLength={6}
+                      className="form-input"
+                      placeholder="Set custom 4-digit security PIN"
+                      value={profileForm.pin}
+                      onChange={(e) => setProfileForm({ ...profileForm, pin: e.target.value })}
+                    />
+                  </div>
+
+                  <button type="submit" className="btn btn-primary" style={{ padding: '0.65rem', marginTop: '0.5rem' }}>
+                    <Save size={16} /> Save Profile Changes
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* Family & Welfare Profile */}
+            <div className="glass-card" style={{ padding: '2.25rem', borderRadius: '20px', width: '100%' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#d97706' }}>
+                <Heart size={20} /> Family & Next of Kin Profile
               </h2>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <button 
-                  onClick={() => setShowPII(!showPII)} 
-                  className="btn btn-secondary" 
-                  title={showPII ? "Hide Sensitive Details" : "Show Unmasked Details"}
-                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, border: showPII ? '1px solid #d97706' : '1px solid var(--border-color)' }}
-                >
-                  {showPII ? <EyeOff size={14} color="#d97706" /> : <Eye size={14} color="#059669" />}
-                  {showPII ? 'Hide PII' : 'Reveal PII'}
-                </button>
-                <button 
-                  onClick={() => setIsPrintModalOpen(true)}
-                  className="btn btn-secondary" 
-                  title="Print your official fellowship registration sheet"
-                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: '#1e40af', border: '1px solid rgba(37, 99, 235, 0.4)' }}
-                >
-                  <Printer size={14} color="#2563eb" /> Print Form
-                </button>
-                {!isEditing ? (
-                  <button onClick={() => setIsEditing(true)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
-                    <Edit3 size={14} /> Edit Contact
-                  </button>
-                ) : (
-                  <button onClick={() => setIsEditing(false)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </div>
 
-            {!isEditing ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.92rem' }}>
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Full Name</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>{currentUser.full_name}</div>
-                </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem' }}>
 
                 <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Date Joined Fellowship</div>
-                  <div style={{ fontWeight: 700, color: 'var(--accent-600)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Calendar size={14} /> {currentUser.date_joined || 'January 2023'}
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Next of Kin</div>
+                  <div style={{ fontWeight: 800, color: 'var(--primary-700)', fontSize: '1rem' }}>
+                    {currentUser.next_of_kin || 'Not Specified'} ({currentUser.next_of_kin_relation || 'Relative'})
                   </div>
-                </div>
-
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Ghana Card National ID</div>
-                  <div style={{ fontWeight: 700, color: '#3b82f6', letterSpacing: '0.04em' }}>{maskID(currentUser.ghana_card || 'GHA-00134909-6')}</div>
-                </div>
-
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Occupation</div>
-                  <div style={{ fontWeight: 600 }}>{currentUser.occupation || 'Fellowship Member'}</div>
-                </div>
-
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Phone Numbers (Primary & Secondary)</div>
-                  <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    <Phone size={14} color="#059669" /> 
-                    <span>{maskPhone(currentUser.phone_number)}</span>
-                    {currentUser.phone_number_2 && (
-                      <span style={{ color: 'var(--primary-600)', background: 'rgba(5, 150, 105, 0.1)', padding: '0.12rem 0.5rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 700 }}>
-                        Secondary: {maskPhone(currentUser.phone_number_2)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Residency (Town)</div>
-                  <div style={{ fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <MapPin size={14} color="#059669" /> {currentUser.town || currentUser.home_address || `${currentUser.branch || 'Accra'}, Ghana`}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Emergency Contact & Next of Kin</div>
-                  <div style={{ fontWeight: 600, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <AlertCircle size={14} /> {maskPhone(currentUser.emergency_contact || '0244123456')}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleProfileSave} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Profile Photo (Upload File or Image Link)</label>
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="form-input"
-                    style={{ padding: '0.4rem', fontSize: '0.85rem' }}
-                  />
-                  <input 
-                    type="text" 
-                    className="form-input"
-                    placeholder="Or paste photo image URL"
-                    value={profileForm.profile_picture}
-                    onChange={(e) => setProfileForm({ ...profileForm, profile_picture: e.target.value })}
-                    style={{ marginTop: '0.35rem' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Primary Phone Number</label>
-                  <input 
-                    type="text" 
-                    className="form-input"
-                    value={profileForm.phone_number}
-                    onChange={(e) => setProfileForm({ ...profileForm, phone_number: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>MoMo Wallet Number</label>
-                  <input 
-                    type="text" 
-                    className="form-input"
-                    value={profileForm.momo_number}
-                    onChange={(e) => setProfileForm({ ...profileForm, momo_number: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Residential Address</label>
-                  <input 
-                    type="text" 
-                    className="form-input"
-                    value={profileForm.home_address}
-                    onChange={(e) => setProfileForm({ ...profileForm, home_address: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Emergency Contact</label>
-                  <input 
-                    type="text" 
-                    className="form-input"
-                    value={profileForm.emergency_contact}
-                    onChange={(e) => setProfileForm({ ...profileForm, emergency_contact: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Security Login PIN (4-Digits)</label>
-                  <input 
-                    type="password" 
-                    maxLength={6}
-                    className="form-input"
-                    placeholder="Set custom 4-digit security PIN"
-                    value={profileForm.pin}
-                    onChange={(e) => setProfileForm({ ...profileForm, pin: e.target.value })}
-                  />
-                </div>
-
-                <button type="submit" className="btn btn-primary" style={{ padding: '0.65rem', marginTop: '0.5rem' }}>
-                  <Save size={16} /> Save Profile Changes
-                </button>
-              </form>
-            )}
-          </div>
-
-          {/* Family & Welfare Profile */}
-          <div className="glass-card" style={{ padding: '2.25rem', borderRadius: '20px', width: '100%' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#d97706' }}>
-              <Heart size={20} /> Family & Next of Kin Profile
-            </h2>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.9rem' }}>
-              
-              <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Next of Kin</div>
-                <div style={{ fontWeight: 800, color: 'var(--primary-700)', fontSize: '1rem' }}>
-                  {currentUser.next_of_kin || 'Not Specified'} ({currentUser.next_of_kin_relation || 'Relative'})
-                </div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                  Contact: <strong>{maskPhone(currentUser.next_of_kin_contact)}</strong>
-                </div>
-              </div>
-
-              <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Marital Status & Spouse</div>
-                <div style={{ fontWeight: 700 }}>
-                  {currentUser.marital_status || 'Married'} {currentUser.spouse_name ? `• Spouse: ${currentUser.spouse_name}` : ''}
-                </div>
-                {currentUser.spouse_contact && (
                   <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                    Spouse Phone: <strong>{maskPhone(currentUser.spouse_contact)}</strong>
-                  </div>
-                )}
-                {currentUser.children_count && (
-                  <div style={{ fontSize: '0.82rem', color: 'var(--accent-600)', fontWeight: 700, marginTop: '0.2rem' }}>
-                    👨‍👩‍👧‍👦 Children Count: {currentUser.children_count}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Parents' Status & Contacts</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginTop: '0.35rem' }}>
-                  <div style={{ padding: '0.6rem 0.75rem', background: 'var(--bg-main)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>Father</div>
-                    <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{currentUser.father_name || 'Father'}</div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: currentUser.father_state === 'Alive' ? '#059669' : '#dc2626' }}>
-                      Status: {currentUser.father_state || 'Alive'}
-                    </div>
-                    {currentUser.father_contact && (
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{maskPhone(currentUser.father_contact)}</div>
-                    )}
-                  </div>
-
-                  <div style={{ padding: '0.6rem 0.75rem', background: 'var(--bg-main)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>Mother</div>
-                    <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{currentUser.mother_name || 'Mother'}</div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: currentUser.mother_state === 'Alive' ? '#059669' : '#dc2626' }}>
-                      Status: {currentUser.mother_state || 'Alive'}
-                    </div>
-                    {currentUser.mother_contact && (
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{maskPhone(currentUser.mother_contact)}</div>
-                    )}
+                    Contact: <strong>{maskPhone(currentUser.next_of_kin_contact)}</strong>
                   </div>
                 </div>
-              </div>
 
-              <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Fellowship Status</div>
-                <div style={{ fontSize: '1rem', fontWeight: 800, color: currentUser.status === 'ACTIVE' ? '#059669' : '#d97706', marginTop: '0.1rem' }}>
-                  {currentUser.status || 'ACTIVE'}
+                <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Marital Status & Spouse</div>
+                  <div style={{ fontWeight: 700 }}>
+                    {currentUser.marital_status || 'Married'} {currentUser.spouse_name ? `• Spouse: ${currentUser.spouse_name}` : ''}
+                  </div>
+                  {currentUser.spouse_contact && (
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                      Spouse Phone: <strong>{maskPhone(currentUser.spouse_contact)}</strong>
+                    </div>
+                  )}
+                  {currentUser.children_count && (
+                    <div style={{ fontSize: '0.82rem', color: 'var(--accent-600)', fontWeight: 700, marginTop: '0.2rem' }}>
+                      👨‍👩‍👧‍👦 Children Count: {currentUser.children_count}
+                    </div>
+                  )}
                 </div>
-              </div>
 
+                <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Parents' Status & Contacts</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginTop: '0.35rem' }}>
+                    <div style={{ padding: '0.6rem 0.75rem', background: 'var(--bg-main)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>Father</div>
+                      <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{currentUser.father_name || 'Father'}</div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: currentUser.father_state === 'Alive' ? '#059669' : '#dc2626' }}>
+                        Status: {currentUser.father_state || 'Alive'}
+                      </div>
+                      {currentUser.father_contact && (
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{maskPhone(currentUser.father_contact)}</div>
+                      )}
+                    </div>
+
+                    <div style={{ padding: '0.6rem 0.75rem', background: 'var(--bg-main)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700 }}>Mother</div>
+                      <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>{currentUser.mother_name || 'Mother'}</div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: currentUser.mother_state === 'Alive' ? '#059669' : '#dc2626' }}>
+                        Status: {currentUser.mother_state || 'Alive'}
+                      </div>
+                      {currentUser.mother_contact && (
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{maskPhone(currentUser.mother_contact)}</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Fellowship Status</div>
+                  <div style={{ fontSize: '1rem', fontWeight: 800, color: currentUser.status === 'ACTIVE' ? '#059669' : '#d97706', marginTop: '0.1rem' }}>
+                    {currentUser.status || 'ACTIVE'}
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Heritage, Origin & Work Profile */}
-        <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', width: '100%', boxSizing: 'border-box' }}>
+          {/* Heritage, Origin & Work Profile */}
+          <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', width: '100%', boxSizing: 'border-box' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#2563eb' }}>
               <Building2 size={20} /> Heritage, Hometown & Workplace Record
             </h2>
@@ -770,12 +790,12 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
                   {calculatedYears.map((item) => (
-                    <div 
+                    <div
                       key={item.year}
-                      className="glass-card" 
-                      style={{ 
-                        padding: '1.1rem', 
-                        borderRadius: '14px', 
+                      className="glass-card"
+                      style={{
+                        padding: '1.1rem',
+                        borderRadius: '14px',
                         borderLeft: `4px solid ${item.isFullyPaid ? '#059669' : item.isPartial ? '#d97706' : 'var(--border-color)'}`,
                         background: item.isFullyPaid ? 'linear-gradient(135deg, rgba(5, 150, 105, 0.06), rgba(255, 255, 255, 0.02))' : 'var(--bg-main)'
                       }}
@@ -976,9 +996,9 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                     <td>{item.payment_method}</td>
                     <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{item.reference_note || item.referenceNote || 'Official Fellowship Ledger Payment'}</td>
                     <td>
-                      <button 
-                        onClick={() => setSelectedReceipt(item)} 
-                        className="btn btn-secondary" 
+                      <button
+                        onClick={() => setSelectedReceipt(item)}
+                        className="btn btn-secondary"
                         style={{ padding: '0.3rem 0.65rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
                       >
                         <Printer size={13} /> Print Receipt
@@ -1005,7 +1025,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.25rem' }}>
-            
+
             {/* MoMo Box */}
             <div style={{ background: 'var(--bg-main)', padding: '1.5rem', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '0.4rem' }}>
@@ -1039,8 +1059,8 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                 </div>
               </div>
 
-              <button 
-                onClick={() => setIsPaystackOpen(true)} 
+              <button
+                onClick={() => setIsPaystackOpen(true)}
                 className="btn btn-primary"
                 style={{ marginTop: '1.25rem', padding: '0.8rem', fontWeight: 800, background: 'linear-gradient(135deg, #059669, #d97706)', border: 'none', boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)', width: '100%', justifyContent: 'center' }}
               >
@@ -1089,7 +1109,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                 </div>
 
                 {currentUser?.role === 'admin' && (
-                  <button 
+                  <button
                     onClick={() => setActivePage('admin')}
                     className="btn btn-primary"
                     style={{ padding: '0.6rem 1rem', fontSize: '0.82rem', fontWeight: 800, background: '#d97706', borderColor: '#d97706' }}
@@ -1212,7 +1232,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
       {isVehicleModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div className="glass-card" style={{ maxWidth: '580px', width: '100%', padding: '2rem', background: 'var(--bg-card)', borderRadius: '20px', boxShadow: '0 25px 50px rgba(0,0,0,0.4)', maxHeight: '90vh', overflowY: 'auto' }}>
-            
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
               <div>
                 <div className="badge" style={{ background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', fontWeight: 800, padding: '0.25rem 0.75rem', fontSize: '0.78rem', marginBottom: '0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
@@ -1225,7 +1245,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                   Member ID: <strong>{currentMember?.excel_member_id || currentUser?.excel_member_id}</strong> • Sheet: <strong>VEHICLE SHARES HOLDING</strong>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsVehicleModalOpen(false)}
                 style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-main)', fontWeight: 900 }}
               >
@@ -1235,7 +1255,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
             {/* Vehicle Shares Core Metrics Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.85rem', marginBottom: '1.5rem' }}>
-              
+
               <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(234, 88, 12, 0.3)', borderTop: '4px solid #ea580c' }}>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Total Vehicle Paid</div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ea580c', marginTop: '0.15rem' }}>
@@ -1265,7 +1285,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Calendar size={15} color="#ea580c" /> Vehicle Shares 4-Payment Schedule Breakdown
               </div>
-              
+
               <div className="table-container">
                 <table className="data-table" style={{ fontSize: '0.82rem' }}>
                   <thead>
@@ -1339,9 +1359,9 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               Extracted directly from Excel sheet <strong>VEHICLE SHARES HOLDING</strong>. Total vehicle fund capital pool of <strong>GH₵ 68,000.00</strong> was transferred towards the fellowship vehicle purchase project.
             </div>
 
-            <button 
+            <button
               onClick={() => setIsVehicleModalOpen(false)}
-              className="btn btn-primary" 
+              className="btn btn-primary"
               style={{ width: '100%', padding: '0.65rem', fontWeight: 800, background: '#ea580c', borderColor: '#ea580c' }}
             >
               Close Ledger Details
@@ -1355,7 +1375,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
       {isSharesModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(5px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div className="glass-card" style={{ maxWidth: '620px', width: '100%', padding: '2rem', background: 'var(--bg-card)', borderRadius: '20px', boxShadow: '0 25px 50px rgba(0,0,0,0.4)', maxHeight: '90vh', overflowY: 'auto' }}>
-            
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
               <div>
                 <div className="badge" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6', fontWeight: 800, padding: '0.25rem 0.75rem', fontSize: '0.78rem', marginBottom: '0.4rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
@@ -1368,7 +1388,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                   Member ID: <strong>{currentMember?.excel_member_id || currentUser?.excel_member_id}</strong> • Sheet: <strong>MEMBERS SHARES DEVIDENT</strong>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsSharesModalOpen(false)}
                 style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-main)', fontWeight: 900 }}
               >
@@ -1378,7 +1398,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
             {/* Key Summary Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.85rem', marginBottom: '1.5rem' }}>
-              
+
               <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(139, 92, 246, 0.3)', borderTop: '4px solid #8b5cf6' }}>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Total Combined Shares</div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.15rem' }}>
@@ -1418,7 +1438,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Calendar size={15} color="#8b5cf6" /> Yearly Dues Shares Allocation Schedule (Excel Verified)
               </div>
-              
+
               <div className="table-container">
                 <table className="data-table" style={{ fontSize: '0.82rem' }}>
                   <thead>
@@ -1472,9 +1492,9 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               1 Share is allocated for every GH₵ 2.00 of dues paid. Total Shares Value is backed by the official fellowship Cash on Hand Shares Pool (<strong>GH₵ 79,131.72</strong>), plus interest earned on Treasurer Bills.
             </div>
 
-            <button 
+            <button
               onClick={() => setIsSharesModalOpen(false)}
-              className="btn btn-primary" 
+              className="btn btn-primary"
               style={{ width: '100%', padding: '0.65rem', fontWeight: 800, background: '#8b5cf6', borderColor: '#8b5cf6' }}
             >
               Close Shares Details
@@ -1485,7 +1505,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
       )}
 
       {/* Paystack Online Payment Gateway Modal */}
-      <PaystackModal 
+      <PaystackModal
         isOpen={isPaystackOpen}
         onClose={() => setIsPaystackOpen(false)}
         currentUser={currentUser}
@@ -1493,14 +1513,14 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
       />
 
       {/* 🚐 PETTY CASH VEHICLE PARTICULARS MODAL */}
-      <PettyCashVehicleModal 
+      <PettyCashVehicleModal
         isOpen={isPettyCashVehicleModalOpen}
         onClose={() => setIsPettyCashVehicleModalOpen(false)}
       />
 
       {/* 📄 OFFICIAL REGISTRATION FORM PRINT MODAL */}
       {isPrintModalOpen && (
-        <OfficialRegistrationPrintModal 
+        <OfficialRegistrationPrintModal
           isOpen={isPrintModalOpen}
           onClose={() => setIsPrintModalOpen(false)}
           memberData={currentMember || currentUser}

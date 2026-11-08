@@ -477,7 +477,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   const [copiedSql, setCopiedSql] = useState(false);
 
   // Filtered Roster
-  const filteredRoster = members.filter(m => 
+  const filteredRoster = members.filter(m =>
     (m.full_name && m.full_name.toLowerCase().includes(rosterSearch.toLowerCase())) ||
     (m.phone_number && m.phone_number.includes(rosterSearch)) ||
     (m.excel_member_id && m.excel_member_id.toLowerCase().includes(rosterSearch.toLowerCase())) ||
@@ -486,7 +486,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
   // Filtered Key-In Audit History
   const filteredHistory = keyInHistory.filter(item => {
-    const matchesSearch = 
+    const matchesSearch =
       (item.memberName && item.memberName.toLowerCase().includes(historySearch.toLowerCase())) ||
       (item.excelMemberId && item.excelMemberId.toLowerCase().includes(historySearch.toLowerCase())) ||
       (item.branch && item.branch.toLowerCase().includes(historySearch.toLowerCase())) ||
@@ -709,7 +709,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       "Member ID,Member No,Full Name,Name in Capitals,Title,Church Position,Branch,Date Joined,Phone 1,Phone 2,House No,GPS Address,Town,Email,Ghana Card,Occupation,Place of Work,Date of Birth,Place of Birth,Hometown,District,Region,Tribe,Next of Kin,Relation,Next of Kin Contact,Marital Status,Spouse Name,Spouse Contact,Children Count,Father Name,Father Contact,Mother Name,Mother Contact,Father Status,Mother Status,Reg Fees,Dues Paid,Levy Paid,Total Payments,Dues Required,Shares Dividends,Shares Value,Treasurer Bill,Shares Holding,Status,Role\n"
     ];
 
-    const rows = members.map(m => 
+    const rows = members.map(m =>
       `"${m.excel_member_id}","${m.member_no || ''}","${m.full_name}","${m.name_in_capitals || ''}","${m.title || ''}","${m.position || ''}","${m.branch || ''}","${m.date_joined || ''}","${m.phone_number || ''}","${m.phone_number_2 || ''}","${m.house_no || ''}","${m.gps_address || ''}","${m.town || ''}","${m.email || ''}","${m.ghana_card || ''}","${m.occupation || ''}","${m.place_of_work || ''}","${m.date_of_birth || ''}","${m.place_of_birth || ''}","${m.hometown || ''}","${m.district || ''}","${m.region || ''}","${m.tribe || ''}","${m.next_of_kin || ''}","${m.next_of_kin_relation || ''}","${m.next_of_kin_contact || ''}","${m.marital_status || ''}","${m.spouse_name || ''}","${m.spouse_contact || ''}","${m.children_count || ''}","${m.father_name || ''}","${m.father_contact || ''}","${m.mother_name || ''}","${m.mother_contact || ''}","${m.father_state || ''}","${m.mother_state || ''}","${m.reg_fees || 0}","${m.dues_paid || 0}","${m.levy_paid || 0}","${m.total_payments || 0}","${m.dues_fee_required || 3900}","${m.shares_dividends || 0}","${m.shares_value || 0}","${m.treasurer_bill || 0}","${m.shares_holding || 0}","${m.status || 'ACTIVE'}","${m.role || 'member'}"`
     ).join("\n");
 
@@ -738,7 +738,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
   return (
     <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
-      
+
       {/* Executive Admin Banner */}
       <div className="glass-card" style={{ padding: '2rem', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(5, 150, 105, 0.15))', border: '1px solid rgba(217, 119, 6, 0.3)', marginBottom: '2rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem' }}>
@@ -755,16 +755,16 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button 
+            <button
               onClick={exportFullRosterCSV}
-              className="btn btn-accent" 
+              className="btn btn-accent"
               style={{ padding: '0.65rem 1.1rem', fontSize: '0.88rem', fontWeight: 700 }}
             >
               <Download size={16} /> Export All 45 Fields (CSV)
             </button>
-            <button 
-              onClick={() => setActivePage('dashboard')} 
-              className="btn btn-secondary" 
+            <button
+              onClick={() => setActivePage('dashboard')}
+              className="btn btn-secondary"
               style={{ padding: '0.65rem 1.1rem', fontSize: '0.88rem', fontWeight: 700 }}
             >
               <User size={16} /> My Member Portal &rarr;
@@ -782,7 +782,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
         return (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
-            
+
             {/* Expanded Member Status Breakdown Card */}
             <div className="glass-card" style={{ padding: '1.35rem', borderLeft: '5px solid #059669', borderRadius: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
@@ -800,7 +800,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
               {/* Status Breakdown Sub-bar */}
               <div className="status-sub-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(75px, 1fr))', gap: '0.5rem', marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-color)' }}>
-                <div 
+                <div
                   onClick={() => { setActiveTab('roster'); setRosterStatusFilter('ACTIVE'); }}
                   style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(5, 150, 105, 0.1)', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.3)', transition: 'all 0.2s ease' }}
                   title="Click to view Active members"
@@ -813,7 +813,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   </div>
                 </div>
 
-                <div 
+                <div
                   onClick={() => { setActiveTab('roster'); setRosterStatusFilter('PROBATION'); }}
                   style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(217, 119, 6, 0.1)', borderRadius: '10px', border: '1px solid rgba(217, 119, 6, 0.3)', transition: 'all 0.2s ease' }}
                   title="Click to view Probation members"
@@ -826,7 +826,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   </div>
                 </div>
 
-                <div 
+                <div
                   onClick={() => { setActiveTab('roster'); setRosterStatusFilter('REMOVED'); }}
                   style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(220, 38, 38, 0.1)', borderRadius: '10px', border: '1px solid rgba(220, 38, 38, 0.3)', transition: 'all 0.2s ease' }}
                   title="Click to view Removed members"
@@ -840,7 +840,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </div>
 
                 {pendingCount > 0 && (
-                  <div 
+                  <div
                     onClick={() => setActiveTab('applications')}
                     style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(37, 99, 235, 0.12)', borderRadius: '10px', border: '1.5px solid rgba(37, 99, 235, 0.4)', transition: 'all 0.2s ease' }}
                     title="Click to view Pending applications awaiting Executive Approval"
@@ -855,7 +855,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 )}
 
                 {unreadMessagesCount > 0 && (
-                  <div 
+                  <div
                     onClick={() => setActiveTab('inbox')}
                     style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(234, 88, 12, 0.12)', borderRadius: '10px', border: '1.5px solid rgba(234, 88, 12, 0.4)', transition: 'all 0.2s ease' }}
                     title="Click to view Contact Inquiries from website visitors"
@@ -896,8 +896,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Building2 size={18} color="#059669" /> Official Fellowship Accounts & Bank Balances (From Excel Sheets)
           </div>
-          <button 
-            onClick={() => setActiveTab('treasury')} 
+          <button
+            onClick={() => setActiveTab('treasury')}
             className="btn btn-secondary"
             style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
@@ -906,7 +906,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '1.25rem' }}>
-          
+
           {/* 1. MTN MOMO ACCOUNT SHEET */}
           <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(217, 119, 6, 0.3)', borderTop: '4px solid #d97706', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
@@ -930,7 +930,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Disbursements:</span> <strong>GH₵ {treasuryTotals.momo.disbursements.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
-              <button 
+              <button
                 onClick={() => { setSelectedAccountKey('momo'); setIsTreasuryModalOpen(true); }}
                 className="btn btn-secondary"
                 style={{ width: '100%', marginTop: '0.4rem', padding: '0.3rem 0.5rem', fontSize: '0.72rem', fontWeight: 800, color: '#d97706', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
@@ -963,7 +963,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Withdrawals/Inv:</span> <strong>GH₵ {treasuryTotals.fidelity.withdrawals.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
-              <button 
+              <button
                 onClick={() => { setSelectedAccountKey('fidelity'); setIsTreasuryModalOpen(true); }}
                 className="btn btn-secondary"
                 style={{ width: '100%', marginTop: '0.4rem', padding: '0.3rem 0.5rem', fontSize: '0.72rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
@@ -997,14 +997,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 <span>Total Expenses (Outflows):</span> <strong style={{ color: '#dc2626' }}>-GH₵ {treasuryTotals.bankTema.totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
               <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.4rem' }}>
-                <button 
+                <button
                   onClick={() => setIsBankTemaModalOpen(true)}
                   className="btn btn-secondary"
                   style={{ flex: 1, padding: '0.3rem 0.4rem', fontSize: '0.7rem', fontWeight: 800, color: '#2563eb', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.2rem' }}
                 >
                   <FileSpreadsheet size={11} /> Particulars
                 </button>
-                <button 
+                <button
                   onClick={() => { setSelectedAccountKey('bankTema'); setIsTreasuryModalOpen(true); }}
                   className="btn btn-secondary"
                   style={{ flex: 1, padding: '0.3rem 0.4rem', fontSize: '0.7rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.2rem' }}
@@ -1039,14 +1039,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 <span>Member Shares Capital:</span> <strong style={{ color: '#059669' }}>GH₵ {treasuryTotals.pettyCashVehicle.memberShares.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
               <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.4rem' }}>
-                <button 
+                <button
                   onClick={() => setIsPettyCashVehicleModalOpen(true)}
                   className="btn btn-secondary"
                   style={{ flex: 1, padding: '0.3rem 0.4rem', fontSize: '0.7rem', fontWeight: 800, color: '#ea580c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.2rem' }}
                 >
                   <FileSpreadsheet size={11} /> Particulars
                 </button>
-                <button 
+                <button
                   onClick={() => { setSelectedAccountKey('pettyCashVehicle'); setIsTreasuryModalOpen(true); }}
                   className="btn btn-secondary"
                   style={{ flex: 1, padding: '0.3rem 0.4rem', fontSize: '0.7rem', fontWeight: 800, color: '#059669', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.2rem' }}
@@ -1066,14 +1066,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Sparkles size={16} /> Fellowship Master Financial Totals (Live Sync)
           </div>
-          <button 
+          <button
             onClick={() => {
               setEditorMemberId(members[0]?.id || '');
               setEditorMode('add');
               setEditorAmount('');
               setEditorError('');
               setIsDuesEditorOpen(true);
-            }} 
+            }}
             className="btn btn-primary"
             style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}
           >
@@ -1084,7 +1084,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
         {(() => {
           return (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
-              
+
               {/* CARD 1: TOTAL DIVIDENT */}
               <div style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(220, 38, 38, 0.3)', borderTop: '4px solid #dc2626' }}>
                 <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1092,7 +1092,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <span className="badge" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(220, 38, 38, 0.12)', color: '#dc2626' }}>Dividend Pool</span>
                 </div>
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  GH₵ 79,231.72
+                  GH₵ 79,531.72
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Total Liquid Dividend Pool Across Fellowship Accounts</div>
               </div>
@@ -1104,7 +1104,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <span className="badge" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(37, 99, 235, 0.12)', color: '#2563eb' }}>Shares Count</span>
                 </div>
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  44,853
+                  45,152.70
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Cumulative Member Qualifying Shares</div>
               </div>
@@ -1118,11 +1118,11 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
                   GH₵ 1.77
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Dividend Rate Per Qualifying Share (GH₵ 79,231.72 ÷ 44,853)</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Dividend Rate Per Qualifying Share (GH₵ 79,531.72 ÷ 45,152.70)</div>
               </div>
 
               {/* CARD 4: TRIAL BALANCE */}
-              <div 
+              <div
                 onClick={() => setActiveTab('treasury')}
                 style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(5, 150, 105, 0.4)', borderTop: '4px solid #059669', cursor: 'pointer', transition: 'all 0.2s' }}
                 title="Click to view verified Trial Balance table"
@@ -1132,7 +1132,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <span className="badge badge-dues" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>Balanced 100% ✓</span>
                 </div>
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#059669', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  GH₵ 106,446.72
+                  GH₵ 107,646.72
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Click to View Full Trial Balance Sheet &rarr;</div>
               </div>
@@ -1144,36 +1144,36 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       {/* Navigation Tabs & Actions */}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-          <button 
+          <button
             onClick={() => {
               setEditorMemberId(members[0]?.id || '');
               setEditorMode('add');
               setEditorAmount('');
               setEditorError('');
               setIsDuesEditorOpen(true);
-            }} 
+            }}
             className="btn"
             style={{ padding: '0.6rem 1.15rem', fontWeight: 800, fontSize: '0.88rem', background: '#059669', color: '#fff', border: '1px solid #059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.2)' }}
           >
             <Zap size={16} /> ⚡ Key In Member Dues
           </button>
-          <button 
-            onClick={() => setActiveTab('roster')} 
+          <button
+            onClick={() => setActiveTab('roster')}
             className={`btn ${activeTab === 'roster' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
           >
             <Users size={16} /> Member Master Roster ({members.length})
           </button>
-          <button 
-            onClick={() => setActiveTab('applications')} 
+          <button
+            onClick={() => setActiveTab('applications')}
             className={`btn ${activeTab === 'applications' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: pendingApps.length > 0 ? '1.5px solid #2563eb' : undefined }}
           >
             <UserPlus size={16} color={activeTab === 'applications' ? '#fff' : '#2563eb'} /> Pending Approvals ({pendingApps.length})
             {pendingApps.length > 0 && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>}
           </button>
-          <button 
-            onClick={() => setActiveTab('inbox')} 
+          <button
+            onClick={() => setActiveTab('inbox')}
             className={`btn ${activeTab === 'inbox' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: unreadMessagesCount > 0 ? '1.5px solid #ea580c' : undefined }}
           >
@@ -1184,22 +1184,22 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </span>
             )}
           </button>
-          <button 
-            onClick={() => setActiveTab('history')} 
+          <button
+            onClick={() => setActiveTab('history')}
             className={`btn ${activeTab === 'history' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
           >
             <History size={16} color="#2563eb" /> Key-In Entry History ({keyInHistory.length})
           </button>
-          <button 
-            onClick={() => setActiveTab('announcement')} 
+          <button
+            onClick={() => setActiveTab('announcement')}
             className={`btn ${activeTab === 'announcement' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
           >
             <Megaphone size={16} color="#d97706" /> Broadcast Announcement
           </button>
-          <button 
-            onClick={() => setActiveTab('treasury')} 
+          <button
+            onClick={() => setActiveTab('treasury')}
             className={`btn ${activeTab === 'treasury' ? 'btn-primary' : 'btn-secondary'}`}
             style={{ padding: '0.6rem 1.1rem', fontWeight: 800, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: activeTab === 'treasury' ? 'none' : '1.5px solid rgba(5, 150, 105, 0.4)', color: activeTab === 'treasury' ? '#fff' : '#059669' }}
           >
@@ -1207,7 +1207,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           </button>
         </div>
 
-        <button 
+        <button
           onClick={handleExportCSV}
           className="btn btn-accent"
           style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
@@ -1252,7 +1252,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   </div>
 
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <button 
+                    <button
                       type="button"
                       onClick={openAddTBModal}
                       className="btn btn-primary"
@@ -1261,7 +1261,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       <PlusCircle size={16} /> + Add Line Item
                     </button>
 
-                    <button 
+                    <button
                       type="button"
                       onClick={handleResetTBToDefaults}
                       className="btn btn-secondary"
@@ -1395,7 +1395,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       {/* TAB 1: DIRECT KEY-IN AUDIT HISTORY & ENTRY LOG */}
       {activeTab === 'history' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          
+
           {/* Header Card */}
           <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -1415,14 +1415,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <button 
+                <button
                   onClick={handleExportHistoryCSV}
-                  className="btn btn-accent" 
+                  className="btn btn-accent"
                   style={{ padding: '0.6rem 1.1rem', fontSize: '0.85rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                 >
                   <Download size={15} /> Export History (.CSV)
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     setEditorMemberId(members[0]?.id || '');
                     setEditorMode('add');
@@ -1430,7 +1430,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                     setEditorError('');
                     setIsDuesEditorOpen(true);
                   }}
-                  className="btn btn-primary" 
+                  className="btn btn-primary"
                   style={{ padding: '0.6rem 1.15rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 >
                   <Zap size={15} /> ⚡ Key In New Dues
@@ -1469,11 +1469,11 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           {/* Search, Filter Pills & Table Container */}
           <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-              
+
               {/* Search Bar */}
               <div style={{ position: 'relative', minWidth: '260px', flex: 1, maxWidth: '400px' }}>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Search member, ID, note, officer, method..."
                   className="form-input"
                   style={{ paddingLeft: '2.2rem', width: '100%' }}
@@ -1524,8 +1524,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   {historySearch ? 'No Matching Key-In Entries Found' : 'No Key-In Entries Recorded Yet'}
                 </h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto 1.25rem auto' }}>
-                  {historySearch 
-                    ? 'No history matching your search query. Try clearing your search or filter pills.' 
+                  {historySearch
+                    ? 'No history matching your search query. Try clearing your search or filter pills.'
                     : 'This audit history is clean and ready. Whenever you key in dues payments or adjustments for members, they will appear here with full timestamps and details.'}
                 </p>
                 {historySearch ? (
@@ -1533,7 +1533,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                     Clear Search Filter
                   </button>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => {
                       setEditorMemberId(members[0]?.id || '');
                       setEditorMode('add');
@@ -1541,7 +1541,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       setEditorError('');
                       setIsDuesEditorOpen(true);
                     }}
-                    className="btn btn-primary" 
+                    className="btn btn-primary"
                     style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                   >
                     <Zap size={15} /> ⚡ Key In First Dues Entry
@@ -1608,13 +1608,13 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                           {/* Entry Category & Type */}
                           <td>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                              <span style={{ 
-                                padding: '0.2rem 0.55rem', 
-                                borderRadius: '12px', 
-                                fontSize: '0.72rem', 
-                                fontWeight: 800, 
-                                display: 'inline-flex', 
-                                alignItems: 'center', 
+                              <span style={{
+                                padding: '0.2rem 0.55rem',
+                                borderRadius: '12px',
+                                fontSize: '0.72rem',
+                                fontWeight: 800,
+                                display: 'inline-flex',
+                                alignItems: 'center',
                                 gap: '0.25rem',
                                 width: 'fit-content',
                                 background: isPositive ? 'rgba(5, 150, 105, 0.12)' : 'rgba(220, 38, 38, 0.12)',
@@ -1631,9 +1631,9 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                           {/* Payment Method */}
                           <td>
-                            <span className="badge" style={{ 
-                              fontSize: '0.75rem', 
-                              fontWeight: 700, 
+                            <span className="badge" style={{
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
                               background: item.paymentMethod?.toLowerCase().includes('momo') ? 'rgba(217, 119, 6, 0.12)' : (item.paymentMethod?.toLowerCase().includes('bank') ? 'rgba(37, 99, 235, 0.12)' : 'rgba(5, 150, 105, 0.12)'),
                               color: item.paymentMethod?.toLowerCase().includes('momo') ? '#d97706' : (item.paymentMethod?.toLowerCase().includes('bank') ? '#2563eb' : '#059669')
                             }}>
@@ -1717,7 +1717,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                           {/* Quick Action Buttons */}
                           <td>
                             <div style={{ display: 'flex', gap: '0.35rem' }}>
-                              <button 
+                              <button
                                 onClick={() => {
                                   if (targetMember) {
                                     openDuesEditorForMember(targetMember, cat);
@@ -1733,7 +1733,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                               >
                                 <Edit3 size={12} color="#059669" /> Edit
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleDeleteHistoryEntry(item)}
                                 className="btn btn-secondary"
                                 style={{ padding: '0.3rem 0.55rem', fontSize: '0.73rem', fontWeight: 700, color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
@@ -1774,7 +1774,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
           <form onSubmit={handleManualSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Select Member</label>
-              <select 
+              <select
                 className="form-select"
                 value={manualForm.member_id}
                 onChange={(e) => setManualForm({ ...manualForm, member_id: e.target.value })}
@@ -1790,7 +1790,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Amount (GH₵)</label>
-                <input 
+                <input
                   type="number"
                   step="0.01"
                   required
@@ -1803,7 +1803,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Contribution Type</label>
-                <select 
+                <select
                   className="form-select"
                   value={manualForm.contribution_type}
                   onChange={(e) => setManualForm({ ...manualForm, contribution_type: e.target.value })}
@@ -1846,7 +1846,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
+
             {/* Status Summary & Filter Cards Header */}
             <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
@@ -1860,7 +1860,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                  <button 
+                  <button
                     onClick={() => setIsAddMemberModalOpen(true)}
                     className="btn btn-primary"
                     style={{ padding: '0.55rem 1.1rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}
@@ -2064,8 +2064,8 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
                   <div style={{ position: 'relative', minWidth: '260px', flex: 1, maxWidth: '400px' }}>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Search name, phone, branch, ID..."
                       className="form-input"
                       style={{ paddingLeft: '2.2rem', width: '100%' }}
@@ -2171,7 +2171,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                             {/* Quick Actions */}
                             <td>
                               <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                                <button 
+                                <button
                                   onClick={() => openDuesEditorForMember(m)}
                                   className="btn btn-primary"
                                   style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#059669', borderColor: '#059669' }}
@@ -2179,7 +2179,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                                 >
                                   <Edit3 size={13} /> Update Dues
                                 </button>
-                                <button 
+                                <button
                                   onClick={() => setSelectedDossierMember(m)}
                                   className="btn btn-secondary"
                                   style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--primary-700)', border: '1px solid rgba(5, 150, 105, 0.4)' }}
@@ -2204,7 +2204,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       {/* TAB: ONLINE MEMBER REGISTRATIONS & APPROVAL QUEUE */}
       {activeTab === 'applications' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          
+
           <div className="glass-card" style={{ padding: '1.75rem', borderRadius: '18px', borderLeft: '5px solid #2563eb' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
@@ -2246,16 +2246,16 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {pendingApps.map(app => (
-                  <div 
-                    key={app.id} 
-                    style={{ 
-                      padding: '1.5rem', 
-                      background: 'var(--bg-main)', 
-                      borderRadius: '16px', 
-                      border: '1.5px solid rgba(37, 99, 235, 0.25)', 
+                  <div
+                    key={app.id}
+                    style={{
+                      padding: '1.5rem',
+                      background: 'var(--bg-main)',
+                      borderRadius: '16px',
+                      border: '1.5px solid rgba(37, 99, 235, 0.25)',
                       borderLeft: '5px solid #2563eb',
-                      display: 'flex', 
-                      flexDirection: 'column', 
+                      display: 'flex',
+                      flexDirection: 'column',
                       gap: '1rem',
                       transition: 'all 0.2s ease'
                     }}
@@ -2359,7 +2359,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
+
             <div className="glass-card" style={{ padding: '1.75rem', borderRadius: '18px', borderLeft: '5px solid #ea580c' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
@@ -2433,7 +2433,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                     const isUnread = msg.status === 'UNREAD';
 
                     return (
-                      <div 
+                      <div
                         key={msg.id}
                         style={{
                           padding: '1.35rem 1.5rem',
@@ -2475,7 +2475,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                             {cleanPhone && (
                               <>
-                                <a 
+                                <a
                                   href={`https://wa.me/${waPhone}?text=${encodeURIComponent(`Hello ${msg.name}, this is from the ONUADO NA EYE MENS' FELLOWSHIP Executive Secretariat regarding your recent inquiry.`)}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -2484,7 +2484,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                                 >
                                   <MessageCircle size={14} color="#059669" /> Reply on WhatsApp
                                 </a>
-                                <a 
+                                <a
                                   href={`tel:${msg.phone}`}
                                   className="btn btn-secondary"
                                   style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', fontWeight: 700, color: '#2563eb', border: '1px solid rgba(37, 99, 235, 0.3)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
@@ -2546,7 +2546,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-main)' }}>
                 Live Top Ticker Text
               </label>
-              <textarea 
+              <textarea
                 rows={3}
                 required
                 className="form-input"
@@ -2561,17 +2561,17 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             </div>
 
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setAnnouncementText("Welcome to ONUADO NA EYE MENS' FELLOWSHIP • \"Brotherly Love & Solidarity in Action\"")}
-                className="btn btn-secondary" 
+                className="btn btn-secondary"
                 style={{ padding: '0.65rem 1rem', fontSize: '0.85rem' }}
               >
                 Reset Default
               </button>
-              <button 
-                type="submit" 
-                className="btn btn-accent" 
+              <button
+                type="submit"
+                className="btn btn-accent"
                 style={{ padding: '0.65rem 1.35rem', fontSize: '0.9rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
               >
                 <Megaphone size={17} /> Publish Live Ticker
@@ -2583,36 +2583,36 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
       {/* 📋 EXECUTIVE MASTER MEMBER DOSSIER MODAL (ALL 45 FIELDS DISPLAYED) */}
       {selectedDossierMember && (
-        <div style={{ 
-          position: 'fixed', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
-          bottom: 0, 
-          width: '100vw', 
-          height: '100vh', 
-          background: 'rgba(0,0,0,0.8)', 
-          backdropFilter: 'blur(6px)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          zIndex: 99999, 
-          padding: '1.25rem 1rem', 
-          overflowY: 'auto' 
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.8)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          padding: '1.25rem 1rem',
+          overflowY: 'auto'
         }}>
-          <div className="glass-card" style={{ 
-            maxWidth: '1100px', 
-            width: '100%', 
-            margin: 'auto', 
-            padding: '2.25rem', 
-            borderRadius: '24px', 
-            background: 'var(--bg-card)', 
-            maxHeight: '88vh', 
-            overflowY: 'auto', 
+          <div className="glass-card" style={{
+            maxWidth: '1100px',
+            width: '100%',
+            margin: 'auto',
+            padding: '2.25rem',
+            borderRadius: '24px',
+            background: 'var(--bg-card)',
+            maxHeight: '88vh',
+            overflowY: 'auto',
             boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
             border: '1px solid var(--border-color)'
           }}>
-            
+
             {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '1rem', gap: '1rem', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1, minWidth: '260px' }}>
@@ -2651,7 +2651,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
 
               <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexShrink: 0 }}>
-                <button 
+                <button
                   onClick={() => setPrintModalMember(selectedDossierMember)}
                   className="btn btn-secondary"
                   style={{ padding: '0.45rem 0.95rem', fontSize: '0.82rem', fontWeight: 800, color: '#1e40af', border: '1px solid rgba(37, 99, 235, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
@@ -2659,7 +2659,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 >
                   <Printer size={15} color="#2563eb" /> Print Form
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     const m = selectedDossierMember;
                     setSelectedDossierMember(null);
@@ -2670,21 +2670,21 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 >
                   <Zap size={14} /> Key In Dues
                 </button>
-                <button 
-                  onClick={() => setSelectedDossierMember(null)} 
+                <button
+                  onClick={() => setSelectedDossierMember(null)}
                   aria-label="Close Master Dossier"
-                  style={{ 
-                    background: 'var(--bg-main)', 
-                    border: '1px solid var(--border-color)', 
-                    borderRadius: '50%', 
-                    width: '38px', 
-                    height: '38px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    cursor: 'pointer', 
-                    flexShrink: 0, 
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)' 
+                  style={{
+                    background: 'var(--bg-main)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '50%',
+                    width: '38px',
+                    height: '38px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                   }}
                 >
                   <X size={20} />
@@ -2694,7 +2694,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
             {/* 45 FIELDS DOSSIER CONTENT GRID */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              
+
               {/* Category 1: Contact & Address Directory */}
               <div style={{ padding: '1.5rem', background: 'var(--bg-main)', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', color: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -2829,11 +2829,11 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       )}
 
       {/* Loading Modal for Excel Upload / Parsing & Database Ledger Synchronization */}
-      <LoadingModal 
-        isOpen={isLoadingModalOpen} 
-        title={loadingTitle} 
-        subtitle={loadingSubtitle} 
-        type="excel" 
+      <LoadingModal
+        isOpen={isLoadingModalOpen}
+        title={loadingTitle}
+        subtitle={loadingSubtitle}
+        type="excel"
       />
 
       {/* ⚡ DIRECT KEY-IN MULTI-CATEGORY EDITOR MODAL */}
@@ -2869,7 +2869,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   </p>
                 </div>
 
-                <button 
+                <button
                   type="button"
                   onClick={() => setIsDuesEditorOpen(false)}
                   className="modal-close-btn"
@@ -2905,11 +2905,11 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 <button
                   type="button"
-                  onClick={() => { 
-                    setEditorCategory('levy'); 
-                    setEditorAmount('200'); 
+                  onClick={() => {
+                    setEditorCategory('levy');
+                    setEditorAmount('200');
                     setEditorLevyName('1st LEVY (ELD. ISAAC DARKO)');
-                    setEditorError(''); 
+                    setEditorError('');
                   }}
                   style={{
                     padding: '0.55rem 0.4rem',
@@ -2932,11 +2932,11 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 <button
                   type="button"
-                  onClick={() => { 
-                    setEditorCategory('vehicle'); 
-                    setEditorAmount('500'); 
+                  onClick={() => {
+                    setEditorCategory('vehicle');
+                    setEditorAmount('500');
                     setEditorInstallment('1st Installment Payment (GH₵ 500.00)');
-                    setEditorError(''); 
+                    setEditorError('');
                   }}
                   style={{
                     padding: '0.55rem 0.4rem',
@@ -2970,7 +2970,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>
                     1. Select Fellowship Member
                   </label>
-                  <select 
+                  <select
                     className="form-select"
                     value={editorMemberId}
                     onChange={(e) => setEditorMemberId(e.target.value)}
@@ -3067,7 +3067,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                         2. Select Dues Target Year (Which year is this payment for?)
                       </label>
-                      <select 
+                      <select
                         className="form-select"
                         value={editorDuesYear}
                         onChange={(e) => setEditorDuesYear(e.target.value)}
@@ -3147,7 +3147,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                       <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                         2. Select Special Levy Call-Up / Recipient
                       </label>
-                      <select 
+                      <select
                         className="form-select"
                         value={editorLevyName}
                         onChange={(e) => {
@@ -3185,7 +3185,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                         <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.25rem' }}>
                           Specify Custom Special Levy Cause / Recipient Name
                         </label>
-                        <input 
+                        <input
                           type="text"
                           required
                           placeholder="e.g. Eld Osei Kwame Wedding Special Levy"
@@ -3204,7 +3204,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                       2. Select Vehicle Shares Installment / Top-Up
                     </label>
-                    <select 
+                    <select
                       className="form-select"
                       value={editorInstallment}
                       onChange={(e) => {
@@ -3226,17 +3226,17 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 {/* 4. Amount Input */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                    {editorCategory === 'dues' 
+                    {editorCategory === 'dues'
                       ? (editorMode === 'add' ? '3. Payment Amount to Add (GH₵)' : '3. Exact New Yearly Dues Amount (GH₵)')
                       : editorCategory === 'levy'
-                      ? '3. Special Levy Amount Keyed In (GH₵)'
-                      : '3. Vehicle Shares Amount Keyed In (GH₵)'}
+                        ? '3. Special Levy Amount Keyed In (GH₵)'
+                        : '3. Vehicle Shares Amount Keyed In (GH₵)'}
                   </label>
                   <div style={{ position: 'relative' }}>
                     <span style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 800, color: 'var(--text-muted)' }}>
                       GH₵
                     </span>
-                    <input 
+                    <input
                       type="number"
                       step="0.01"
                       required
@@ -3254,7 +3254,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.65rem' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem' }}>Payment Method</label>
-                    <select 
+                    <select
                       className="form-select"
                       value={editorMethod}
                       onChange={(e) => setEditorMethod(e.target.value)}
@@ -3269,7 +3269,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                   <div>
                     <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem' }}>Payment Date</label>
-                    <input 
+                    <input
                       type="date"
                       className="form-input"
                       value={editorDate}
@@ -3281,7 +3281,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem' }}>Reference / Receipt Note (Optional)</label>
-                  <input 
+                  <input
                     type="text"
                     placeholder="e.g. Recorded at Executive Meeting"
                     className="form-input"
@@ -3426,7 +3426,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 {/* 7. Action Buttons */}
                 <div style={{ display: 'flex', gap: '0.65rem', justifyContent: 'flex-end', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setIsDuesEditorOpen(false)}
                     className="btn btn-secondary"
@@ -3434,23 +3434,23 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     type="submit"
                     className="btn btn-primary"
-                    style={{ 
-                      padding: '0.75rem 1.5rem', 
-                      fontWeight: 800, 
-                      fontSize: '0.92rem', 
-                      background: editorCategory === 'dues' ? '#059669' : editorCategory === 'levy' ? '#d97706' : '#2563eb', 
-                      borderColor: editorCategory === 'dues' ? '#059669' : editorCategory === 'levy' ? '#d97706' : '#2563eb', 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center', 
-                      gap: '0.45rem', 
-                      flex: '2 1 180px' 
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      fontWeight: 800,
+                      fontSize: '0.92rem',
+                      background: editorCategory === 'dues' ? '#059669' : editorCategory === 'levy' ? '#d97706' : '#2563eb',
+                      borderColor: editorCategory === 'dues' ? '#059669' : editorCategory === 'levy' ? '#d97706' : '#2563eb',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.45rem',
+                      flex: '2 1 180px'
                     }}
                   >
-                    <CheckCircle2 size={18} /> 
+                    <CheckCircle2 size={18} />
                     {editorCategory === 'dues' ? 'Save & Apply Yearly Dues' : editorCategory === 'levy' ? 'Save & Apply Special Levy' : 'Save & Apply Vehicle Shares'}
                   </button>
                 </div>
@@ -3461,13 +3461,13 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       })()}
 
       {/* 🚐 PETTY CASH VEHICLE PARTICULARS MODAL */}
-      <PettyCashVehicleModal 
+      <PettyCashVehicleModal
         isOpen={isPettyCashVehicleModalOpen}
         onClose={() => setIsPettyCashVehicleModalOpen(false)}
       />
 
       {/* 🏦 BANK ACCOUNT TEMA PARTICULARS MODAL */}
-      <BankAccountTemaModal 
+      <BankAccountTemaModal
         isOpen={isBankTemaModalOpen}
         onClose={() => setIsBankTemaModalOpen(false)}
       />
@@ -3499,7 +3499,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
                   Particulars / Description *
                 </label>
-                <input 
+                <input
                   type="text"
                   required
                   placeholder="e.g., SPECIAL DONATION 2026 or EQUIPMENT EXPENSE"
@@ -3532,7 +3532,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                   <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
                     Amount (GH₵) *
                   </label>
-                  <input 
+                  <input
                     type="number"
                     step="0.01"
                     min="0.01"
@@ -3549,7 +3549,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
                   Category / Tag Note
                 </label>
-                <input 
+                <input
                   type="text"
                   placeholder="e.g., Income, Expenditure, Bank Asset, Special Levy, Shares"
                   value={tbCategory}
@@ -3559,7 +3559,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-                <button 
+                <button
                   type="button"
                   onClick={() => { setIsTBModalOpen(false); setEditingTBItem(null); }}
                   className="btn btn-secondary"
@@ -3567,7 +3567,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   type="submit"
                   className="btn btn-primary"
                   style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: editingTBItem ? '#2563eb' : '#059669', borderColor: editingTBItem ? '#2563eb' : '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
@@ -3619,7 +3619,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Full Name *</label>
-                  <input 
+                  <input
                     type="text"
                     required
                     placeholder="e.g. Emmanuel Mensah"
@@ -3633,7 +3633,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Phone Number *</label>
-                  <input 
+                  <input
                     type="tel"
                     required
                     placeholder="024 XXX XXXX"
@@ -3672,7 +3672,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Church Position</label>
-                  <input 
+                  <input
                     type="text"
                     placeholder="e.g. Member / Committee"
                     value={newMemberForm.position}
@@ -3684,7 +3684,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
               {/* Collapsible Full Physical Sheet Details Toggle */}
               <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.85rem' }}>
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowFullBioData(!showFullBioData)}
                   style={{ background: 'none', border: 'none', color: '#059669', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', padding: 0 }}
@@ -3770,7 +3770,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       )}
 
       {/* 💳 DYNAMIC TREASURY ACCOUNTS MODAL */}
-      <TreasuryAccountModal 
+      <TreasuryAccountModal
         isOpen={isTreasuryModalOpen}
         onClose={() => setIsTreasuryModalOpen(false)}
         accountKey={selectedAccountKey}
@@ -3782,7 +3782,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
       {/* 📄 OFFICIAL REGISTRATION FORM PRINT MODAL */}
       {printModalMember && (
-        <OfficialRegistrationPrintModal 
+        <OfficialRegistrationPrintModal
           isOpen={!!printModalMember}
           onClose={() => setPrintModalMember(null)}
           memberData={printModalMember}
