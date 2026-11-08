@@ -97,8 +97,8 @@ const INITIAL_MEMBERS = [
     "base_dues_paid": 3100,
     "base_shares_value": 3107.212261504304,
     "dues_paid": 3100,
-    "levy_paid": 700,
-    "total_payments": 4000,
+    "levy_paid": 900,
+    "total_payments": 4200,
     "dues_fee_required": 3300,
     "shares_dividends": 1551.0730446024563,
     "shares_value": 3107.212261504304,
@@ -766,10 +766,10 @@ const INITIAL_MEMBERS = [
     "base_dues_paid": 3900,
     "base_shares_value": 6739.343459754082,
     "dues_paid": 3900,
-    "levy_paid": 800,
+    "levy_paid": 1000,
     "vehicle_shares_paid": 0,
     "vehicle_shares_count": 0,
-    "total_payments": 4900,
+    "total_payments": 5100,
     "dues_fee_required": 3900,
     "shares_dividends": 3364.1776290113085,
     "shares_value": 6739.343459754082,
@@ -1045,10 +1045,10 @@ const INITIAL_MEMBERS = [
     "base_dues_paid": 3900,
     "base_shares_value": 6739.343459754082,
     "dues_paid": 3900,
-    "levy_paid": 1000,
+    "levy_paid": 1200,
     "vehicle_shares_paid": 2000,
     "vehicle_shares_count": 1000,
-    "total_payments": 5100,
+    "total_payments": 7300,
     "dues_fee_required": 3900,
     "shares_dividends": 3364.1776290113085,
     "shares_value": 6739.343459754082,
@@ -1324,8 +1324,8 @@ const INITIAL_MEMBERS = [
     "base_dues_paid": 3700,
     "base_shares_value": 4535.750598960889,
     "dues_paid": 3700,
-    "levy_paid": 1000,
-    "total_payments": 4900,
+    "levy_paid": 1200,
+    "total_payments": 5100,
     "dues_fee_required": 3900,
     "shares_dividends": 2264.1776290113085,
     "shares_value": 4535.750598960889,
@@ -1447,7 +1447,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-11-08-v22-shares-dividend-sync-1794140000000';
+const DATA_VERSION = '2026-11-08-v23-special-levy-7-acheampong-sync-1794152000000';
 
 export const getMembers = () => {
   try {
@@ -1906,6 +1906,31 @@ export const updateMemberLevyDirectly = ({ memberId, levyName, levyAmount, payme
 
   member.levy_paid = newLevy;
   member.total_payments = (parseFloat(member.reg_fees) || 200) + (parseFloat(member.dues_paid) || 0) + newLevy;
+
+  // Persist dynamic levy breakdown override so the specific levy card (e.g. 7th LEVY) updates immediately
+  try {
+    let levyNum = null;
+    const match = (levyName || '').match(/(\d+)(?:st|nd|rd|th)?\s*LEVY/i);
+    if (match) {
+      levyNum = parseInt(match[1], 10);
+    } else if ((levyName || '').toLowerCase().includes('justice kojo acheampong') || (levyName || '').toLowerCase().includes('acheampong')) {
+      levyNum = 7;
+    }
+
+    if (levyNum) {
+      const rawOverrides = localStorage.getItem('ony_member_levy_overrides') || '{}';
+      const allOverrides = JSON.parse(rawOverrides);
+      const memberKey = member.id;
+      const memObj = allOverrides[memberKey] || {};
+      memObj[`l${levyNum}`] = (memObj[`l${levyNum}`] || 0) + addedAmount;
+      allOverrides[memberKey] = memObj;
+      allOverrides[member.excel_member_id] = memObj;
+      allOverrides[member.full_name] = memObj;
+      localStorage.setItem('ony_member_levy_overrides', JSON.stringify(allOverrides));
+    }
+  } catch (e) {
+    console.error('Error recording levy override:', e);
+  }
 
   saveMembers(members);
 

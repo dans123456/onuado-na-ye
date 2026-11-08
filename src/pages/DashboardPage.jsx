@@ -189,7 +189,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               onClick={() => {
                 try {
                   sessionStorage.removeItem('ony_impersonated_by');
-                } catch {}
+                } catch { }
                 setCurrentUser(impersonator);
                 setActivePage('admin');
               }}
@@ -954,9 +954,9 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             </div>
           </div>
 
-          {/* Quick Cards Grid */}
+          {/* Quick Cards Grid (Active & Paid Levies) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.1rem', marginBottom: '2.5rem' }}>
-            {memberLevyList.slice(0, 6).map((levy) => (
+            {memberLevyList.filter(l => l.status === 'ACTIVE ✓' || l.amountPaid > 0 || l.id <= 7).map((levy) => (
               <div key={levy.id} style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: levy.isExempt ? '1.5px solid #d97706' : '1px solid var(--border-color)', position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#3b82f6', background: 'rgba(59, 130, 246, 0.12)', padding: '0.15rem 0.6rem', borderRadius: '6px' }}>

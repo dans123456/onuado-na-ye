@@ -3191,6 +3191,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                           else if (val.includes('4th LEVY')) setEditorAmount('200');
                           else if (val.includes('5th LEVY')) setEditorAmount('200');
                           else if (val.includes('6th LEVY')) setEditorAmount('100');
+                          else if (val.includes('7th LEVY')) setEditorAmount('200');
                           else if (val !== 'Custom') setEditorAmount('200');
                         }}
                         style={{ fontWeight: 700, padding: '0.65rem 0.8rem', fontSize: '0.88rem' }}
@@ -3201,7 +3202,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                         <option value="4th LEVY (ELD. JOHN OFOSUHENE ASARE)">4th LEVY: ELD. JOHN OFOSUHENE ASARE (GH₵ 200.00 Target)</option>
                         <option value="5th LEVY (ELD JONATHAN DANSO SIAW)">5th LEVY: ELD JONATHAN DANSO SIAW (GH₵ 200.00 Target)</option>
                         <option value="6th LEVY (ELD PRINCE AHWIREN ASANTE)">6th LEVY: ELD PRINCE AHWIREN ASANTE (GH₵ 100.00 Target)</option>
-                        <option value="7th LEVY (Fellowship Reserve)">7th LEVY: Fellowship Reserve</option>
+                        <option value="7th LEVY (ELD. JUSTICE KOJO ACHEAMPONG)">7th LEVY: ELD. JUSTICE KOJO ACHEAMPONG (GH₵ 200.00 Target)</option>
                         <option value="8th LEVY (Fellowship Reserve)">8th LEVY: Fellowship Reserve</option>
                         <option value="9th LEVY (Fellowship Reserve)">9th LEVY: Fellowship Reserve</option>
                         <option value="10th LEVY (Fellowship Reserve)">10th LEVY: Fellowship Reserve</option>

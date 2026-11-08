@@ -47,9 +47,9 @@ export const SPECIAL_LEVIES_MASTER = [
   {
     id: 7,
     number: '7th LEVY',
-    recipient: 'Fellowship Reserve',
-    amount: 0,
-    status: 'RESERVE ⏳'
+    recipient: 'ELD. JUSTICE KOJO ACHEAMPONG',
+    amount: 200,
+    status: 'ACTIVE ✓'
   },
   {
     id: 8,
@@ -88,32 +88,32 @@ export const SPECIAL_LEVIES_MASTER = [
   }
 ];
 
-// Member individual payment ledger for Levies 1 to 6 from SPECIAL LEVY sheet
+// Member individual payment ledger for Levies 1 to 7 strictly from SPECIAL LEVY sheet
 export const MEMBER_LEVY_MATRIX = {
-  "Alex Ackah": { l1: 0, l2: 0, l3: 200, l4: 200, l5: 200, l6: 100, total: 700 },
-  "Danso Kingsley": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 100, total: 100 },
-  "Fanuel Hagan": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Frederick Wortey Tawiah": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "George Yeboah": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 100, total: 100 },
-  "Isaac Darko": { l1: 0, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 800, exempt: [1] },
-  "Isaac Donkor": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 100, total: 100 },
-  "John Aidoo": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 0, total: 0 },
-  "John Darbo": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 100, total: 100 },
-  "John Ofosuhene Asare": { l1: 200, l2: 100, l3: 200, l4: 0, l5: 200, l6: 100, total: 800, exempt: [4] },
-  "Johnson Wood": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Jonas Wereko": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Jonathan Danso Siaw": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 0, l6: 100, total: 800, exempt: [5] },
-  "Joseph Kofi Amanfo": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Justice Kojo Acheampong": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Just-Mark Kwabena Quansah": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Maxwell Ofei Siaw": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Moses Oduro": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Osei Kwame": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Peter Kingsford Nkrumah": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "Prince Asante Ahwireng": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 0, total: 900, exempt: [6] },
-  "Samuel Yaw Nkansah": { l1: 200, l2: 0, l3: 0, l4: 200, l5: 200, l6: 100, total: 700, exempt: [2, 3] },
-  "Vincent Agamatey": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 },
-  "William Kojo Anane": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, total: 1000 }
+  "Alex Ackah": { l1: 0, l2: 0, l3: 200, l4: 200, l5: 200, l6: 100, l7: 200, total: 900 },
+  "Danso Kingsley": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 100, l7: 0, total: 100 },
+  "Fanuel Hagan": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 },
+  "Frederick Wortey Tawiah": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 },
+  "George Yeboah": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 100, l7: 0, total: 100 },
+  "Isaac Darko": { l1: 0, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 800, exempt: [1] },
+  "Isaac Donkor": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 100, l7: 0, total: 100 },
+  "John Aidoo": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 0, l7: 0, total: 0 },
+  "John Darbo": { l1: 0, l2: 0, l3: 0, l4: 0, l5: 0, l6: 100, l7: 0, total: 100 },
+  "John Ofosuhene Asare": { l1: 200, l2: 100, l3: 200, l4: 0, l5: 200, l6: 100, l7: 0, total: 800, exempt: [4] },
+  "Johnson Wood": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 },
+  "Jonas Wereko": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 },
+  "Jonathan Danso Siaw": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 0, l6: 100, l7: 200, total: 1000, exempt: [5] },
+  "Joseph Kofi Amanfo": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 },
+  "Justice Kojo Acheampong": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000, exempt: [7] },
+  "Just-Mark Kwabena Quansah": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 },
+  "Maxwell Ofei Siaw": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 },
+  "Moses Oduro": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 200, total: 1200 },
+  "Osei Kwame": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 },
+  "Peter Kingsford Nkrumah": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 },
+  "Prince Asante Ahwireng": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 0, l7: 0, total: 900, exempt: [6] },
+  "Samuel Yaw Nkansah": { l1: 200, l2: 0, l3: 0, l4: 200, l5: 200, l6: 100, l7: 0, total: 700, exempt: [2, 3] },
+  "Vincent Agamatey": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 200, total: 1200 },
+  "William Kojo Anane": { l1: 200, l2: 100, l3: 200, l4: 200, l5: 200, l6: 100, l7: 0, total: 1000 }
 };
 
 /**
@@ -126,29 +126,53 @@ export const getMemberLevyDetails = (member) => {
     name => name.toLowerCase() === (member.full_name || '').toLowerCase()
   ) || member.full_name;
 
-  const record = MEMBER_LEVY_MATRIX[nameKey] || {
+  const baseRecord = MEMBER_LEVY_MATRIX[nameKey] || {
     total: member.levy_paid || 0,
     l1: member.levy_paid >= 200 ? 200 : member.levy_paid,
     l2: member.levy_paid >= 300 ? 100 : 0,
     l3: member.levy_paid >= 500 ? 200 : 0,
     l4: member.levy_paid >= 700 ? 200 : 0,
     l5: member.levy_paid >= 900 ? 200 : 0,
-    l6: member.levy_paid >= 1000 ? 100 : 0
+    l6: member.levy_paid >= 1000 ? 100 : 0,
+    l7: member.levy_paid >= 1200 ? 200 : 0
   };
 
+  // Merge any dynamic key-in overrides from localStorage
+  let overrides = {};
+  try {
+    const raw = localStorage.getItem('ony_member_levy_overrides');
+    if (raw) {
+      const allOverrides = JSON.parse(raw);
+      overrides = allOverrides[member.id] || allOverrides[member.excel_member_id] || allOverrides[member.full_name] || {};
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
+  const record = { ...baseRecord, ...overrides };
+
   return SPECIAL_LEVIES_MASTER.map(levy => {
-    let amountPaid = 0;
-    if (levy.id <= 6) {
-      amountPaid = record[`l${levy.id}`] !== undefined ? record[`l${levy.id}`] : 0;
+    let amountPaid = record[`l${levy.id}`] !== undefined ? record[`l${levy.id}`] : 0;
+
+    // Check if member's total levy_paid reflects payments beyond base
+    if (amountPaid === 0 && levy.id === 7) {
+      const currentLevyPaid = parseFloat(member.levy_paid) || 0;
+      if (
+        currentLevyPaid >= 1200 ||
+        (nameKey === 'Alex Ackah' && currentLevyPaid >= 900) ||
+        (nameKey === 'Jonathan Danso Siaw' && currentLevyPaid >= 1000)
+      ) {
+        amountPaid = 200;
+      }
     }
 
     const isExempt = (record.exempt && record.exempt.includes(levy.id)) || 
-      (levy.recipient.toLowerCase().includes((member.full_name || '').split(' ').slice(-1)[0].toLowerCase()));
+      (levy.recipient.toLowerCase().includes((member.full_name || '').split(' ').slice(-1)[0].toLowerCase()) && !levy.recipient.includes('Reserve'));
 
     let statusText = 'Pending';
     let statusClass = 'badge-admin';
 
-    if (levy.id > 6) {
+    if (levy.id > 7 && !overrides[`l${levy.id}`]) {
       statusText = 'Upcoming Call-Up';
       statusClass = 'badge-secondary';
     } else if (isExempt && amountPaid === 0) {
