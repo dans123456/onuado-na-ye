@@ -2741,4 +2741,68 @@ export const rejectPendingApplication = (appId) => {
   return remaining;
 };
 
+// ==========================================
+// 📩 CONTACT INQUIRIES & SECRETARIAT INBOX
+// ==========================================
+
+export const getContactMessages = () => {
+  const stored = localStorage.getItem('ony_contact_messages');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      console.error('Error parsing contact messages', e);
+    }
+  }
+  return [
+    {
+      id: 'msg-demo-1',
+      name: 'Bro. Emmanuel Mensah',
+      phone: '0244123456',
+      message: 'Good day Executive Council, I would like to confirm the meeting link for the upcoming fellowship on Sunday. God bless you.',
+      date: new Date(Date.now() - 3600000 * 4).toISOString(),
+      status: 'UNREAD'
+    },
+    {
+      id: 'msg-demo-2',
+      name: 'Kwame Boateng',
+      phone: '0555987654',
+      message: 'Hello, I completed my membership registration yesterday. When should I expect my approval and login access?',
+      date: new Date(Date.now() - 3600000 * 24).toISOString(),
+      status: 'READ'
+    }
+  ];
+};
+
+export const saveContactMessage = ({ name, phone, message }) => {
+  const messages = getContactMessages();
+  const newMessage = {
+    id: 'msg-' + Date.now(),
+    name: name?.trim() || 'Anonymous Visitor',
+    phone: phone?.trim() || '',
+    message: message?.trim() || '',
+    date: new Date().toISOString(),
+    status: 'UNREAD'
+  };
+
+  const updated = [newMessage, ...messages];
+  localStorage.setItem('ony_contact_messages', JSON.stringify(updated));
+  return newMessage;
+};
+
+export const markContactMessageStatus = (messageId, status = 'READ') => {
+  const messages = getContactMessages();
+  const updated = messages.map(msg => msg.id === messageId ? { ...msg, status } : msg);
+  localStorage.setItem('ony_contact_messages', JSON.stringify(updated));
+  return updated;
+};
+
+export const deleteContactMessage = (messageId) => {
+  const messages = getContactMessages();
+  const updated = messages.filter(msg => msg.id !== messageId);
+  localStorage.setItem('ony_contact_messages', JSON.stringify(updated));
+  return updated;
+};
+
+
 

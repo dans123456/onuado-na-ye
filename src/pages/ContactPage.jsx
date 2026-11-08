@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Mail, CheckCircle2, Send, Clock, ShieldCheck, Video, Users, CreditCard, Phone } from 'lucide-react';
+import { Mail, CheckCircle2, Send, Clock, ShieldCheck, Video, Users, CreditCard, Phone, MessageSquare } from 'lucide-react';
 import PaystackModal from '../components/PaystackModal';
-import { addContribution, getMembers } from '../services/store';
+import { addContribution, getMembers, saveContactMessage } from '../services/store';
 
 export default function ContactPage({ setActivePage, currentUser, setContributions, setMembers }) {
   const [submitted, setSubmitted] = useState(false);
@@ -23,9 +23,15 @@ export default function ContactPage({ setActivePage, currentUser, setContributio
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!form.name.trim() || !form.phone.trim() || !form.message.trim()) return;
+    saveContactMessage({
+      name: form.name,
+      phone: form.phone,
+      message: form.message
+    });
     setSubmitted(true);
     setForm({ name: '', phone: '', message: '' });
-    setTimeout(() => setSubmitted(false), 4000);
+    setTimeout(() => setSubmitted(false), 7000);
   };
 
   const handlePortalRedirect = () => {
@@ -205,8 +211,14 @@ export default function ContactPage({ setActivePage, currentUser, setContributio
           </p>
 
           {submitted && (
-            <div style={{ padding: '1rem', background: 'rgba(16, 185, 129, 0.15)', borderRadius: '0.5rem', color: '#059669', fontWeight: 600, marginBottom: '1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle2 size={18} /> Thank you! Your message has been sent to the Fellowship Executives.
+            <div style={{ padding: '1.1rem', background: 'rgba(16, 185, 129, 0.15)', borderRadius: '12px', border: '1.5px solid rgba(16, 185, 129, 0.4)', color: '#059669', fontWeight: 700, marginBottom: '1.25rem', fontSize: '0.92rem', display: 'flex', alignItems: 'flex-start', gap: '0.65rem', lineHeight: 1.5 }}>
+              <CheckCircle2 size={22} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+              <div>
+                <div>Message Delivered Successfully!</div>
+                <div style={{ fontWeight: 500, fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                  Your inquiry has been delivered directly to the Executive Secretariat and Admin Console Inbox. An officer will follow up with you shortly.
+                </div>
+              </div>
             </div>
           )}
 

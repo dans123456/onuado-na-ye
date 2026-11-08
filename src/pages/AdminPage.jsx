@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -210,7 +210,7 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
   };
 
   // Handle Approve Pending Applicant
-  const handleApproveApplicant = (appId, statusToAssign = 'PROBATION') => {
+  const handleApproveApplicant = (appId, statusToAssign = 'ACTIVE') => {
     const res = approvePendingApplication(appId, statusToAssign);
     if (res) {
       setMembers(res.updatedMembers);
@@ -218,15 +218,47 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
       setKeyInHistory(getKeyInHistory());
       setTreasuryAccountsData(getTreasuryAccountsData());
       setTrialBalanceItems(getTrialBalanceItems());
+      setImportSuccess(`🎉 Application Approved! ${res.createdMember.title} ${res.createdMember.full_name} is now registered as ${statusToAssign} member (ID: ${res.createdMember.excel_member_id}). Portal access activated for phone ${res.createdMember.phone_number}.`);
+      setTimeout(() => setImportSuccess(''), 7000);
     }
   };
 
   // Handle Reject Pending Applicant
   const handleRejectApplicant = (appId) => {
-    if (window.confirm('Are you sure you want to reject this membership application?')) {
+    if (window.confirm('Are you sure you want to decline / reject this membership application?')) {
       const remaining = rejectPendingApplication(appId);
       setPendingApps(remaining);
+      setImportSuccess('Application removed from the pending queue.');
+      setTimeout(() => setImportSuccess(''), 4000);
     }
+  };
+
+  // 📩 Contact Us Messages & Secretariat Inbox State
+  const [contactMessages, setContactMessages] = useState(() => getContactMessages());
+  const [messageFilter, setMessageFilter] = useState('all'); // 'all', 'unread', 'read'
+  const [selectedMessage, setSelectedMessage] = useState(null);
+
+  const unreadMessagesCount = contactMessages.filter(m => m.status === 'UNREAD').length;
+
+  const handleToggleMessageStatus = (msgId, currentStatus) => {
+    const newStatus = currentStatus === 'UNREAD' ? 'READ' : 'UNREAD';
+    const updated = markContactMessageStatus(msgId, newStatus);
+    setContactMessages(updated);
+  };
+
+  const handleDeleteMessage = (msgId) => {
+    if (window.confirm('Are you sure you want to delete this message?')) {
+      const updated = deleteContactMessage(msgId);
+      setContactMessages(updated);
+      if (selectedMessage?.id === msgId) setSelectedMessage(null);
+    }
+  };
+
+  const handleMarkAllMessagesRead = () => {
+    contactMessages.forEach(m => {
+      if (m.status === 'UNREAD') markContactMessageStatus(m.id, 'READ');
+    });
+    setContactMessages(getContactMessages());
   };
 
   // Key-In Audit History State
@@ -809,15 +841,30 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
 
                 {pendingCount > 0 && (
                   <div 
-                    onClick={() => { setActiveTab('roster'); setRosterStatusFilter('PENDING'); }}
-                    style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(37, 99, 235, 0.1)', borderRadius: '10px', border: '1px solid rgba(37, 99, 235, 0.3)', transition: 'all 0.2s ease' }}
-                    title="Click to view Pending applications"
+                    onClick={() => setActiveTab('applications')}
+                    style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(37, 99, 235, 0.12)', borderRadius: '10px', border: '1.5px solid rgba(37, 99, 235, 0.4)', transition: 'all 0.2s ease' }}
+                    title="Click to view Pending applications awaiting Executive Approval"
                   >
                     <div style={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', color: '#2563eb', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                      <span>📩</span> Pending
+                      <span>📝</span> Pending
                     </div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)', marginTop: '0.1rem' }}>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#2563eb', marginTop: '0.1rem' }}>
                       {pendingCount}
+                    </div>
+                  </div>
+                )}
+
+                {unreadMessagesCount > 0 && (
+                  <div 
+                    onClick={() => setActiveTab('inbox')}
+                    style={{ cursor: 'pointer', padding: '0.45rem 0.6rem', background: 'rgba(234, 88, 12, 0.12)', borderRadius: '10px', border: '1.5px solid rgba(234, 88, 12, 0.4)', transition: 'all 0.2s ease' }}
+                    title="Click to view Contact Inquiries from website visitors"
+                  >
+                    <div style={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', color: '#ea580c', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <span>📩</span> Inquiries
+                    </div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ea580c', marginTop: '0.1rem' }}>
+                      {unreadMessagesCount}
                     </div>
                   </div>
                 )}
@@ -1116,6 +1163,26 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
           >
             <Users size={16} /> Member Master Roster ({members.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('applications')} 
+            className={`btn ${activeTab === 'applications' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: pendingApps.length > 0 ? '1.5px solid #2563eb' : undefined }}
+          >
+            <UserPlus size={16} color={activeTab === 'applications' ? '#fff' : '#2563eb'} /> Pending Approvals ({pendingApps.length})
+            {pendingApps.length > 0 && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></span>}
+          </button>
+          <button 
+            onClick={() => setActiveTab('inbox')} 
+            className={`btn ${activeTab === 'inbox' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', border: unreadMessagesCount > 0 ? '1.5px solid #ea580c' : undefined }}
+          >
+            <Inbox size={16} color={activeTab === 'inbox' ? '#fff' : '#ea580c'} /> Inquiries & Inbox ({contactMessages.length})
+            {unreadMessagesCount > 0 && (
+              <span style={{ background: '#ea580c', color: '#fff', fontSize: '0.65rem', fontWeight: 900, padding: '0.1rem 0.4rem', borderRadius: '10px' }}>
+                {unreadMessagesCount} new
+              </span>
+            )}
           </button>
           <button 
             onClick={() => setActiveTab('history')} 
@@ -2130,6 +2197,328 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
             )}
 
+          </div>
+        );
+      })()}
+
+      {/* TAB: ONLINE MEMBER REGISTRATIONS & APPROVAL QUEUE */}
+      {activeTab === 'applications' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          <div className="glass-card" style={{ padding: '1.75rem', borderRadius: '18px', borderLeft: '5px solid #2563eb' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e40af', margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <UserPlus size={24} color="#2563eb" /> Executive Member Registration & Approval Queue
+                </h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
+                  Review new member registrations submitted online. Once approved, the member is assigned their official ONY Member ID and granted full portal login access.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <span className="badge" style={{ padding: '0.4rem 0.85rem', fontSize: '0.85rem', background: pendingApps.length > 0 ? 'rgba(37, 99, 235, 0.15)' : 'rgba(16, 185, 129, 0.15)', color: pendingApps.length > 0 ? '#2563eb' : '#059669', fontWeight: 800 }}>
+                  {pendingApps.length} Application{pendingApps.length === 1 ? '' : 's'} Awaiting Decision
+                </span>
+                <button
+                  onClick={() => setIsAddMemberModalOpen(true)}
+                  className="btn btn-primary"
+                  style={{ padding: '0.55rem 1rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                >
+                  <PlusCircle size={16} /> + Register Walk-In Member
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Pending Applications List */}
+          <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+            {pendingApps.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3.5rem 1rem', background: 'var(--bg-main)', borderRadius: '16px', border: '1.5px dashed var(--border-color)' }}>
+                <UserCheck size={48} color="#059669" style={{ margin: '0 auto 1rem auto', opacity: 0.8 }} />
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: '0 0 0.4rem', color: 'var(--text-main)' }}>
+                  All Applications Reviewed!
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', maxWidth: '520px', margin: '0 auto' }}>
+                  There are currently no prospective member applications waiting for executive approval. New applications submitted from the website will automatically appear here.
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {pendingApps.map(app => (
+                  <div 
+                    key={app.id} 
+                    style={{ 
+                      padding: '1.5rem', 
+                      background: 'var(--bg-main)', 
+                      borderRadius: '16px', 
+                      border: '1.5px solid rgba(37, 99, 235, 0.25)', 
+                      borderLeft: '5px solid #2563eb',
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '1rem',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                            {app.title} {app.full_name}
+                          </span>
+                          <span className="badge badge-dues" style={{ fontSize: '0.75rem' }}>{app.branch} Branch</span>
+                          <span className="badge" style={{ fontSize: '0.75rem', background: 'rgba(217, 119, 6, 0.15)', color: '#d97706', fontWeight: 800 }}>
+                            PENDING APPROVAL
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                          Applied on <strong>{app.date_submitted}</strong> • Ref: <code style={{ fontSize: '0.78rem' }}>{app.payment_reference}</code>
+                        </div>
+                      </div>
+
+                      {/* Reg Fee Badge */}
+                      <div style={{ textAlign: 'right', background: 'rgba(5, 150, 105, 0.1)', padding: '0.5rem 0.85rem', borderRadius: '10px', border: '1px solid rgba(5, 150, 105, 0.25)' }}>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#059669' }}>Registration Fee</div>
+                        <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#059669' }}>GH₵ {app.reg_fee_paid || 200}.00 (PAID ✓)</div>
+                      </div>
+                    </div>
+
+                    {/* Quick Bio Info Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem', padding: '0.85rem 1rem', background: 'var(--card-bg, rgba(255,255,255,0.03))', borderRadius: '12px', border: '1px solid var(--border-color)', fontSize: '0.85rem' }}>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>Telephone</span>
+                        <a href={`tel:${app.phone_number}`} style={{ fontWeight: 800, color: '#2563eb', textDecoration: 'none' }}>📞 {app.phone_number}</a>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>Town / Residence</span>
+                        <strong>{app.town || '—'} ({app.region || 'Greater Accra'})</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>Occupation</span>
+                        <strong>{app.occupation || '—'}</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>Next of Kin</span>
+                        <strong>{app.next_of_kin || '—'} {app.next_of_kin_contact ? `(${app.next_of_kin_contact})` : ''}</strong>
+                      </div>
+                    </div>
+
+                    {/* Decision Actions */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', borderTop: '1px dashed var(--border-color)', paddingTop: '0.85rem' }}>
+                      <button
+                        onClick={() => setPrintModalMember(app)}
+                        className="btn btn-secondary"
+                        style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', fontWeight: 800, color: '#2563eb', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', border: '1.5px solid rgba(37, 99, 235, 0.4)' }}
+                        title="Inspect full 45-field registration sheet and print official form"
+                      >
+                        <Printer size={15} color="#2563eb" /> Inspect Full Bio-Data & Print Form
+                      </button>
+
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => handleApproveApplicant(app.id, 'ACTIVE')}
+                          className="btn btn-primary"
+                          style={{ padding: '0.5rem 1.1rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                          title="Approve and admit directly as an Active Member"
+                        >
+                          <Check size={16} /> ✅ Approve as Active Member
+                        </button>
+                        <button
+                          onClick={() => handleApproveApplicant(app.id, 'PROBATION')}
+                          className="btn btn-secondary"
+                          style={{ padding: '0.5rem 0.9rem', fontSize: '0.85rem', fontWeight: 800, color: '#d97706', border: '1.5px solid rgba(217, 119, 6, 0.5)' }}
+                          title="Approve under Probationary membership"
+                        >
+                          ⏳ Admit on Probation
+                        </button>
+                        <button
+                          onClick={() => handleRejectApplicant(app.id)}
+                          className="btn btn-secondary"
+                          style={{ padding: '0.5rem 0.85rem', fontSize: '0.85rem', fontWeight: 700, color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.4)' }}
+                          title="Decline this registration application"
+                        >
+                          <Trash2 size={15} color="#dc2626" /> Decline
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* TAB: CONTACT US MESSAGES & SECRETARIAT INBOX */}
+      {activeTab === 'inbox' && (() => {
+        const filteredMessages = contactMessages.filter(m => {
+          if (messageFilter === 'unread') return m.status === 'UNREAD';
+          if (messageFilter === 'read') return m.status === 'READ';
+          return true;
+        });
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            
+            <div className="glass-card" style={{ padding: '1.75rem', borderRadius: '18px', borderLeft: '5px solid #ea580c' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#c2410c', margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <Inbox size={24} color="#ea580c" /> Executive Contact Inquiries & Secretariat Inbox
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.35rem' }}>
+                    Messages and inquiries sent by visitors and fellowship members through the Contact Us page.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  {unreadMessagesCount > 0 && (
+                    <button
+                      onClick={handleMarkAllMessagesRead}
+                      className="btn btn-secondary"
+                      style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                    >
+                      <CheckCheck size={15} color="#059669" /> Mark All as Read
+                    </button>
+                  )}
+                  <span className="badge" style={{ padding: '0.4rem 0.85rem', fontSize: '0.85rem', background: unreadMessagesCount > 0 ? 'rgba(234, 88, 12, 0.15)' : 'rgba(16, 185, 129, 0.15)', color: unreadMessagesCount > 0 ? '#ea580c' : '#059669', fontWeight: 800 }}>
+                    {unreadMessagesCount} Unread Inquiry{unreadMessagesCount === 1 ? '' : 'ies'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Filter Pills */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.25rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+                <button
+                  onClick={() => setMessageFilter('all')}
+                  className={`btn ${messageFilter === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ padding: '0.35rem 0.8rem', fontSize: '0.8rem', fontWeight: 700 }}
+                >
+                  All Inquiries ({contactMessages.length})
+                </button>
+                <button
+                  onClick={() => setMessageFilter('unread')}
+                  className={`btn ${messageFilter === 'unread' ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ padding: '0.35rem 0.8rem', fontSize: '0.8rem', fontWeight: 700 }}
+                >
+                  Unread ({unreadMessagesCount})
+                </button>
+                <button
+                  onClick={() => setMessageFilter('read')}
+                  className={`btn ${messageFilter === 'read' ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ padding: '0.35rem 0.8rem', fontSize: '0.8rem', fontWeight: 700 }}
+                >
+                  Read ({contactMessages.length - unreadMessagesCount})
+                </button>
+              </div>
+            </div>
+
+            {/* Messages Cards Deck */}
+            <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
+              {filteredMessages.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '3.5rem 1rem', background: 'var(--bg-main)', borderRadius: '16px', border: '1.5px dashed var(--border-color)' }}>
+                  <MessageSquare size={48} color="#ea580c" style={{ margin: '0 auto 1rem auto', opacity: 0.7 }} />
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: '0 0 0.4rem', color: 'var(--text-main)' }}>
+                    No Messages in this View
+                  </h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', maxWidth: '480px', margin: '0 auto' }}>
+                    When visitors or members send a message from the Contact Us page, their messages and telephone contacts will appear here instantly.
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {filteredMessages.map(msg => {
+                    const cleanPhone = (msg.phone || '').replace(/\D/g, '');
+                    const waPhone = cleanPhone.startsWith('0') ? '233' + cleanPhone.slice(1) : cleanPhone;
+                    const isUnread = msg.status === 'UNREAD';
+
+                    return (
+                      <div 
+                        key={msg.id}
+                        style={{
+                          padding: '1.35rem 1.5rem',
+                          background: isUnread ? 'rgba(234, 88, 12, 0.04)' : 'var(--bg-main)',
+                          borderRadius: '14px',
+                          border: isUnread ? '1.5px solid rgba(234, 88, 12, 0.4)' : '1px solid var(--border-color)',
+                          borderLeft: isUnread ? '5px solid #ea580c' : '5px solid #94a3b8',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.85rem',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.65rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                              {msg.name}
+                            </span>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#2563eb' }}>
+                              📞 {msg.phone}
+                            </span>
+                            <span className="badge" style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem', background: isUnread ? 'rgba(234, 88, 12, 0.15)' : 'rgba(100, 116, 139, 0.15)', color: isUnread ? '#ea580c' : '#64748b', fontWeight: 800 }}>
+                              {isUnread ? '● UNREAD' : '✓ READ'}
+                            </span>
+                          </div>
+
+                          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                            {new Date(msg.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+
+                        {/* Message Content */}
+                        <div style={{ padding: '0.85rem 1.1rem', background: 'var(--card-bg, rgba(255,255,255,0.02))', borderRadius: '10px', border: '1px solid var(--border-color)', fontSize: '0.92rem', color: 'var(--text-main)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                          {msg.message}
+                        </div>
+
+                        {/* Actions */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem', paddingTop: '0.35rem' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {cleanPhone && (
+                              <>
+                                <a 
+                                  href={`https://wa.me/${waPhone}?text=${encodeURIComponent(`Hello ${msg.name}, this is from the ONUADO NA EYE MENS' FELLOWSHIP Executive Secretariat regarding your recent inquiry.`)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="btn btn-secondary"
+                                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', fontWeight: 800, color: '#059669', border: '1.5px solid rgba(5, 150, 105, 0.4)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                                >
+                                  <MessageCircle size={14} color="#059669" /> Reply on WhatsApp
+                                </a>
+                                <a 
+                                  href={`tel:${msg.phone}`}
+                                  className="btn btn-secondary"
+                                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', fontWeight: 700, color: '#2563eb', border: '1px solid rgba(37, 99, 235, 0.3)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                                >
+                                  <Phone size={14} color="#2563eb" /> Direct Call
+                                </a>
+                              </>
+                            )}
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                            <button
+                              onClick={() => handleToggleMessageStatus(msg.id, msg.status)}
+                              className="btn btn-secondary"
+                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 700 }}
+                            >
+                              {isUnread ? 'Mark as Read' : 'Mark as Unread'}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteMessage(msg.id)}
+                              className="btn btn-secondary"
+                              style={{ padding: '0.35rem 0.55rem', fontSize: '0.78rem', fontWeight: 700, color: '#dc2626' }}
+                              title="Delete message"
+                            >
+                              <Trash2 size={13} color="#dc2626" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         );
       })()}
