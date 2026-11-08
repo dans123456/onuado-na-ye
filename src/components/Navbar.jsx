@@ -124,9 +124,20 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
               >
                 <User size={16} /> My Member Portal
               </button>
-              {currentUser.role === 'admin' && (
+              {(currentUser.role === 'admin' || (typeof window !== 'undefined' && sessionStorage.getItem('ony_impersonated_by'))) && (
                 <button 
-                  onClick={() => handleNav('admin')}
+                  onClick={() => {
+                    if (sessionStorage.getItem('ony_impersonated_by')) {
+                      try {
+                        const adminUser = JSON.parse(sessionStorage.getItem('ony_impersonated_by'));
+                        sessionStorage.removeItem('ony_impersonated_by');
+                        if (setCurrentUser) setCurrentUser(adminUser);
+                      } catch (e) {
+                        console.error(e);
+                      }
+                    }
+                    handleNav('admin');
+                  }}
                   className={`nav-link ${activePage === 'admin' ? 'active' : ''}`}
                   style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, color: '#d97706' }}
                 >
@@ -298,8 +309,23 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 <User size={16} /> My Member Portal
               </button>
 
-              {currentUser.role === 'admin' && (
-                <button onClick={() => handleNav('admin')} className="btn btn-accent" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
+              {(currentUser.role === 'admin' || (typeof window !== 'undefined' && sessionStorage.getItem('ony_impersonated_by'))) && (
+                <button 
+                  onClick={() => {
+                    if (sessionStorage.getItem('ony_impersonated_by')) {
+                      try {
+                        const adminUser = JSON.parse(sessionStorage.getItem('ony_impersonated_by'));
+                        sessionStorage.removeItem('ony_impersonated_by');
+                        if (setCurrentUser) setCurrentUser(adminUser);
+                      } catch (e) {
+                        console.error(e);
+                      }
+                    }
+                    handleNav('admin');
+                  }} 
+                  className="btn btn-accent" 
+                  style={{ justifyContent: 'flex-start', fontWeight: 700 }}
+                >
                   <Shield size={16} /> Admin Console
                 </button>
               )}

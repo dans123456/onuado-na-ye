@@ -146,6 +146,7 @@ export default function App() {
       localStorage.removeItem('ony_current_user');
       sessionStorage.removeItem('ony_current_user');
       sessionStorage.removeItem('ony_admin_auth');
+      sessionStorage.removeItem('ony_impersonated_by');
       localStorage.removeItem('ony_active_page');
     } catch (e) {
       console.error(e);
@@ -240,6 +241,7 @@ export default function App() {
           currentUser?.role === 'admin' ? (
             <AdminPage 
               currentUser={currentUser}
+              setCurrentUser={setCurrentUser}
               members={members}
               setMembers={setMembers}
               contributions={contributions}

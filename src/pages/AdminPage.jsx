@@ -11,9 +11,21 @@ import BankAccountTemaModal from '../components/BankAccountTemaModal';
 import TreasuryAccountModal from '../components/TreasuryAccountModal';
 import OfficialRegistrationPrintModal from '../components/OfficialRegistrationPrintModal';
 
-export default function AdminPage({ currentUser, members, setMembers, contributions, setContributions, setActivePage }) {
+export default function AdminPage({ currentUser, setCurrentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('roster'); // 'roster', 'history', 'manual', 'announcement', 'treasury'
   const [showAllBranches, setShowAllBranches] = useState(false);
+
+  // Executive Master Bypass: View Member Portal Directly without password
+  const handleViewPortalAsMember = (member) => {
+    if (!member) return;
+    try {
+      sessionStorage.setItem('ony_impersonated_by', JSON.stringify(currentUser || { full_name: 'Elder Jonathan Danso Siaw', role: 'admin' }));
+    } catch (e) {
+      console.error(e);
+    }
+    if (setCurrentUser) setCurrentUser(member);
+    if (setActivePage) setActivePage('dashboard');
+  };
 
   // Petty Cash Vehicle Modal State
   const [isPettyCashVehicleModalOpen, setIsPettyCashVehicleModalOpen] = useState(false);
@@ -2172,6 +2184,14 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
                             <td>
                               <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
                                 <button
+                                  onClick={() => handleViewPortalAsMember(m)}
+                                  className="btn btn-secondary"
+                                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#b45309', border: '1px solid rgba(217, 119, 6, 0.4)', background: 'rgba(217, 119, 6, 0.08)' }}
+                                  title={`Inspect ${m.full_name}'s live portal without password`}
+                                >
+                                  <Shield size={13} color="#d97706" /> View Portal
+                                </button>
+                                <button
                                   onClick={() => openDuesEditorForMember(m)}
                                   className="btn btn-primary"
                                   style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#059669', borderColor: '#059669' }}
@@ -2651,6 +2671,18 @@ export default function AdminPage({ currentUser, members, setMembers, contributi
               </div>
 
               <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexShrink: 0 }}>
+                <button
+                  onClick={() => {
+                    const m = selectedDossierMember;
+                    setSelectedDossierMember(null);
+                    handleViewPortalAsMember(m);
+                  }}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.45rem 0.95rem', fontSize: '0.82rem', fontWeight: 800, color: '#b45309', border: '1px solid rgba(217, 119, 6, 0.4)', background: 'rgba(217, 119, 6, 0.08)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                  title="Inspect this member's live portal ledger"
+                >
+                  <Shield size={14} color="#d97706" /> View Live Portal
+                </button>
                 <button
                   onClick={() => setPrintModalMember(selectedDossierMember)}
                   className="btn btn-secondary"

@@ -28,6 +28,8 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
   const [executiveAuthError, setExecutiveAuthError] = useState('');
   const [executiveFailedAttempts, setExecutiveFailedAttempts] = useState(0);
   const [lockoutRemaining, setLockoutRemaining] = useState(0);
+  const [isExecutiveUnlocked, setIsExecutiveUnlocked] = useState(false);
+  const [selectedBypassMemberId, setSelectedBypassMemberId] = useState(() => members?.[0]?.id || '');
 
   // Auto-decrement lockout timer if active
   React.useEffect(() => {
@@ -165,7 +167,7 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
 
   const jonathanMember = members?.find(m => m.id === 'm-013' || m.excel_member_id === 'ONY-013' || (m.full_name && m.full_name.toLowerCase().includes('jonathan danso siaw')));
 
-  const handleExecutiveFastTrackLogin = (e) => {
+  const handleUnlockExecutiveMaster = (e) => {
     if (e && e.preventDefault) e.preventDefault();
     setExecutiveAuthError('');
 
@@ -184,7 +186,7 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
     const enteredPin = executivePinInput.trim();
 
     if (!enteredPin) {
-      setExecutiveAuthError('Please enter your 4-digit Executive PIN (Default: 5516).');
+      setExecutiveAuthError('Please enter Elder Jonathan\'s 4-digit Security PIN (Default: 5516).');
       return;
     }
 
@@ -201,17 +203,45 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
       return;
     }
 
-    // PIN verified successfully!
+    // PIN verified successfully! Unlock Master Access
     setExecutiveFailedAttempts(0);
     setExecutiveAuthError('');
+    setIsExecutiveUnlocked(true);
+  };
+
+  const handleLoginAsJonathan = () => {
+    try {
+      sessionStorage.removeItem('ony_impersonated_by');
+    } catch {}
     setLoadingText({
       title: `Welcome, Elder Jonathan Danso Siaw!`,
       subtitle: `Authenticating Executive Secretary credentials (ONY-013)...`
     });
     setIsLoading(true);
-
     setTimeout(() => {
       finalizeLogin(jonathanMember);
+      setIsLoading(false);
+    }, 550);
+  };
+
+  const handleLaunchMemberBypass = (targetMemberId) => {
+    const target = members?.find(m => m.id === targetMemberId);
+    if (!target) return;
+
+    try {
+      sessionStorage.setItem('ony_impersonated_by', JSON.stringify(jonathanMember));
+    } catch (err) {
+      console.error(err);
+    }
+
+    setLoadingText({
+      title: `Executive Master Bypass: ${target.full_name}`,
+      subtitle: `Opening member portal ledger (${target.excel_member_id || 'ONY'}) without password...`
+    });
+    setIsLoading(true);
+
+    setTimeout(() => {
+      finalizeLogin(target);
       setIsLoading(false);
     }, 600);
   };
@@ -414,66 +444,133 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
                 </div>
               </div>
 
-              {/* Security Protection Notice */}
-              <div style={{ background: 'rgba(5, 150, 105, 0.08)', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid rgba(5, 150, 105, 0.2)', marginBottom: '0.85rem', fontSize: '0.74rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                <Shield size={14} color="#059669" style={{ flexShrink: 0 }} />
-                <span><strong>PIN Protection Active:</strong> Enter Elder Jonathan's 4-digit Security PIN to authenticate executive access.</span>
-              </div>
+              {!isExecutiveUnlocked ? (
+                <>
+                  {/* Security Protection Notice */}
+                  <div style={{ background: 'rgba(5, 150, 105, 0.08)', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid rgba(5, 150, 105, 0.2)', marginBottom: '0.85rem', fontSize: '0.74rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <Shield size={14} color="#059669" style={{ flexShrink: 0 }} />
+                    <span><strong>PIN Protection Active:</strong> Enter Elder Jonathan's 4-digit Security PIN to authenticate and unlock Master Bypass.</span>
+                  </div>
 
-              {executiveAuthError && (
-                <div style={{ padding: '0.65rem 0.75rem', background: 'rgba(239, 68, 68, 0.1)', borderLeft: '3px solid #ef4444', color: '#dc2626', borderRadius: '6px', fontSize: '0.76rem', marginBottom: '0.85rem', fontWeight: 600 }}>
-                  {executiveAuthError}
-                </div>
-              )}
+                  {executiveAuthError && (
+                    <div style={{ padding: '0.65rem 0.75rem', background: 'rgba(239, 68, 68, 0.1)', borderLeft: '3px solid #ef4444', color: '#dc2626', borderRadius: '6px', fontSize: '0.76rem', marginBottom: '0.85rem', fontWeight: 600 }}>
+                      {executiveAuthError}
+                    </div>
+                  )}
 
-              {/* Fast-Track PIN Authentication Form */}
-              <form onSubmit={handleExecutiveFastTrackLogin} style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--text-muted)' }}>
-                    Executive Security PIN
-                  </label>
-                  <div style={{ position: 'relative' }}>
-                    <input 
-                      type={showExecutivePinInput ? 'text' : 'password'}
-                      maxLength={8}
-                      disabled={lockoutRemaining > 0}
-                      placeholder="Enter 4-digit PIN (e.g. 5516)"
-                      value={executivePinInput}
-                      onChange={(e) => setExecutivePinInput(e.target.value)}
-                      className="form-input"
-                      style={{ width: '100%', padding: '0.5rem 2.4rem 0.5rem 0.75rem', fontSize: '0.88rem', borderRadius: '8px', letterSpacing: '0.1em' }}
-                    />
+                  {/* Fast-Track PIN Authentication Form */}
+                  <form onSubmit={handleUnlockExecutiveMaster} style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--text-muted)' }}>
+                        Executive Security PIN
+                      </label>
+                      <div style={{ position: 'relative' }}>
+                        <input 
+                          type={showExecutivePinInput ? 'text' : 'password'}
+                          maxLength={8}
+                          disabled={lockoutRemaining > 0}
+                          placeholder="Enter 4-digit PIN (e.g. 5516)"
+                          value={executivePinInput}
+                          onChange={(e) => setExecutivePinInput(e.target.value)}
+                          className="form-input"
+                          style={{ width: '100%', padding: '0.5rem 2.4rem 0.5rem 0.75rem', fontSize: '0.88rem', borderRadius: '8px', letterSpacing: '0.1em' }}
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => setShowExecutivePinInput(!showExecutivePinInput)}
+                          style={{ position: 'absolute', right: '0.6rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}
+                          aria-label="Toggle PIN visibility"
+                        >
+                          {showExecutivePinInput ? <EyeOff size={15} /> : <Eye size={15} />}
+                        </button>
+                      </div>
+                    </div>
+
                     <button 
-                      type="button"
-                      onClick={() => setShowExecutivePinInput(!showExecutivePinInput)}
-                      style={{ position: 'absolute', right: '0.6rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}
-                      aria-label="Toggle PIN visibility"
+                      type="submit" 
+                      disabled={lockoutRemaining > 0}
+                      className="btn btn-accent" 
+                      style={{ width: '100%', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: '8px', justifyContent: 'center', background: 'linear-gradient(135deg, #d97706, #059669)', border: 'none', color: '#fff', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.25)', cursor: lockoutRemaining > 0 ? 'not-allowed' : 'pointer' }}
                     >
-                      {showExecutivePinInput ? <EyeOff size={15} /> : <Eye size={15} />}
+                      {lockoutRemaining > 0 ? `Locked for ${lockoutRemaining}s` : 'Unlock Executive Master Access 🔓'}
+                    </button>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.2rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      <span>Default PIN: Last 4 digits (5516)</span>
+                      <button 
+                        type="button"
+                        onClick={handlePrefillJonathan}
+                        style={{ background: 'none', border: 'none', color: '#059669', cursor: 'pointer', fontWeight: 700, padding: 0 }}
+                      >
+                        Pre-fill Main Form
+                      </button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  {/* Master Unlocked Status Banner */}
+                  <div style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '10px', padding: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 800, color: '#059669' }}>
+                      <CheckCircle2 size={17} color="#059669" />
+                      <span>Executive Master Access Unlocked</span>
+                    </div>
+                    <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.2rem', lineHeight: 1.4 }}>
+                      Verified as <strong>Elder Jonathan Danso Siaw</strong>. Choose your own executive portal or enter any member account directly.
+                    </div>
+                  </div>
+
+                  {/* Option 1: Log in directly as Jonathan */}
+                  <button
+                    type="button"
+                    onClick={handleLoginAsJonathan}
+                    className="btn btn-primary"
+                    style={{ width: '100%', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: '8px', justifyContent: 'center', background: '#059669', borderColor: '#059669', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    <User size={15} /> Enter as Elder Jonathan Danso Siaw
+                  </button>
+
+                  {/* Option 2: Impersonate / Bypass Any Member */}
+                  <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.85rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.76rem', fontWeight: 800, color: '#b45309', marginBottom: '0.35rem' }}>
+                      ⚡ Master Bypass: Select Member to Inspect Portal
+                    </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+                      <select
+                        className="form-select"
+                        value={selectedBypassMemberId}
+                        onChange={(e) => setSelectedBypassMemberId(e.target.value)}
+                        style={{ width: '100%', padding: '0.55rem', fontSize: '0.82rem', borderRadius: '8px' }}
+                      >
+                        {members.map(m => (
+                          <option key={m.id} value={m.id}>
+                            {m.full_name} ({m.branch}) — {m.excel_member_id || 'ONY'} {m.role === 'admin' ? '⭐ (Executive)' : ''}
+                          </option>
+                        ))}
+                      </select>
+
+                      <button
+                        type="button"
+                        onClick={() => handleLaunchMemberBypass(selectedBypassMemberId)}
+                        className="btn btn-accent"
+                        style={{ width: '100%', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: '8px', justifyContent: 'center', background: 'linear-gradient(135deg, #d97706, #059669)', border: 'none', color: '#fff', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.25)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                      >
+                        <Sparkles size={15} /> Launch Member Portal (Bypass PIN) →
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'center', marginTop: '0.15rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => setIsExecutiveUnlocked(false)}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.72rem', cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                      🔒 Lock Master Bypass
                     </button>
                   </div>
                 </div>
-
-                <button 
-                  type="submit" 
-                  disabled={lockoutRemaining > 0}
-                  className="btn btn-accent" 
-                  style={{ width: '100%', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: '8px', justifyContent: 'center', background: 'linear-gradient(135deg, #d97706, #059669)', border: 'none', color: '#fff', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.25)', cursor: lockoutRemaining > 0 ? 'not-allowed' : 'pointer' }}
-                >
-                  {lockoutRemaining > 0 ? `Locked for ${lockoutRemaining}s` : 'Fast-Track Sign In →'}
-                </button>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.2rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                  <span>Default PIN: Last 4 digits (5516)</span>
-                  <button 
-                    type="button"
-                    onClick={handlePrefillJonathan}
-                    style={{ background: 'none', border: 'none', color: '#059669', cursor: 'pointer', fontWeight: 700, padding: 0 }}
-                  >
-                    Pre-fill Main Form
-                  </button>
-                </div>
-              </form>
+              )}
             </div>
           )}
         </div>

@@ -133,8 +133,74 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
   if (!currentUser) return null;
 
+  // Executive Impersonator Detection
+  const impersonator = (() => {
+    try {
+      const raw = sessionStorage.getItem('ony_impersonated_by');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })();
+
   return (
     <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
+
+      {/* 🛡️ EXECUTIVE MASTER BYPASS NOTIFICATION BANNER */}
+      {impersonator && (
+        <div style={{ background: 'linear-gradient(90deg, #1e293b, #0f172a)', color: '#ffffff', padding: '0.85rem 1.25rem', borderRadius: '14px', marginBottom: '1.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.85rem', border: '1.5px solid #d97706', boxShadow: '0 6px 20px rgba(217, 119, 6, 0.25)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(217, 119, 6, 0.2)', border: '1px solid rgba(217, 119, 6, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <ShieldCheck size={22} color="#f59e0b" />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.02em' }}>
+                <span>EXECUTIVE MASTER MODE ACTIVE</span>
+                <span style={{ fontSize: '0.68rem', padding: '0.1rem 0.45rem', borderRadius: '4px', background: '#d97706', color: '#fff', fontWeight: 800 }}>PIN BYPASS</span>
+              </div>
+              <div style={{ fontSize: '0.76rem', color: '#cbd5e1', marginTop: '0.15rem' }}>
+                Authorized by <strong>{impersonator.full_name || 'Elder Jonathan Danso Siaw'}</strong> • Inspecting <strong>{currentUser.full_name} ({currentUser.excel_member_id || 'ONY'})</strong>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+            {/* Quick Switch to any other member */}
+            <select
+              value={currentUser.id}
+              onChange={(e) => {
+                const target = members.find(m => m.id === e.target.value);
+                if (target) {
+                  setCurrentUser(target);
+                }
+              }}
+              style={{ padding: '0.45rem 0.75rem', fontSize: '0.8rem', fontWeight: 700, borderRadius: '8px', background: '#334155', color: '#ffffff', border: '1px solid #64748b', cursor: 'pointer', outline: 'none' }}
+              title="Switch to another member's portal without logging out"
+            >
+              {members.map(m => (
+                <option key={m.id} value={m.id}>
+                  Switch to: {m.full_name} ({m.branch})
+                </option>
+              ))}
+            </select>
+
+            {/* Exit Master Mode */}
+            <button
+              onClick={() => {
+                try {
+                  sessionStorage.removeItem('ony_impersonated_by');
+                } catch {}
+                setCurrentUser(impersonator);
+                setActivePage('admin');
+              }}
+              className="btn btn-accent"
+              style={{ padding: '0.45rem 0.95rem', fontSize: '0.8rem', fontWeight: 800, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'linear-gradient(135deg, #d97706, #059669)', border: 'none', color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
+            >
+              ↩ Exit to Admin Console
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Top Welcome & Navigation Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
