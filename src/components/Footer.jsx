@@ -24,9 +24,9 @@ export default function Footer({ setActivePage, currentUser, setCurrentUser, onL
         
         {/* Brand */}
         <div 
-          onClick={() => setActivePage && setActivePage('home')}
+          onClick={() => setActivePage && setActivePage(currentUser ? (currentUser.role === 'admin' ? 'admin' : 'dashboard') : 'home')}
           style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer' }}
-          title="Return to Home"
+          title={currentUser ? "Go to Member Portal" : "Return to Home"}
         >
           <img src="/logo.png" alt="Logo" style={{ width: '26px', height: '26px', objectFit: 'contain' }} />
           <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '0.9rem', color: 'var(--primary-600)' }}>
@@ -36,11 +36,16 @@ export default function Footer({ setActivePage, currentUser, setCurrentUser, onL
 
         {/* Dynamic Context-Aware Links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap', fontSize: '0.82rem' }}>
-          <button onClick={() => setActivePage('home')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>Home</button>
-          <button onClick={() => setActivePage('about')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>About Us</button>
-          <button onClick={() => setActivePage('contact')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>Contact Us</button>
-
-          {currentUser ? (
+          {!currentUser ? (
+            <>
+              <button onClick={() => setActivePage('home')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>Home</button>
+              <button onClick={() => setActivePage('about')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>About Us</button>
+              <button onClick={() => setActivePage('contact')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontWeight: 600 }}>Contact Us</button>
+              <button onClick={() => setActivePage('login')} style={{ background: 'none', border: 'none', color: 'var(--primary-600)', cursor: 'pointer', fontWeight: 800 }}>
+                Member Sign-In
+              </button>
+            </>
+          ) : (
             <>
               <button 
                 onClick={() => setActivePage('dashboard')} 
@@ -63,10 +68,6 @@ export default function Footer({ setActivePage, currentUser, setCurrentUser, onL
                 Sign Out
               </button>
             </>
-          ) : (
-            <button onClick={() => setActivePage('login')} style={{ background: 'none', border: 'none', color: 'var(--primary-600)', cursor: 'pointer', fontWeight: 800 }}>
-              Member Sign-In
-            </button>
           )}
         </div>
 

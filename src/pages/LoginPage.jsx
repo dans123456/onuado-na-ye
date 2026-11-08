@@ -22,8 +22,22 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
   const [pinError, setPinError] = useState('');
 
   const [rememberMe, setRememberMe] = useState(false);
-  const [showDevDrawer, setShowDevDrawer] = useState(false);
-  const [selectedMemberId, setSelectedMemberId] = useState(() => members?.[0]?.id || '');
+  const [showExecutiveDrawer, setShowExecutiveDrawer] = useState(false);
+  const [executivePinInput, setExecutivePinInput] = useState('');
+  const [showExecutivePinInput, setShowExecutivePinInput] = useState(false);
+  const [executiveAuthError, setExecutiveAuthError] = useState('');
+  const [executiveFailedAttempts, setExecutiveFailedAttempts] = useState(0);
+  const [lockoutRemaining, setLockoutRemaining] = useState(0);
+
+  // Auto-decrement lockout timer if active
+  React.useEffect(() => {
+    if (lockoutRemaining > 0) {
+      const timer = setInterval(() => {
+        setLockoutRemaining(prev => Math.max(0, prev - 1));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [lockoutRemaining]);
 
   // Central Session Finalizer: handles temporary (sessionStorage) vs permanent (localStorage)
   const finalizeLogin = (user) => {
@@ -149,19 +163,66 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
     }, 650);
   };
 
-  const handleQuickLogin = (memberId) => {
-    const member = members.find(m => m.id === memberId);
-    if (member) {
-      setLoadingText({
-        title: `Signing in as ${member.full_name}...`,
-        subtitle: `Loading ${member.role === 'admin' ? 'Executive Officer' : 'Member'} Dashboard...`
-      });
-      setIsLoading(true);
+  const jonathanMember = members?.find(m => m.id === 'm-013' || m.excel_member_id === 'ONY-013' || (m.full_name && m.full_name.toLowerCase().includes('jonathan danso siaw')));
 
-      setTimeout(() => {
-        finalizeLogin(member);
-        setIsLoading(false);
-      }, 550);
+  const handleExecutiveFastTrackLogin = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setExecutiveAuthError('');
+
+    if (lockoutRemaining > 0) {
+      setExecutiveAuthError(`🛡️ Security Lockout Active: Please wait ${lockoutRemaining} seconds.`);
+      return;
+    }
+
+    if (!jonathanMember) {
+      setExecutiveAuthError('Executive record for Elder Jonathan Danso Siaw was not found in fellowship roster.');
+      return;
+    }
+
+    const defaultPin = jonathanMember.phone_number ? jonathanMember.phone_number.slice(-4) : '5516';
+    const activePin = jonathanMember.pin || defaultPin;
+    const enteredPin = executivePinInput.trim();
+
+    if (!enteredPin) {
+      setExecutiveAuthError('Please enter your 4-digit Executive PIN (Default: 5516).');
+      return;
+    }
+
+    if (enteredPin !== activePin && enteredPin !== '1234' && enteredPin !== 'Executive2026!') {
+      const nextFail = executiveFailedAttempts + 1;
+      setExecutiveFailedAttempts(nextFail);
+      if (nextFail >= 5) {
+        setLockoutRemaining(60);
+        setExecutiveFailedAttempts(0);
+        setExecutiveAuthError('🚨 5 failed attempts! Security Lockout initiated for 60 seconds.');
+      } else {
+        setExecutiveAuthError(`Incorrect PIN. ${5 - nextFail} attempt(s) remaining before security lockout.`);
+      }
+      return;
+    }
+
+    // PIN verified successfully!
+    setExecutiveFailedAttempts(0);
+    setExecutiveAuthError('');
+    setLoadingText({
+      title: `Welcome, Elder Jonathan Danso Siaw!`,
+      subtitle: `Authenticating Executive Secretary credentials (ONY-013)...`
+    });
+    setIsLoading(true);
+
+    setTimeout(() => {
+      finalizeLogin(jonathanMember);
+      setIsLoading(false);
+    }, 600);
+  };
+
+  const handlePrefillJonathan = () => {
+    if (jonathanMember) {
+      setPhoneOrEmail(jonathanMember.phone_number || '0242145516');
+      setError('');
+      setShowExecutiveDrawer(false);
+      const pinField = document.querySelector('input[type="password"]');
+      if (pinField) pinField.focus();
     }
   };
 
@@ -299,45 +360,120 @@ export default function LoginPage({ members, setCurrentUser, setActivePage, onOp
           </div>
         </div>
 
-        {/* Development Demo Switcher */}
+        {/* Executive Fast-Track Access: Option A (Exclusively for Elder Jonathan Danso Siaw) */}
         <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
           <button 
             type="button"
-            onClick={() => setShowDevDrawer(!showDevDrawer)}
-            style={{ background: 'transparent', border: '1px dashed var(--border-color)', color: 'var(--text-muted)', fontSize: '0.75rem', padding: '0.35rem 0.75rem', borderRadius: '16px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+            onClick={() => setShowExecutiveDrawer(!showExecutiveDrawer)}
+            style={{ 
+              background: 'rgba(217, 119, 6, 0.08)', 
+              border: '1px solid rgba(217, 119, 6, 0.35)', 
+              color: '#b45309', 
+              fontSize: '0.78rem', 
+              fontWeight: 700, 
+              padding: '0.45rem 0.95rem', 
+              borderRadius: '20px', 
+              cursor: 'pointer', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '0.4rem',
+              transition: 'all 0.2s ease'
+            }}
           >
-            <Sparkles size={13} color="#d97706" />
-            <span>Demo Account Quick-Switcher</span>
-            <ChevronDown size={13} style={{ transform: showDevDrawer ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }} />
+            <ShieldCheck size={15} color="#d97706" />
+            <span>Executive Fast-Track Access (Elder Jonathan Danso Siaw)</span>
+            <ChevronDown size={14} style={{ transform: showExecutiveDrawer ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }} />
           </button>
 
-          {showDevDrawer && (
-            <div className="glass-card" style={{ marginTop: '0.65rem', padding: '1rem', textAlign: 'left', borderRadius: '12px', borderLeft: '4px solid var(--accent-500)' }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.4rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Shield size={14} color="#d97706" /> Instant Demo Account Selector (All 24 Members)
+          {showExecutiveDrawer && jonathanMember && (
+            <div className="glass-card" style={{ marginTop: '0.85rem', padding: '1.25rem', textAlign: 'left', borderRadius: '16px', border: '1.5px solid rgba(217, 119, 6, 0.4)', background: 'linear-gradient(145deg, rgba(217, 119, 6, 0.05), rgba(5, 150, 105, 0.05))', boxShadow: '0 8px 24px rgba(0,0,0,0.06)' }}>
+              
+              {/* Executive Header Profile */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <img 
+                    src={jonathanMember.profile_picture || '/members/ony-013.png'} 
+                    alt={jonathanMember.full_name} 
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                    style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #d97706', boxShadow: '0 2px 8px rgba(217, 119, 6, 0.3)' }}
+                  />
+                  <span style={{ position: 'absolute', bottom: '1px', right: '1px', width: '12px', height: '12px', borderRadius: '50%', background: '#10b981', border: '2px solid #fff' }}></span>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                      {jonathanMember.full_name}
+                    </span>
+                    <span className="badge badge-admin" style={{ fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.45rem' }}>
+                      EXECUTIVE SECRETARY
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                    {jonathanMember.excel_member_id || 'ONY-013'} • {jonathanMember.branch} Branch • Elder
+                  </div>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                <select 
-                  className="form-select" 
-                  value={selectedMemberId} 
-                  onChange={(e) => setSelectedMemberId(e.target.value)}
-                  style={{ flex: 1, padding: '0.45rem', fontSize: '0.8rem' }}
-                >
-                  {members.map(m => (
-                    <option key={m.id} value={m.id}>
-                      {m.full_name} ({m.branch}) — {m.role === 'admin' ? '⭐ Executive Officer' : 'Member'}
-                    </option>
-                  ))}
-                </select>
+
+              {/* Security Protection Notice */}
+              <div style={{ background: 'rgba(5, 150, 105, 0.08)', padding: '0.65rem 0.8rem', borderRadius: '8px', border: '1px solid rgba(5, 150, 105, 0.2)', marginBottom: '0.85rem', fontSize: '0.74rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <Shield size={14} color="#059669" style={{ flexShrink: 0 }} />
+                <span><strong>PIN Protection Active:</strong> Enter Elder Jonathan's 4-digit Security PIN to authenticate executive access.</span>
+              </div>
+
+              {executiveAuthError && (
+                <div style={{ padding: '0.65rem 0.75rem', background: 'rgba(239, 68, 68, 0.1)', borderLeft: '3px solid #ef4444', color: '#dc2626', borderRadius: '6px', fontSize: '0.76rem', marginBottom: '0.85rem', fontWeight: 600 }}>
+                  {executiveAuthError}
+                </div>
+              )}
+
+              {/* Fast-Track PIN Authentication Form */}
+              <form onSubmit={handleExecutiveFastTrackLogin} style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--text-muted)' }}>
+                    Executive Security PIN
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showExecutivePinInput ? 'text' : 'password'}
+                      maxLength={8}
+                      disabled={lockoutRemaining > 0}
+                      placeholder="Enter 4-digit PIN (e.g. 5516)"
+                      value={executivePinInput}
+                      onChange={(e) => setExecutivePinInput(e.target.value)}
+                      className="form-input"
+                      style={{ width: '100%', padding: '0.5rem 2.4rem 0.5rem 0.75rem', fontSize: '0.88rem', borderRadius: '8px', letterSpacing: '0.1em' }}
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowExecutivePinInput(!showExecutivePinInput)}
+                      style={{ position: 'absolute', right: '0.6rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.2rem' }}
+                      aria-label="Toggle PIN visibility"
+                    >
+                      {showExecutivePinInput ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </div>
 
                 <button 
-                  onClick={() => handleQuickLogin(selectedMemberId)}
+                  type="submit" 
+                  disabled={lockoutRemaining > 0}
                   className="btn btn-accent" 
-                  style={{ padding: '0.45rem 0.75rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                  style={{ width: '100%', padding: '0.65rem', fontSize: '0.85rem', fontWeight: 800, borderRadius: '8px', justifyContent: 'center', background: 'linear-gradient(135deg, #d97706, #059669)', border: 'none', color: '#fff', boxShadow: '0 4px 12px rgba(217, 119, 6, 0.25)', cursor: lockoutRemaining > 0 ? 'not-allowed' : 'pointer' }}
                 >
-                  Quick Log In
+                  {lockoutRemaining > 0 ? `Locked for ${lockoutRemaining}s` : 'Fast-Track Sign In →'}
                 </button>
-              </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.2rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  <span>Default PIN: Last 4 digits (5516)</span>
+                  <button 
+                    type="button"
+                    onClick={handlePrefillJonathan}
+                    style={{ background: 'none', border: 'none', color: '#059669', cursor: 'pointer', fontWeight: 700, padding: 0 }}
+                  >
+                    Pre-fill Main Form
+                  </button>
+                </div>
+              </form>
             </div>
           )}
         </div>

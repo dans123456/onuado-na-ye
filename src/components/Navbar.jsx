@@ -118,12 +118,6 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
               <button 
-                onClick={() => handleNav('home')}
-                className={`nav-link ${activePage === 'home' ? 'active' : ''}`}
-              >
-                Home
-              </button>
-              <button 
                 onClick={() => handleNav('dashboard')}
                 className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
                 style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, color: '#059669' }}
@@ -300,9 +294,6 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             </>
           ) : (
             <>
-              <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
-                Home
-              </button>
               <button onClick={() => handleNav('dashboard')} className="btn btn-primary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
                 <User size={16} /> My Member Portal
               </button>
