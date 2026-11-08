@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock } from 'lucide-react';
+import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock, Camera } from 'lucide-react';
 import { updateMemberProfile, addContribution, getMembers, getContributions, getTrialBalanceItems } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSharesData';
@@ -530,6 +530,14 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: activeTab === 'trial_balance' ? '#059669' : 'rgba(5, 150, 105, 0.1)', color: activeTab === 'trial_balance' ? '#fff' : '#059669', border: '1.5px solid rgba(5, 150, 105, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
         >
           <Building2 size={18} color={activeTab === 'trial_balance' ? '#fff' : '#059669'} /> 📊 Fellowship Trial Balance
+        </button>
+        <button
+          onClick={() => setActivePage && setActivePage('gallery')}
+          className="btn btn-secondary"
+          style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: 'rgba(5, 150, 105, 0.08)', color: '#059669', border: '1.5px solid rgba(5, 150, 105, 0.35)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          title="Browse fellowship photos and video memories"
+        >
+          <Camera size={18} color="#059669" /> 📸 Fellowship Media Hub &rarr;
         </button>
       </div>
 

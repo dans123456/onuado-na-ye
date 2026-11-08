@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle, Camera } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
 import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
@@ -1206,6 +1206,14 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
             style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem' }}
           >
             <Users size={16} /> Member Master Roster ({members.length})
+          </button>
+          <button
+            onClick={() => setActivePage && setActivePage('gallery')}
+            className="btn btn-secondary"
+            style={{ padding: '0.6rem 1.1rem', fontWeight: 700, fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#059669', border: '1px solid rgba(5, 150, 105, 0.3)', background: 'rgba(5, 150, 105, 0.06)' }}
+            title="Manage and view uploaded fellowship photos and videos"
+          >
+            <Camera size={16} color="#059669" /> 📸 Media Hub
           </button>
           <button
             onClick={() => setActiveTab('applications')}

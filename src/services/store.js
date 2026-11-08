@@ -2831,5 +2831,178 @@ export const deleteContactMessage = (messageId) => {
   return updated;
 };
 
+// ==========================================
+// 📸 FELLOWSHIP MEDIA & VIDEO GALLERY HUB
+// ==========================================
+
+export const INITIAL_GALLERY_MEDIA = [
+  {
+    id: 'media-1',
+    title: 'Presentation of 7th Special Levy Support Grant',
+    description: 'Official presentation of fellowship welfare support grant to Eld. Justice Kojo Acheampong, witnessed by fellowship elders and executive board members.',
+    category: 'welfare_evidence', // 'welfare_evidence', 'general_meeting', 'annual_conference', 'thanksgiving', 'executive_message'
+    media_type: 'image', // 'image' or 'video'
+    url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80',
+    thumbnail_url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80',
+    date: '2026-10-18',
+    branch: 'Aburi Branch',
+    uploaded_by: 'Elder Jonathan Danso Siaw',
+    featured: true
+  },
+  {
+    id: 'media-2',
+    title: 'Annual Men\'s Fellowship General Conference & Thanksgiving',
+    description: 'Brothers gathered in high spirits and praise at the Annual Men\'s Fellowship Conference celebrating God\'s faithfulness and brotherly unity.',
+    category: 'annual_conference',
+    media_type: 'image',
+    url: 'https://images.unsplash.com/photo-1544427920-c49ccfb85579?auto=format&fit=crop&w=1200&q=80',
+    thumbnail_url: 'https://images.unsplash.com/photo-1544427920-c49ccfb85579?auto=format&fit=crop&w=600&q=80',
+    date: '2026-08-25',
+    branch: 'Tema Main Branch',
+    uploaded_by: 'Alex Ackah',
+    featured: true
+  },
+  {
+    id: 'media-3',
+    title: 'Executive Board Strategy & Financial Year-End Review',
+    description: 'Fellowship executive board convening to audit shares, dividend pool, and welfare disbursements across all 16 branches.',
+    category: 'general_meeting',
+    media_type: 'image',
+    url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80',
+    thumbnail_url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80',
+    date: '2026-07-12',
+    branch: 'Kasoa Branch',
+    uploaded_by: 'Elder Jonathan Danso Siaw',
+    featured: false
+  },
+  {
+    id: 'media-4',
+    title: 'Executive Keynote: Brotherly Love & Welfare Unity',
+    description: 'An inspirational address on Psalm 133:1 — "How good and pleasant it is when brothers live together in unity!" Highlighting our 2026 welfare goals.',
+    category: 'executive_message',
+    media_type: 'video',
+    url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+    embed_url: 'https://www.youtube-nocookie.com/embed/ScMzIvxBSi4',
+    thumbnail_url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=600&q=80',
+    date: '2026-09-04',
+    branch: 'All 16 Branches',
+    uploaded_by: 'Alex Ackah',
+    featured: true
+  },
+  {
+    id: 'media-5',
+    title: 'Mid-Year Seed Sowing & Thanksgiving Fellowship Service',
+    description: 'Fellowship members and invited guests dedicating the vehicle project shares and praying for members\' families and businesses.',
+    category: 'thanksgiving',
+    media_type: 'image',
+    url: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=1200&q=80',
+    thumbnail_url: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=600&q=80',
+    date: '2026-06-14',
+    branch: 'Accra New Town',
+    uploaded_by: 'Elder Samuel Nkansah',
+    featured: false
+  }
+];
+
+export const parseVideoEmbedUrl = (rawUrl) => {
+  if (!rawUrl) return '';
+  const trimmed = rawUrl.trim();
+
+  // YouTube standard watch: https://www.youtube.com/watch?v=VIDEO_ID
+  const ytWatchMatch = trimmed.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+  if (ytWatchMatch && ytWatchMatch[1]) {
+    return `https://www.youtube-nocookie.com/embed/${ytWatchMatch[1]}`;
+  }
+
+  // Vimeo: https://vimeo.com/VIDEO_ID
+  const vimeoMatch = trimmed.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)/i);
+  if (vimeoMatch && vimeoMatch[3]) {
+    return `https://player.vimeo.com/video/${vimeoMatch[3]}`;
+  }
+
+  // Direct video link or embed link
+  return trimmed;
+};
+
+export const getGalleryMedia = () => {
+  try {
+    const raw = localStorage.getItem('ony_fellowship_gallery');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.error('Failed reading gallery media:', e);
+  }
+  return INITIAL_GALLERY_MEDIA;
+};
+
+export const saveGalleryMedia = (items) => {
+  try {
+    localStorage.setItem('ony_fellowship_gallery', JSON.stringify(items));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('ony_gallery_updated'));
+    }
+  } catch (e) {
+    console.error('Failed saving gallery media:', e);
+  }
+  return items;
+};
+
+export const addGalleryMedia = (item) => {
+  const current = getGalleryMedia();
+  const embedUrl = item.media_type === 'video' ? parseVideoEmbedUrl(item.url) : '';
+  const newMedia = {
+    id: 'media-' + Date.now(),
+    title: item.title?.trim() || 'Untitled Fellowship Moment',
+    description: item.description?.trim() || '',
+    category: item.category || 'general_meeting',
+    media_type: item.media_type || 'image',
+    url: item.url || '',
+    embed_url: embedUrl,
+    thumbnail_url: item.thumbnail_url || (item.media_type === 'image' ? item.url : 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=600&q=80'),
+    date: item.date || new Date().toISOString().split('T')[0],
+    branch: item.branch || 'Fellowship General',
+    uploaded_by: item.uploaded_by || 'Executive Board',
+    featured: !!item.featured
+  };
+  const updated = [newMedia, ...current];
+  saveGalleryMedia(updated);
+  return newMedia;
+};
+
+export const updateGalleryMedia = (id, fields) => {
+  const current = getGalleryMedia();
+  const updated = current.map(item => {
+    if (item.id === id) {
+      const media_type = fields.media_type !== undefined ? fields.media_type : item.media_type;
+      const url = fields.url !== undefined ? fields.url : item.url;
+      const embed_url = media_type === 'video' ? parseVideoEmbedUrl(url) : '';
+      return {
+        ...item,
+        ...fields,
+        media_type,
+        url,
+        embed_url: embed_url || item.embed_url
+      };
+    }
+    return item;
+  });
+  saveGalleryMedia(updated);
+  return updated;
+};
+
+export const deleteGalleryMedia = (id) => {
+  const current = getGalleryMedia();
+  const updated = current.filter(item => item.id !== id);
+  saveGalleryMedia(updated);
+  return updated;
+};
+
+export const resetGalleryMediaToDefaults = () => {
+  saveGalleryMedia(INITIAL_GALLERY_MEDIA);
+  return INITIAL_GALLERY_MEDIA;
+};
+
 
 

@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import GalleryPage from './pages/GalleryPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminPage from './pages/AdminPage';
@@ -205,6 +206,13 @@ export default function App() {
             currentUser={currentUser} 
             setContributions={setContributions}
             setMembers={setMembers}
+          />
+        )}
+
+        {activePage === 'gallery' && (
+          <GalleryPage 
+            currentUser={currentUser}
+            setActivePage={handleNavigate}
           />
         )}
 

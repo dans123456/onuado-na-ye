@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy, Megaphone, UserPlus, RefreshCw } from 'lucide-react';
+import { Shield, User, LogOut, Sun, Moon, Menu, X, Wallet, CheckCircle2, Copy, Megaphone, UserPlus, RefreshCw, Camera } from 'lucide-react';
 import { getAnnouncement, getMembers } from '../services/store';
 
 export default function Navbar({ activePage, setActivePage, currentUser, setCurrentUser, isDarkMode, setIsDarkMode, onOpenRegister, onLogout }) {
@@ -109,6 +109,12 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 About Us
               </button>
               <button 
+                onClick={() => handleNav('gallery')}
+                className={`nav-link ${activePage === 'gallery' ? 'active' : ''}`}
+              >
+                📸 Gallery
+              </button>
+              <button 
                 onClick={() => handleNav('contact')}
                 className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}
               >
@@ -123,6 +129,13 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
                 style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, color: '#059669' }}
               >
                 <User size={16} /> My Member Portal
+              </button>
+              <button 
+                onClick={() => handleNav('gallery')}
+                className={`nav-link ${activePage === 'gallery' ? 'active' : ''}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700 }}
+              >
+                <Camera size={16} /> Gallery
               </button>
               {(currentUser.role === 'admin' || (typeof window !== 'undefined' && sessionStorage.getItem('ony_impersonated_by'))) && (
                 <button 
@@ -277,6 +290,7 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             <>
               <button onClick={() => handleNav('home')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Home</button>
               <button onClick={() => handleNav('about')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>About Us</button>
+              <button onClick={() => handleNav('gallery')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>📸 Gallery & Media</button>
               <button onClick={() => handleNav('contact')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>Contact Us</button>
             </>
           )}
@@ -307,6 +321,10 @@ export default function Navbar({ activePage, setActivePage, currentUser, setCurr
             <>
               <button onClick={() => handleNav('dashboard')} className="btn btn-primary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
                 <User size={16} /> My Member Portal
+              </button>
+
+              <button onClick={() => handleNav('gallery')} className="btn btn-secondary" style={{ justifyContent: 'flex-start', fontWeight: 700 }}>
+                <Camera size={16} /> 📸 Fellowship Gallery & Videos
               </button>
 
               {(currentUser.role === 'admin' || (typeof window !== 'undefined' && sessionStorage.getItem('ony_impersonated_by'))) && (
