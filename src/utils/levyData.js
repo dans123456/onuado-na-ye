@@ -88,6 +88,48 @@ export const SPECIAL_LEVIES_MASTER = [
   }
 ];
 
+export const getSpecialLeviesMaster = () => {
+  try {
+    const raw = localStorage.getItem('ony_special_levies_master');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.error('Failed reading levies master:', e);
+  }
+  return SPECIAL_LEVIES_MASTER;
+};
+
+export const saveSpecialLeviesMaster = (updatedMaster) => {
+  try {
+    localStorage.setItem('ony_special_levies_master', JSON.stringify(updatedMaster));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('ony_levies_updated'));
+    }
+  } catch (e) {
+    console.error('Failed saving levies master:', e);
+  }
+  return updatedMaster;
+};
+
+export const updateSpecialLevyItem = (levyId, { recipient, amount, status }) => {
+  const currentList = getSpecialLeviesMaster();
+  const updated = currentList.map(item => {
+    if (item.id === levyId || item.id === parseInt(levyId, 10)) {
+      return {
+        ...item,
+        recipient: recipient !== undefined ? recipient : item.recipient,
+        amount: amount !== undefined ? parseFloat(amount) || 0 : item.amount,
+        status: status !== undefined ? status : item.status
+      };
+    }
+    return item;
+  });
+  saveSpecialLeviesMaster(updated);
+  return updated;
+};
+
 // Member individual payment ledger for Levies 1 to 7 strictly from SPECIAL LEVY sheet
 export const MEMBER_LEVY_MATRIX = {
   "Alex Ackah": { l1: 0, l2: 0, l3: 200, l4: 200, l5: 200, l6: 100, l7: 200, total: 900 },
@@ -151,7 +193,9 @@ export const getMemberLevyDetails = (member) => {
 
   const record = { ...baseRecord, ...overrides };
 
-  return SPECIAL_LEVIES_MASTER.map(levy => {
+  const masterList = getSpecialLeviesMaster();
+
+  return masterList.map(levy => {
     let amountPaid = record[`l${levy.id}`] !== undefined ? record[`l${levy.id}`] : 0;
 
     // Check if member's total levy_paid reflects payments beyond base
@@ -172,7 +216,9 @@ export const getMemberLevyDetails = (member) => {
     let statusText = 'Pending';
     let statusClass = 'badge-admin';
 
-    if (levy.id > 7 && !overrides[`l${levy.id}`]) {
+    const isActive = levy.status === 'ACTIVE ✓' || levy.status?.includes('ACTIVE');
+
+    if (!isActive && !overrides[`l${levy.id}`] && amountPaid === 0) {
       statusText = 'Upcoming Call-Up';
       statusClass = 'badge-secondary';
     } else if (isExempt && amountPaid === 0) {

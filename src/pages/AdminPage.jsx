@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
 import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
-import { getMemberLevyDetails } from '../utils/levyData';
+import { getMemberLevyDetails, getSpecialLeviesMaster } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
 import PettyCashVehicleModal from '../components/PettyCashVehicleModal';
 import BankAccountTemaModal from '../components/BankAccountTemaModal';
 import TreasuryAccountModal from '../components/TreasuryAccountModal';
 import OfficialRegistrationPrintModal from '../components/OfficialRegistrationPrintModal';
+import SpecialLeviesManagerModal from '../components/SpecialLeviesManagerModal';
 
 export default function AdminPage({ currentUser, setCurrentUser, members, setMembers, contributions, setContributions, setActivePage }) {
   const [activeTab, setActiveTab] = useState('roster'); // 'roster', 'history', 'manual', 'announcement', 'treasury'
@@ -47,6 +48,18 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
   const [tbType, setTbType] = useState('income'); // 'income' or 'expenditure'
   const [tbCategory, setTbCategory] = useState('Income');
   const [tbError, setTbError] = useState('');
+
+  // Special Levies Master Schedule State
+  const [isLeviesManagerOpen, setIsLeviesManagerOpen] = useState(false);
+  const [specialLeviesList, setSpecialLeviesList] = useState(() => getSpecialLeviesMaster());
+
+  useEffect(() => {
+    const handleLeviesUpdate = () => {
+      setSpecialLeviesList(getSpecialLeviesMaster());
+    };
+    window.addEventListener('ony_levies_updated', handleLeviesUpdate);
+    return () => window.removeEventListener('ony_levies_updated', handleLeviesUpdate);
+  }, []);
 
   const openAddTBModal = () => {
     setEditingTBItem(null);
@@ -1078,19 +1091,29 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Sparkles size={16} /> Fellowship Master Financial Totals (Live Sync)
           </div>
-          <button
-            onClick={() => {
-              setEditorMemberId(members[0]?.id || '');
-              setEditorMode('add');
-              setEditorAmount('');
-              setEditorError('');
-              setIsDuesEditorOpen(true);
-            }}
-            className="btn btn-primary"
-            style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}
-          >
-            <Zap size={14} /> ⚡ Key In Member Dues
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setIsLeviesManagerOpen(true)}
+              className="btn btn-secondary"
+              style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', fontWeight: 800, color: '#2563eb', border: '1.5px solid rgba(37, 99, 235, 0.4)', background: 'rgba(37, 99, 235, 0.08)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              title="Configure Beneficiaries, Target Rates, and Active Status for 1st – 12th Special Levies"
+            >
+              <Heart size={14} color="#2563eb" /> ⚙️ Configure Special Levies
+            </button>
+            <button
+              onClick={() => {
+                setEditorMemberId(members[0]?.id || '');
+                setEditorMode('add');
+                setEditorAmount('');
+                setEditorError('');
+                setIsDuesEditorOpen(true);
+              }}
+              className="btn btn-primary"
+              style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)' }}
+            >
+              <Zap size={14} /> ⚡ Key In Member Dues
+            </button>
+          </div>
         </div>
 
         {(() => {
@@ -1168,6 +1191,14 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
             style={{ padding: '0.6rem 1.15rem', fontWeight: 800, fontSize: '0.88rem', background: '#059669', color: '#fff', border: '1px solid #059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 4px 12px rgba(5, 150, 105, 0.2)' }}
           >
             <Zap size={16} /> ⚡ Key In Member Dues
+          </button>
+          <button
+            onClick={() => setIsLeviesManagerOpen(true)}
+            className="btn btn-secondary"
+            style={{ padding: '0.6rem 1.15rem', fontWeight: 800, fontSize: '0.88rem', color: '#2563eb', border: '1.5px solid rgba(37, 99, 235, 0.4)', background: 'rgba(37, 99, 235, 0.08)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+            title="Configure Beneficiaries, Target Rates, and Active Status for 1st – 12th Special Levies"
+          >
+            <Heart size={16} color="#2563eb" /> ⚙️ Configure Special Levies
           </button>
           <button
             onClick={() => setActiveTab('roster')}
@@ -3176,38 +3207,42 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                 {editorCategory === 'levy' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-                        2. Select Special Levy Call-Up / Recipient
-                      </label>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                        <label style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+                          2. Select Special Levy Call-Up / Recipient
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setIsLeviesManagerOpen(true)}
+                          style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'underline' }}
+                          title="Open Special Levies Schedule Manager"
+                        >
+                          <Heart size={12} /> ⚙️ Configure Levies & Rates
+                        </button>
+                      </div>
                       <select
                         className="form-select"
                         value={editorLevyName}
                         onChange={(e) => {
                           const val = e.target.value;
                           setEditorLevyName(val);
-                          if (val.includes('1st LEVY')) setEditorAmount('200');
-                          else if (val.includes('2nd LEVY')) setEditorAmount('100');
-                          else if (val.includes('3rd LEVY')) setEditorAmount('200');
-                          else if (val.includes('4th LEVY')) setEditorAmount('200');
-                          else if (val.includes('5th LEVY')) setEditorAmount('200');
-                          else if (val.includes('6th LEVY')) setEditorAmount('100');
-                          else if (val.includes('7th LEVY')) setEditorAmount('200');
-                          else if (val !== 'Custom') setEditorAmount('200');
+                          const matched = specialLeviesList.find(l => val.includes(l.number));
+                          if (matched && matched.amount > 0) {
+                            setEditorAmount(String(matched.amount));
+                          } else if (val !== 'Custom' && val !== 'General Special Levy Pool') {
+                            setEditorAmount('200');
+                          }
                         }}
                         style={{ fontWeight: 700, padding: '0.65rem 0.8rem', fontSize: '0.88rem' }}
                       >
-                        <option value="1st LEVY (ELD. ISAAC DARKO)">1st LEVY: ELD. ISAAC DARKO (GH₵ 200.00 Target)</option>
-                        <option value="2nd LEVY (ELD. SAMUEL NKANSAH)">2nd LEVY: ELD. SAMUEL NKANSAH (GH₵ 100.00 Target)</option>
-                        <option value="3rd LEVY (ELD. SAMUEL NKANSAH)">3rd LEVY: ELD. SAMUEL NKANSAH (GH₵ 200.00 Target)</option>
-                        <option value="4th LEVY (ELD. JOHN OFOSUHENE ASARE)">4th LEVY: ELD. JOHN OFOSUHENE ASARE (GH₵ 200.00 Target)</option>
-                        <option value="5th LEVY (ELD JONATHAN DANSO SIAW)">5th LEVY: ELD JONATHAN DANSO SIAW (GH₵ 200.00 Target)</option>
-                        <option value="6th LEVY (ELD PRINCE AHWIREN ASANTE)">6th LEVY: ELD PRINCE AHWIREN ASANTE (GH₵ 100.00 Target)</option>
-                        <option value="7th LEVY (ELD. JUSTICE KOJO ACHEAMPONG)">7th LEVY: ELD. JUSTICE KOJO ACHEAMPONG (GH₵ 200.00 Target)</option>
-                        <option value="8th LEVY (Fellowship Reserve)">8th LEVY: Fellowship Reserve</option>
-                        <option value="9th LEVY (Fellowship Reserve)">9th LEVY: Fellowship Reserve</option>
-                        <option value="10th LEVY (Fellowship Reserve)">10th LEVY: Fellowship Reserve</option>
-                        <option value="11th LEVY (Fellowship Reserve)">11th LEVY: Fellowship Reserve</option>
-                        <option value="12th LEVY (Fellowship Reserve)">12th LEVY: Fellowship Reserve</option>
+                        {specialLeviesList.map((levy) => {
+                          const isActive = levy.status === 'ACTIVE ✓' || levy.status?.includes('ACTIVE');
+                          return (
+                            <option key={levy.id} value={`${levy.number} (${levy.recipient})`}>
+                              {levy.number}: {levy.recipient} {levy.amount > 0 ? `(GH₵ ${levy.amount.toFixed(2)} Target)` : ''} {isActive ? '✓ [ACTIVE]' : '[RESERVE]'}
+                            </option>
+                          );
+                        })}
                         <option value="General Special Levy Pool">General Special Levy Pool</option>
                         <option value="Custom">➕ Custom Call-Up / Member Cause...</option>
                       </select>
@@ -3821,6 +3856,14 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
           memberData={printModalMember}
         />
       )}
+
+      {/* ⚙️ EXECUTIVE SPECIAL LEVIES MANAGER MODAL */}
+      <SpecialLeviesManagerModal
+        isOpen={isLeviesManagerOpen}
+        onClose={() => setIsLeviesManagerOpen(false)}
+        members={members}
+        onSaveSuccess={(updated) => setSpecialLeviesList(updated)}
+      />
 
     </div>
   );

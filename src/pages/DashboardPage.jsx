@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock } from 'lucide-react';
 import { updateMemberProfile, addContribution, getMembers, getContributions, getTrialBalanceItems } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
@@ -17,6 +17,17 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const [isPettyCashVehicleModalOpen, setIsPettyCashVehicleModalOpen] = useState(false);
   const [isSharesModalOpen, setIsSharesModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [leviesUpdateTrigger, setLeviesUpdateTrigger] = useState(0);
+
+  useEffect(() => {
+    const handleUpdate = () => setLeviesUpdateTrigger(prev => prev + 1);
+    window.addEventListener('ony_levies_updated', handleUpdate);
+    window.addEventListener('ony_data_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('ony_levies_updated', handleUpdate);
+      window.removeEventListener('ony_data_updated', handleUpdate);
+    };
+  }, []);
   const [profileForm, setProfileForm] = useState({
     phone_number: currentUser?.phone_number || '',
     momo_number: currentUser?.momo_number || '',
@@ -956,7 +967,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
           {/* Quick Cards Grid (Active & Paid Levies) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.1rem', marginBottom: '2.5rem' }}>
-            {memberLevyList.filter(l => l.status === 'ACTIVE ✓' || l.amountPaid > 0 || l.id <= 7).map((levy) => (
+            {memberLevyList.filter(l => l.status === 'ACTIVE ✓' || l.status?.includes('ACTIVE') || l.amountPaid > 0 || l.id <= 7).map((levy) => (
               <div key={levy.id} style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '14px', border: levy.isExempt ? '1.5px solid #d97706' : '1px solid var(--border-color)', position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#3b82f6', background: 'rgba(59, 130, 246, 0.12)', padding: '0.15rem 0.6rem', borderRadius: '6px' }}>
