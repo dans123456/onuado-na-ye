@@ -94,7 +94,7 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
                   onChange={(e) => setContributionType(e.target.value)}
                   style={{ fontWeight: 700 }}
                 >
-                  <option value="Monthly Dues">Monthly Dues (2023 – 2033)</option>
+                  <option value="Monthly Dues">Monthly Dues (2023 – 2037)</option>
                   <option value="Special Welfare Levy">Special Welfare Levy (1st–12th Levies)</option>
                   <option value="Registration Fee">Registration Fee (GH₵ 200.00)</option>
                   <option value="Welfare Contribution">Welfare Contribution & Support</option>

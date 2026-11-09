@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock, Camera } from 'lucide-react';
+import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock, Camera, Copy } from 'lucide-react';
 import { updateMemberProfile, addContribution, getMembers, getContributions, getTrialBalanceItems } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSharesData';
@@ -50,6 +50,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   };
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const [copiedBank, setCopiedBank] = useState(false);
 
   const handlePaystackSuccess = (paymentResult) => {
     const updated = addContribution({
@@ -356,17 +357,13 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#3b82f6', marginTop: '0.2rem' }}>GH₵ {levyPaid.toFixed(2)}</div>
         </div>
 
-        {/* 4. VEHICLE CONTRIBUTIONS (Renamed, buttons removed) */}
+        {/* 4. VEHICLE CONTRIBUTIONS */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #ea580c', background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.06), rgba(255, 255, 255, 0.02))' }}>
-          <div style={{ fontSize: '0.75rem', color: '#ea580c', textTransform: 'uppercase', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>Vehicle Contributions</span>
-            <span className="badge" style={{ fontSize: '0.62rem', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', padding: '0.1rem 0.4rem', fontWeight: 800 }}>🚗 CONTRIBUTIONS</span>
+          <div style={{ fontSize: '0.75rem', color: '#ea580c', textTransform: 'uppercase', fontWeight: 800 }}>
+            Vehicle Contributions
           </div>
           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ea580c', marginTop: '0.2rem' }}>
             GH₵ {vehicleContribution.toFixed(2)}
-          </div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, marginTop: '0.35rem' }}>
-            {vehicleSharesData.sharesCount > 0 ? `${vehicleSharesData.sharesCount} Shares Allocated (${vehicleSharesData.status})` : '0 Shares Allocated'}
           </div>
         </div>
 
@@ -494,7 +491,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           className={`btn ${activeTab === 'dues_matrix' ? 'btn-primary' : 'btn-secondary'}`}
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
-          <CreditCard size={18} color="#ef4444" /> Yearly Dues Tracker (2023–2033)
+          <CreditCard size={18} color="#ef4444" /> Yearly Dues Tracker (2023–2037)
         </button>
         <button
           onClick={() => setActiveTab('levies_matrix')}
@@ -502,13 +499,6 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
           <Heart size={18} color="#3b82f6" /> 1st–12th Levies Installment Grid
-        </button>
-        <button
-          onClick={() => setActiveTab('history')}
-          className={`btn ${activeTab === 'history' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
-        >
-          <Wallet size={18} color="#8b5cf6" /> Transaction Ledger History
         </button>
         <button
           onClick={() => setIsSharesModalOpen(true)}
@@ -523,13 +513,6 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           style={{ padding: '0.65rem 1.25rem', fontWeight: 700 }}
         >
           <CreditCard size={18} color="#d97706" /> Official Payment Channels & Guide
-        </button>
-        <button
-          onClick={() => setActiveTab('trial_balance')}
-          className={`btn ${activeTab === 'trial_balance' ? 'btn-primary' : 'btn-secondary'}`}
-          style={{ padding: '0.65rem 1.25rem', fontWeight: 800, background: activeTab === 'trial_balance' ? '#059669' : 'rgba(5, 150, 105, 0.1)', color: activeTab === 'trial_balance' ? '#fff' : '#059669', border: '1.5px solid rgba(5, 150, 105, 0.4)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-        >
-          <Building2 size={18} color={activeTab === 'trial_balance' ? '#fff' : '#059669'} /> 📊 Fellowship Trial Balance
         </button>
         <button
           onClick={() => setActivePage && setActivePage('gallery')}
@@ -827,13 +810,13 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         </div>
       )}
 
-      {/* TAB 2: YEARLY DUES TRACKER (2023 - 2033) */}
+      {/* TAB 2: YEARLY DUES TRACKER (2023 - 2037) */}
       {activeTab === 'dues_matrix' && (
         <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
           <div style={{ marginBottom: '1.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <CreditCard size={22} color="#059669" /> Multi-Year Dues Tracker (2023 – 2033)
+                <CreditCard size={22} color="#059669" /> Multi-Year Dues Tracker (2023 – 2037)
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.2rem' }}>
                 Exact annual dues schedule, amounts paid, and outstanding balances matching Excel sheets <strong>YEARLY DUES FEES</strong> & <strong>MONTHLY DUES</strong>.
@@ -845,7 +828,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             </div>
           </div>
 
-          {/* 📅 MULTI-YEAR CARDS GRID (2023 - 2033) */}
+          {/* 📅 MULTI-YEAR CARDS GRID (2023 - 2037) */}
           {(() => {
             let runningDues = duesPaid || 0;
             const yearsList = [
@@ -859,7 +842,11 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               { year: '2030', label: '2030 Dues', expected: 1200 },
               { year: '2031', label: '2031 Dues', expected: 1200 },
               { year: '2032', label: '2032 Dues', expected: 1200 },
-              { year: '2033', label: '2033 Dues', expected: 1200 }
+              { year: '2033', label: '2033 Dues', expected: 1200 },
+              { year: '2034', label: '2034 Dues', expected: 1200 },
+              { year: '2035', label: '2035 Dues', expected: 1200 },
+              { year: '2036', label: '2036 Dues', expected: 1200 },
+              { year: '2037', label: '2037 Dues', expected: 1200 }
             ];
 
             const calculatedYears = yearsList.map(item => {
@@ -910,7 +897,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
                 {/* 📋 DETAILED ANNUAL LEDGER TABLE */}
                 <div style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.75rem', letterSpacing: '0.04em' }}>
-                  📋 Annual Dues Ledger Schedule (2023 – 2033)
+                  📋 Annual Dues Ledger Schedule (2023 – 2037)
                 </div>
                 <div className="table-container">
                   <table className="data-table">
@@ -1050,54 +1037,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         </div>
       )}
 
-      {/* TAB 4: TRANSACTION HISTORY & RECEIPTS */}
-      {activeTab === 'history' && (
-        <div className="glass-card" style={{ padding: '2.25rem', borderRadius: '18px' }}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#8b5cf6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Wallet size={22} /> Verified Payment Receipts
-            </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Complete history of Mobile Money and Cash payments logged into database ledgers.</p>
-          </div>
-
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Category</th>
-                  <th>Amount</th>
-                  <th>Payment Method</th>
-                  <th>Reference Note</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {userContributions.map(item => (
-                  <tr key={item.id}>
-                    <td style={{ fontWeight: 600 }}>{item.payment_date}</td>
-                    <td><span className="badge badge-dues">{item.contribution_type}</span></td>
-                    <td style={{ fontWeight: 800, color: '#059669' }}>GH₵ {parseFloat(item.amount).toFixed(2)}</td>
-                    <td>{item.payment_method}</td>
-                    <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{item.reference_note || item.referenceNote || 'Official Fellowship Ledger Payment'}</td>
-                    <td>
-                      <button
-                        onClick={() => setSelectedReceipt(item)}
-                        className="btn btn-secondary"
-                        style={{ padding: '0.3rem 0.65rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-                      >
-                        <Printer size={13} /> Print Receipt
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 5: OFFICIAL PAYMENT CHANNELS & SETTLEMENT GUIDE */}
+      {/* TAB: OFFICIAL PAYMENT CHANNELS & SETTLEMENT GUIDE */}
       {activeTab === 'payment_channels' && (
         <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
           <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
@@ -1111,35 +1051,86 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.25rem' }}>
 
-            {/* MoMo Box */}
-            <div style={{ background: 'var(--bg-main)', padding: '1.5rem', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '0.4rem' }}>
-                📱 MTN Mobile Money Wallet
-              </div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d97706', letterSpacing: '0.05em' }}>
-                0530486443
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                Account Name: <strong>ONUADO NA EYE MENS' FELLOWSHIP</strong>
+            {/* 1. Fidelity Bank Ghana Card */}
+            <div style={{ background: 'var(--bg-main)', padding: '1.5rem', borderRadius: '14px', border: '1.5px solid rgba(5, 150, 105, 0.4)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#059669', fontWeight: 800 }}>
+                    🏦 Official Bank Account
+                  </div>
+                  <span className="badge badge-admin" style={{ fontSize: '0.68rem', fontWeight: 800 }}>FIDELITY BANK</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  Bank: <strong>Fidelity Bank Ghana</strong>
+                </div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 900, color: '#059669', margin: '0.35rem 0', letterSpacing: '0.03em' }}>
+                  2090182444410
+                </div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  Account Name: <strong>ONUADO NA EYE MENS' FELLOWSHIP</strong>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.4 }}>
+                  Use your full name & phone number as transfer reference / depositor name.
+                </div>
               </div>
 
-              <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px dashed var(--border-color)' }}>
-                <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 800 }}>Merchant Pay Code</div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#2563eb', marginTop: '0.1rem' }}>293658</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Dial *170# &rarr; Pay Merchant &rarr; Enter Code 293658</div>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText('2090182444410');
+                  setCopiedBank(true);
+                  setTimeout(() => setCopiedBank(false), 2000);
+                }}
+                className="btn btn-secondary"
+                style={{ marginTop: '1.25rem', padding: '0.65rem', width: '100%', justifyContent: 'center', fontWeight: 700, fontSize: '0.82rem' }}
+              >
+                {copiedBank ? <CheckCircle2 size={15} color="#059669" /> : <Copy size={15} />} {copiedBank ? 'Account Number Copied!' : 'Copy Bank Account No'}
+              </button>
             </div>
 
-            {/* Paystack Online Checkout Box */}
+            {/* 2. MoMo Box */}
+            <div style={{ background: 'var(--bg-main)', padding: '1.5rem', borderRadius: '14px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 800, marginBottom: '0.4rem' }}>
+                  📱 MTN Mobile Money Wallet
+                </div>
+                <div style={{ fontSize: '1.55rem', fontWeight: 900, color: '#d97706', letterSpacing: '0.05em' }}>
+                  0530486443
+                </div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                  Account Name: <strong>ONUADO NA EYE MENS' FELLOWSHIP</strong>
+                </div>
+
+                <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px dashed var(--border-color)' }}>
+                  <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 800 }}>Merchant Pay Code</div>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#2563eb', marginTop: '0.1rem' }}>293658</div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Dial *170# &rarr; Pay Merchant &rarr; Code 293658</div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText('0530486443');
+                  alert('Copied MoMo Number: 0530486443');
+                }}
+                className="btn btn-secondary"
+                style={{ marginTop: '1.25rem', padding: '0.65rem', width: '100%', justifyContent: 'center', fontWeight: 700, fontSize: '0.82rem' }}
+              >
+                <Copy size={15} /> Copy MoMo Number
+              </button>
+            </div>
+
+            {/* 3. Paystack Online Checkout Box */}
             <div style={{ background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.12), rgba(217, 119, 6, 0.12))', padding: '1.5rem', borderRadius: '14px', border: '2px solid #059669', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#059669', fontWeight: 800, marginBottom: '0.4rem' }}>
                   ⚡ Paystack Instant Payment Gateway
                 </div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-main)' }}>
                   Pay via Mobile Money / Card
                 </div>
-                <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.5 }}>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.5 }}>
                   Instant receipt generation and automatic ledger logging for MTN MoMo, Telecel Cash, Visa & Mastercard.
                 </div>
               </div>
@@ -1163,123 +1154,6 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           </div>
         </div>
       )}
-
-      {/* TAB: FELLOWSHIP TRIAL BALANCE SHEET */}
-      {activeTab === 'trial_balance' && (() => {
-        const tbItems = getTrialBalanceItems();
-        const incItems = tbItems.filter(i => i.type === 'income');
-        const expItems = tbItems.filter(i => i.type === 'expenditure');
-        const sumInc = incItems.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
-        const sumExp = expItems.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
-        const isBalanced = Math.abs(sumInc - sumExp) < 0.05;
-
-        return (
-          <div className="glass-card" style={{ padding: '2rem', borderRadius: '18px' }}>
-            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                  <Building2 size={22} color="#059669" /> Verified Fellowship Trial Balance Sheet
-                </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '0.25rem' }}>
-                  Extracted directly from official fellowship Excel sheet <strong>TRAIL BALANCE</strong>. Full transparency for all verified members.
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ padding: '0.6rem 1rem', background: isBalanced ? 'rgba(5, 150, 105, 0.1)' : 'rgba(220, 38, 38, 0.1)', borderRadius: '10px', border: `1.5px solid ${isBalanced ? 'rgba(5, 150, 105, 0.35)' : 'rgba(220, 38, 38, 0.35)'}`, textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: isBalanced ? '#059669' : '#dc2626', fontWeight: 800 }}>Status: {isBalanced ? 'Balanced 100% ✓' : 'Unbalanced'}</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                    GH₵ {sumInc.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </div>
-                </div>
-
-                {currentUser?.role === 'admin' && (
-                  <button
-                    onClick={() => setActivePage('admin')}
-                    className="btn btn-primary"
-                    style={{ padding: '0.6rem 1rem', fontSize: '0.82rem', fontWeight: 800, background: '#d97706', borderColor: '#d97706' }}
-                  >
-                    <Shield size={15} /> Edit in Admin Console &rarr;
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="table-container">
-              <table className="data-table" style={{ fontSize: '0.88rem' }}>
-                <thead>
-                  <tr>
-                    <th>Particulars / Line Item</th>
-                    <th>Income (GH₵)</th>
-                    <th>Expenditure & Assets (GH₵)</th>
-                    <th>Category</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Income Rows */}
-                  <tr style={{ background: 'rgba(5, 150, 105, 0.05)', fontWeight: 800 }}>
-                    <td colSpan={4} style={{ color: '#059669', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      🟢 Fellowship Income Accounts (Total: GH₵ {sumInc.toLocaleString('en-US', { minimumFractionDigits: 2 })})
-                    </td>
-                  </tr>
-                  {incItems.map((item) => (
-                    <tr key={item.id}>
-                      <td style={{ fontWeight: 800 }}>{item.particulars}</td>
-                      <td style={{ fontWeight: 800, color: '#059669' }}>
-                        GH₵ {parseFloat(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
-                      <td style={{ color: 'var(--text-muted)' }}>—</td>
-                      <td><span className="badge badge-dues">{item.category || 'Income'}</span></td>
-                    </tr>
-                  ))}
-
-                  {/* Expenditure Rows */}
-                  <tr style={{ background: 'rgba(37, 99, 235, 0.05)', fontWeight: 800 }}>
-                    <td colSpan={4} style={{ color: '#2563eb', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      🔵 Fellowship Expenditures & Assets Accounts (Total: GH₵ {sumExp.toLocaleString('en-US', { minimumFractionDigits: 2 })})
-                    </td>
-                  </tr>
-                  {expItems.map((item) => (
-                    <tr key={item.id}>
-                      <td style={{ fontWeight: 800 }}>{item.particulars}</td>
-                      <td style={{ color: 'var(--text-muted)' }}>—</td>
-                      <td style={{ fontWeight: 800, color: item.category?.toLowerCase().includes('asset') ? '#059669' : '#2563eb' }}>
-                        GH₵ {parseFloat(item.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
-                      <td><span className="badge badge-dues" style={{ background: item.category?.toLowerCase().includes('asset') ? 'rgba(5, 150, 105, 0.1)' : 'rgba(37, 99, 235, 0.1)', color: item.category?.toLowerCase().includes('asset') ? '#059669' : '#2563eb' }}>{item.category || 'Expenditure'}</span></td>
-                    </tr>
-                  ))}
-
-                  {/* Grand Totals */}
-                  <tr style={{ background: 'var(--bg-main)', borderTop: '2.5px solid var(--border-color)', fontSize: '1rem' }}>
-                    <td style={{ fontWeight: 900, color: 'var(--primary-700)' }}>GRAND TOTALS</td>
-                    <td style={{ fontWeight: 900, color: '#059669', fontSize: '1.15rem' }}>
-                      GH₵ {sumInc.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                    <td style={{ fontWeight: 900, color: '#2563eb', fontSize: '1.15rem' }}>
-                      GH₵ {sumExp.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                    <td>
-                      <span className="badge badge-dues" style={{ fontWeight: 800, padding: '0.35rem 0.65rem' }}>Balanced 100% ✓</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Cash on Hand Note */}
-            <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '12px', border: '1px solid rgba(5, 150, 105, 0.25)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
-              <div>
-                <strong style={{ color: '#059669' }}>CASH ON HAND (SHARES POOL):</strong>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>Sum of Fidelity Bank, Bank Tema, MTN MoMo, and Vehicle Contribution Account balances</span>
-              </div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#059669' }}>
-                GH₵ 79,131.72
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
       {/* Printable Receipt Modal */}
       {selectedReceipt && (
