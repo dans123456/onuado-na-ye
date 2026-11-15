@@ -1679,13 +1679,12 @@ export const clearKeyInHistory = () => {
 // 🏦 TREASURY LINKAGE & DIRECT KEY-IN ENGINE
 // ==========================================
 
-export const syncKeyInToTreasury = ({ historyId, memberName, amount, paymentMethod, category, detailTag, paymentDate }) => {
+export const syncKeyInToTreasury = ({ historyId, memberName, amount, paymentMethod, category, detailTag, paymentDate, action = 'add' }) => {
   const parsedAmount = Math.abs(parseFloat(amount) || 0);
   if (parsedAmount <= 0) return null;
 
   const methodClean = (paymentMethod || '').trim().toLowerCase();
   let targetAccount = null;
-  let type = 'inflow';
 
   if (methodClean.includes('momo') || methodClean.includes('mobile money')) {
     targetAccount = 'momo';
@@ -1697,13 +1696,18 @@ export const syncKeyInToTreasury = ({ historyId, memberName, amount, paymentMeth
 
   if (!targetAccount) return null;
 
+  const isDeduction = action === 'deduct' || action === 'outflow' || (parseFloat(amount) < 0);
+  const type = isDeduction ? 'outflow' : 'inflow';
+
   const accountsData = getTreasuryAccountsData();
   const account = accountsData[targetAccount] || { ...INITIAL_TREASURY_ACCOUNTS[targetAccount], customTransactions: [] };
   const customList = account.customTransactions || [];
 
   // Prevent duplicate insertion for same historyId
   const existingIdx = customList.findIndex(tx => tx.sourceKeyInId === historyId);
-  const entryDescription = `Direct Key-In: ${memberName || 'Member'} (${detailTag || category || 'Payment'})`;
+  const entryDescription = isDeduction
+    ? `Direct Key-In Deduction: ${memberName || 'Member'} (${detailTag || category || 'Reversal'})`
+    : `Direct Key-In: ${memberName || 'Member'} (${detailTag || category || 'Payment'})`;
 
   const newTx = {
     id: 'tx-keyin-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
@@ -1783,6 +1787,28 @@ export const deleteKeyInHistoryEntry = (entryId) => {
   // Safely reverse from linked Treasury Account ledger
   removeKeyInFromTreasury(entryId);
 
+  // If entry had a duesYear, reverse that delta in Trial Balance as well
+  if (entry.duesYear) {
+    try {
+      const delta = parseFloat(entry.delta) || 0;
+      const tbItems = getTrialBalanceItems();
+      const yearStr = (entry.duesYear).toString();
+      const updatedTB = tbItems.map(item => {
+        const p = (item.particulars || '').toUpperCase().trim();
+        if (item.id === `tb-inc-dues-${yearStr}` || p === `TOTAL MONTHLY DUES FOR ${yearStr}`) {
+          return {
+            ...item,
+            amount: Math.max(0, (parseFloat(item.amount) || 0) - delta)
+          };
+        }
+        return item;
+      });
+      saveTrialBalanceItems(updatedTB);
+    } catch (e) {
+      console.error('Error reverting dues delta in trial balance', e);
+    }
+  }
+
   const updatedHistory = history.filter(h => h.id !== entryId);
   saveKeyInHistory(updatedHistory);
 
@@ -1861,17 +1887,37 @@ export const updateMemberDuesDirectly = ({ memberId, newDuesAmount, paymentMetho
     const updatedHistory = [historyEntry, ...existingHistory];
     saveKeyInHistory(updatedHistory);
 
-    // Live link into Treasury Accounts if delta is positive (Inflow)
-    if (delta > 0) {
+    // Live link into Treasury Accounts for both Inflow (addition) and Outflow (deduction)
+    if (Math.abs(delta) >= 0.01) {
       syncKeyInToTreasury({
         historyId: historyEntry.id,
         memberName: member.full_name,
-        amount: delta,
+        amount: Math.abs(delta),
+        action: delta >= 0 ? 'add' : 'deduct',
         paymentMethod: paymentMethod,
         category: 'dues',
         detailTag: duesYear && duesYear !== 'General Dues Pool' ? `${duesYear} Dues` : 'Yearly Dues',
         paymentDate: paymentDate || new Date().toISOString().split('T')[0]
       });
+
+      // Synchronize with Trial Balance Income row
+      try {
+        const tbItems = getTrialBalanceItems();
+        const yearStr = (duesYear || '2026').toString();
+        const updatedTB = tbItems.map(item => {
+          const p = (item.particulars || '').toUpperCase().trim();
+          if (item.id === `tb-inc-dues-${yearStr}` || p === `TOTAL MONTHLY DUES FOR ${yearStr}`) {
+            return {
+              ...item,
+              amount: Math.max(0, (parseFloat(item.amount) || 0) + delta)
+            };
+          }
+          return item;
+        });
+        saveTrialBalanceItems(updatedTB);
+      } catch (e) {
+        console.error('Error syncing dues delta to trial balance', e);
+      }
     }
   }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle, Camera } from 'lucide-react';
+import { Shield, UploadCloud, PlusCircle, MinusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle, Camera } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
 import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals, getLiveFellowshipFinancials } from '../services/store';
@@ -337,23 +337,47 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
     }
 
     const inputVal = parseFloat(editorAmount);
-    if (isNaN(inputVal) || inputVal <= 0) {
-      setEditorError('Please enter a valid positive payment amount.');
+    if (isNaN(inputVal) || inputVal === 0) {
+      setEditorError('Please enter a valid non-zero amount.');
       return;
     }
 
     try {
       if (editorCategory === 'dues') {
         const currentDues = parseFloat(targetMember.dues_paid) || 0;
-        const targetDues = editorMode === 'add' ? (currentDues + inputVal) : inputVal;
+        let targetDues = currentDues;
+
+        if (editorMode === 'add') {
+          // If a negative number is entered in add mode, treat as deduction
+          targetDues = currentDues + inputVal;
+        } else if (editorMode === 'deduct') {
+          targetDues = currentDues - Math.abs(inputVal);
+        } else if (editorMode === 'set') {
+          targetDues = Math.max(0, inputVal);
+        }
+
+        if (targetDues < 0) {
+          setEditorError(`Deduction amount (GH₵ ${Math.abs(inputVal).toFixed(2)}) cannot exceed member's current total paid dues (GH₵ ${currentDues.toFixed(2)}).`);
+          return;
+        }
+
+        const delta = targetDues - currentDues;
+        if (Math.abs(delta) < 0.01) {
+          setEditorError('No change detected in dues amount.');
+          return;
+        }
+
         const yearTag = editorDuesYear && editorDuesYear !== 'General Dues Pool' ? `${editorDuesYear} Dues` : 'Yearly Dues';
+        const defaultNote = delta >= 0
+          ? `${yearTag} Payment Top-up (+GH₵ ${delta.toFixed(2)})`
+          : `${yearTag} Deduction / Reversal (-GH₵ ${Math.abs(delta).toFixed(2)})`;
 
         const result = updateMemberDuesDirectly({
           memberId: targetMember.id,
           newDuesAmount: targetDues,
           duesYear: editorDuesYear,
           paymentMethod: editorMethod,
-          referenceNote: editorNote || (editorMode === 'add' ? `${yearTag} Payment Top-up (+GH₵ ${inputVal.toFixed(2)})` : `${yearTag} Set Total Dues (GH₵ ${targetDues.toFixed(2)})`),
+          referenceNote: editorNote || defaultNote,
           paymentDate: editorDate,
           receivedByName: currentUser?.full_name || 'Executive Admin'
         });
@@ -365,7 +389,8 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
         setTrialBalanceItems(getTrialBalanceItems());
 
         const diffLabel = result.delta >= 0 ? `+GH₵ ${result.delta.toFixed(2)}` : `-GH₵ ${Math.abs(result.delta).toFixed(2)}`;
-        setImportSuccess(`✅ Successfully updated ${result.affectedMember.full_name}'s Yearly Dues to GH₵ ${result.newDues.toFixed(2)} (${diffLabel})! All Shares, Dividends, and Fellowship Grand Totals recalculated live.`);
+        const actionLabel = result.delta >= 0 ? 'added' : 'deducted';
+        setImportSuccess(`✅ Successfully ${actionLabel} ${diffLabel} on ${result.affectedMember.full_name}'s Yearly Dues (New Total: GH₵ ${result.newDues.toFixed(2)})! All Shares, Dividends, Treasury, and Trial Balance recalculated live.`);
       } else if (editorCategory === 'levy') {
         const finalLevyName = editorLevyName === 'Custom' ? (editorCustomLevy || 'Special Call-Up') : editorLevyName;
 
@@ -2945,7 +2970,14 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
         const curVehShares = activeEditorMember?.vehicle_shares_count || Math.floor(curVehPaid / 50);
 
         const inputNum = parseFloat(editorAmount) || 0;
-        const targetDues = editorMode === 'add' ? (curDues + inputNum) : (editorAmount !== '' ? inputNum : curDues);
+        let targetDues = curDues;
+        if (editorMode === 'add') {
+          targetDues = curDues + inputNum;
+        } else if (editorMode === 'deduct') {
+          targetDues = Math.max(0, curDues - Math.abs(inputNum));
+        } else if (editorMode === 'set') {
+          targetDues = editorAmount !== '' ? Math.max(0, inputNum) : curDues;
+        }
         const impact = calculateDuesImpact(activeEditorMember, targetDues);
         const hasChange = impact && Math.abs(impact.duesDelta) >= 0.01;
 
@@ -3221,6 +3253,28 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
 
                         <button
                           type="button"
+                          onClick={() => setEditorMode('deduct')}
+                          style={{
+                            padding: '0.65rem 0.6rem',
+                            borderRadius: '10px',
+                            fontSize: '0.85rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.35rem',
+                            background: editorMode === 'deduct' ? 'rgba(220, 38, 38, 0.15)' : 'var(--bg-main)',
+                            border: editorMode === 'deduct' ? '2px solid #dc2626' : '1px solid var(--border-color)',
+                            color: editorMode === 'deduct' ? '#dc2626' : 'var(--text-main)',
+                            textAlign: 'center'
+                          }}
+                        >
+                          <MinusCircle size={15} /> ➖ Deduct / Reversal
+                        </button>
+
+                        <button
+                          type="button"
                           onClick={() => setEditorMode('set')}
                           style={{
                             padding: '0.65rem 0.6rem',
@@ -3336,7 +3390,11 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                     {editorCategory === 'dues'
-                      ? (editorMode === 'add' ? '3. Payment Amount to Add (GH₵)' : '3. Exact New Yearly Dues Amount (GH₵)')
+                      ? (editorMode === 'add'
+                          ? '3. Payment Amount to Add (GH₵)'
+                          : editorMode === 'deduct'
+                            ? '3. Payment Amount to Deduct / Reverse (GH₵)'
+                            : '3. Exact New Yearly Dues Amount (GH₵)')
                       : editorCategory === 'levy'
                         ? '3. Special Levy Amount Keyed In (GH₵)'
                         : '3. Vehicle Shares Amount Keyed In (GH₵)'}
@@ -3349,7 +3407,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                       type="number"
                       step="0.01"
                       required
-                      placeholder={editorCategory === 'vehicle' ? '500.00' : 'e.g. 200.00'}
+                      placeholder={editorMode === 'deduct' ? 'e.g. 500.00' : (editorCategory === 'vehicle' ? '500.00' : 'e.g. 200.00')}
                       className="form-input"
                       style={{ paddingLeft: '3.2rem', fontSize: '1.1rem', fontWeight: 800, height: '46px' }}
                       value={editorAmount}
@@ -3392,7 +3450,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, marginBottom: '0.25rem' }}>Reference / Receipt Note (Optional)</label>
                   <input
                     type="text"
-                    placeholder="e.g. Recorded at Executive Meeting"
+                    placeholder={editorMode === 'deduct' ? 'e.g. Dues Reversal / Refund' : 'e.g. Recorded at Executive Meeting'}
                     className="form-input"
                     value={editorNote}
                     onChange={(e) => setEditorNote(e.target.value)}
@@ -3401,7 +3459,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                 </div>
 
                 {/* DYNAMIC TREASURY DESTINATION BADGE */}
-                {inputNum > 0 && (
+                {impact && Math.abs(impact.duesDelta) >= 0.01 && (
                   <div style={{
                     padding: '0.65rem 0.85rem',
                     borderRadius: '10px',
@@ -3410,18 +3468,16 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.45rem',
-                    background: editorMethod.toLowerCase().includes('momo') ? 'rgba(217, 119, 6, 0.12)' : (editorMethod.toLowerCase().includes('fidelity') || editorMethod.toLowerCase().includes('bank') ? 'rgba(37, 99, 235, 0.12)' : 'rgba(5, 150, 105, 0.12)'),
-                    color: editorMethod.toLowerCase().includes('momo') ? '#d97706' : (editorMethod.toLowerCase().includes('fidelity') || editorMethod.toLowerCase().includes('bank') ? '#2563eb' : '#059669'),
-                    border: `1px solid ${editorMethod.toLowerCase().includes('momo') ? 'rgba(217, 119, 6, 0.3)' : (editorMethod.toLowerCase().includes('fidelity') || editorMethod.toLowerCase().includes('bank') ? 'rgba(37, 99, 235, 0.3)' : 'rgba(5, 150, 105, 0.3)')}`
+                    background: impact.duesDelta >= 0 ? 'rgba(5, 150, 105, 0.12)' : 'rgba(220, 38, 38, 0.12)',
+                    color: impact.duesDelta >= 0 ? '#059669' : '#dc2626',
+                    border: impact.duesDelta >= 0 ? '1px solid rgba(5, 150, 105, 0.3)' : '1px solid rgba(220, 38, 38, 0.3)'
                   }}>
                     <Zap size={14} />
                     <span>
-                      {editorMethod.toLowerCase().includes('momo') ? (
-                        <>⚡ Auto Treasury Sync: Will credit <strong>MTN Mobile Money Account Inflow (+GH₵ {inputNum.toFixed(2)})</strong> live.</>
-                      ) : (editorMethod.toLowerCase().includes('fidelity') || editorMethod.toLowerCase().includes('bank')) ? (
-                        <>⚡ Auto Treasury Sync: Will credit <strong>Fidelity Bank Account Deposit (+GH₵ {inputNum.toFixed(2)})</strong> live.</>
+                      {impact.duesDelta >= 0 ? (
+                        <>⚡ Auto Treasury Sync: Will credit <strong>{editorMethod} Inflow (+GH₵ {impact.duesDelta.toFixed(2)})</strong> live.</>
                       ) : (
-                        <>⚡ Auto Treasury Sync: Will credit <strong>Petty Cash Vehicle Fund (+GH₵ {inputNum.toFixed(2)})</strong> live.</>
+                        <>⚡ Auto Treasury Sync: Will debit/reverse <strong>{editorMethod} Outflow (-GH₵ {Math.abs(impact.duesDelta).toFixed(2)})</strong> live.</>
                       )}
                     </span>
                   </div>
