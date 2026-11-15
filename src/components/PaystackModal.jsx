@@ -58,9 +58,9 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.25rem' }}>
       <div className="glass-card" style={{ width: '100%', maxWidth: '500px', padding: '2.25rem', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.4)', border: '1.5px solid rgba(5, 150, 105, 0.4)', background: 'var(--bg-card)', backgroundColor: 'var(--bg-card)', backdropFilter: 'none', WebkitBackdropFilter: 'none', isolation: 'isolate', position: 'relative' }}>
-        
-        <button 
-          onClick={onClose} 
+
+        <button
+          onClick={onClose}
           style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
         >
           <X size={20} />
@@ -82,14 +82,14 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
             </div>
 
             <form onSubmit={handlePayNow} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              
+
               {/* Category Selector */}
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
                   Payment Purpose / Category
                 </label>
-                <select 
-                  className="form-input" 
+                <select
+                  className="form-input"
                   value={contributionType}
                   onChange={(e) => setContributionType(e.target.value)}
                   style={{ fontWeight: 700 }}
@@ -130,7 +130,7 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
                 </div>
 
                 {amount === 'custom' && (
-                  <input 
+                  <input
                     type="number"
                     min="1"
                     step="0.01"
@@ -149,8 +149,8 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
                   <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '0.25rem' }}>
                     MoMo Phone Number
                   </label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     className="form-input"
                     value={payerPhone}
                     onChange={(e) => setPayerPhone(e.target.value)}
@@ -162,8 +162,8 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
                   <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '0.25rem' }}>
                     Receipt Email Address
                   </label>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     className="form-input"
                     value={payerEmail}
                     onChange={(e) => setPayerEmail(e.target.value)}
@@ -183,8 +183,8 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
               </div>
 
               {/* Pay Now Submit Button */}
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={isProcessing || getFinalAmount() <= 0}
                 className="btn btn-primary"
                 style={{ padding: '0.9rem', fontSize: '1.05rem', fontWeight: 800, background: 'linear-gradient(135deg, #059669, #d97706)', border: 'none', boxShadow: '0 6px 20px rgba(5, 150, 105, 0.3)' }}
@@ -227,9 +227,9 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
             </div>
 
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button 
-                onClick={() => { setSuccessData(null); onClose(); }} 
-                className="btn btn-primary" 
+              <button
+                onClick={() => { setSuccessData(null); onClose(); }}
+                className="btn btn-primary"
                 style={{ flex: 1, padding: '0.75rem', fontWeight: 800 }}
               >
                 Return to Member Portal
@@ -239,7 +239,7 @@ export default function PaystackModal({ isOpen, onClose, currentUser, onPaymentS
         )}
 
         {/* Payment Gateway Loading Overlay */}
-        <LoadingModal 
+        <LoadingModal
           isOpen={isProcessing}
           title="Connecting to Paystack Gateway..."
           subtitle="Awaiting Mobile Money / Card Payment Authorization..."
