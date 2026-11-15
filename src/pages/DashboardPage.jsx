@@ -3,7 +3,7 @@ import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Ca
 import { updateMemberProfile, addContribution, getMembers, getContributions, getTrialBalanceItems } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSharesData';
-import { getMemberSharesSchedule, FELLOWSHIP_TOTAL_DIVIDEND, FELLOWSHIP_TOTAL_SHARES, FELLOWSHIP_DIVIDEND_RATE } from '../utils/sharesDividendData';
+import { getMemberSharesSchedule, calculateFellowshipPools, calculateMemberShares, FELLOWSHIP_TOTAL_DIVIDEND, FELLOWSHIP_TOTAL_SHARES, FELLOWSHIP_DIVIDEND_RATE } from '../utils/sharesDividendData.js';
 import PaystackModal from '../components/PaystackModal';
 import PettyCashVehicleModal from '../components/PettyCashVehicleModal';
 import OfficialRegistrationPrintModal from '../components/OfficialRegistrationPrintModal';
@@ -80,27 +80,39 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
   // Values from live member record
   const regFees = currentMember?.reg_fees || 200.00;
-  const duesPaid = currentMember?.dues_paid !== undefined ? currentMember.dues_paid : 3000.00;
-  const levyPaid = currentMember?.levy_paid !== undefined ? currentMember.levy_paid : 1000.00;
-  const vehicleSharesData = getMemberVehicleShares(currentMember?.full_name || currentUser?.full_name);
-  const vehicleContribution = vehicleSharesData?.totalPaid || 0;
+  const duesPaid = currentMember?.dues_paid !== undefined ? parseFloat(currentMember.dues_paid) : 3900.00;
+  const levyPaid = currentMember?.levy_paid !== undefined ? parseFloat(currentMember.levy_paid) : 1000.00;
+  
+  // Dynamic vehicle contribution from member record or fallback
+  let vehicleContribution = 0;
+  if (currentMember?.vehicle_shares_paid !== undefined && currentMember?.vehicle_shares_paid !== null && currentMember?.vehicle_shares_paid !== '') {
+    vehicleContribution = parseFloat(currentMember.vehicle_shares_paid) || 0;
+  } else {
+    const vehicleSharesData = getMemberVehicleShares(currentMember?.full_name || currentUser?.full_name);
+    vehicleContribution = vehicleSharesData?.totalPaid || 0;
+  }
 
   // Total payments = Registration (200) + Dues Paid + Levy Paid + Vehicle Contribution
   const totalPayments = regFees + duesPaid + levyPaid + vehicleContribution;
 
   const duesFeeRequired = currentMember?.dues_fee_required || 3900.00;
-  const sharesDividends = currentMember?.shares_dividends !== undefined ? currentMember.shares_dividends : 0;
-  const sharesValue = currentMember?.shares_value !== undefined ? currentMember.shares_value : 0;
-  const treasurerBill = currentMember?.treasurer_bill !== undefined ? currentMember.treasurer_bill : 0;
-  const sharesHolding = currentMember?.shares_holding !== undefined ? currentMember.shares_holding : (sharesValue + treasurerBill);
   const balanceOwed = currentMember?.balance_owed !== undefined ? currentMember.balance_owed : Math.max(0, duesFeeRequired - duesPaid);
   const memberLevyList = getMemberLevyDetails(currentMember);
-  const sharesSchedule = getMemberSharesSchedule(currentMember?.full_name || currentUser?.full_name, duesPaid);
 
-  // Member's Individual Shares and Dividend from SHARES DEVIDENT schedule
-  const individualShares = sharesSchedule?.totalShares || (currentMember?.total_shares_count) || (currentMember?.shares_dividends || 0);
-  const individualDividend = sharesSchedule?.individualDividend || Number(((parseFloat(individualShares) || 0) * FELLOWSHIP_DIVIDEND_RATE).toFixed(2));
+  // 🚀 LIVE PROGRAMMABLE FORMULA ENGINE:
+  // Dynamically calculate master fellowship pools and this member's shares & dividend
+  const livePools = calculateFellowshipPools(members || []);
+  const totalSharesPool = livePools.totalSharesPool;
+  const dividendPool = livePools.dividendPool;
+  const dividendRate = livePools.dividendRate;
+
+  // Member's dynamic shares: Dues / 2 + Vehicle / 2 + T-Bill
+  const memberSharesCalc = calculateMemberShares(currentMember, duesPaid, vehicleContribution);
+  const individualShares = memberSharesCalc.totalShares;
+  const individualDividend = Number((individualShares * dividendRate).toFixed(2));
   const netPayoutValue = Math.max(0, individualDividend - balanceOwed);
+
+  const sharesSchedule = getMemberSharesSchedule(currentMember?.full_name || currentUser?.full_name, duesPaid, vehicleContribution, members, dividendPool);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -315,7 +327,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               GH₵ {individualDividend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div style={{ fontSize: '0.75rem', opacity: 0.85, marginTop: '0.3rem' }}>
-              {(parseFloat(individualShares) || 0).toFixed(2)} Individual Shares × GH₵ 1.76 Rate
+              {(parseFloat(individualShares) || 0).toFixed(2)} Individual Shares × GH₵ {dividendRate.toFixed(2)} Rate
             </div>
           </div>
 
@@ -376,29 +388,29 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           </div>
         </div>
 
-        {/* 6. TOTAL SHARES (From Admin Master Pool) */}
+        {/* 6. TOTAL SHARES (From Live Master Fellowship Pool) */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #2563eb' }}>
           <div style={{ fontSize: '0.75rem', color: '#2563eb', textTransform: 'uppercase', fontWeight: 800 }}>Total Shares</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#2563eb', marginTop: '0.2rem' }}>
-            {FELLOWSHIP_TOTAL_SHARES.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {totalSharesPool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
             Fellowship Master Shares Pool
           </div>
         </div>
 
-        {/* 7. TOTAL DIVIDENT (From Admin Master Pool) */}
+        {/* 7. TOTAL DIVIDENT (From Live Master Dividend Pool) */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #dc2626' }}>
           <div style={{ fontSize: '0.75rem', color: '#dc2626', textTransform: 'uppercase', fontWeight: 800 }}>Total Divident</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#dc2626', marginTop: '0.2rem' }}>
-            GH₵ {FELLOWSHIP_TOTAL_DIVIDEND.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            GH₵ {dividendPool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
             Fellowship Master Dividend Pool
           </div>
         </div>
 
-        {/* 8. INDIVIDUAL SHARES (From Shares Dividend Tab) */}
+        {/* 8. INDIVIDUAL SHARES (From Live Shares Engine: Dues/2 + Vehicle/2 + T-Bill) */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #8b5cf6' }}>
           <div style={{ fontSize: '0.75rem', color: '#8b5cf6', textTransform: 'uppercase', fontWeight: 800 }}>Individual Shares</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.2rem' }}>
@@ -409,18 +421,18 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
           </div>
         </div>
 
-        {/* 9. 1 DIVIDENT (Rate = 1.77) */}
+        {/* 9. 1 DIVIDENT (Live Rate = Dividend Pool ÷ Total Shares) */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #d97706' }}>
           <div style={{ fontSize: '0.75rem', color: '#d97706', textTransform: 'uppercase', fontWeight: 800 }}>1 Divident</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#d97706', marginTop: '0.2rem' }}>
-            GH₵ 1.77
+            GH₵ {dividendRate.toFixed(2)}
           </div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
             Rate per Share (Pool ÷ Shares)
           </div>
         </div>
 
-        {/* 10. INDIVIDUAL DIVIDENTS (Individual Shares * 1 Divident) */}
+        {/* 10. INDIVIDUAL DIVIDENTS (Individual Shares × 1 Divident Rate) */}
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #7c3aed', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(217, 119, 6, 0.08))' }}>
           <div style={{ fontSize: '0.75rem', color: '#7c3aed', textTransform: 'uppercase', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span>Individual Dividents</span>

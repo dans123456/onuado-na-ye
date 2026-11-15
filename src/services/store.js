@@ -1,3 +1,4 @@
+import { getMemberTBillShares, calculateFellowshipPools, calculateMemberShares, getMemberSharesSchedule, FELLOWSHIP_TOTAL_SHARES, FELLOWSHIP_TOTAL_DIVIDEND, FELLOWSHIP_DIVIDEND_RATE } from '../utils/sharesDividendData.js';
 // Real Seed Data Extracted from Excel Workbook "ONUADO NA EYE ACCOUNT.xlsx"
 // Total Verified Members: 24
 
@@ -94,9 +95,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Akua Bomo",
     "mother_contact": "055 621 2318",
     "reg_fees": 200,
-    "base_dues_paid": 3100,
+    "base_dues_paid": 3200,
     "base_shares_value": 3107.212261504304,
-    "dues_paid": 3100,
+    "dues_paid": 3200,
     "levy_paid": 900,
     "total_payments": 4200,
     "dues_fee_required": 3300,
@@ -110,7 +111,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 200,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-002",
@@ -150,9 +151,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Leticia Oye Siaw",
     "mother_contact": "020 477 7999",
     "reg_fees": 200,
-    "base_dues_paid": 1500,
+    "base_dues_paid": 1600,
     "base_shares_value": 1558.71049017934,
-    "dues_paid": 1500,
+    "dues_paid": 1600,
     "levy_paid": 100,
     "total_payments": 1800,
     "dues_fee_required": 2400,
@@ -166,7 +167,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 900,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-003",
@@ -222,7 +223,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 500,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-004",
@@ -278,7 +279,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 200,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-005",
@@ -373,9 +374,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Obaapayin Akosua Pokua",
     "mother_contact": "",
     "reg_fees": 200,
-    "base_dues_paid": 3900,
+    "base_dues_paid": 3700,
     "base_shares_value": 3908.5187563381924,
-    "dues_paid": 3900,
+    "dues_paid": 3700,
     "levy_paid": 800,
     "total_payments": 4900,
     "dues_fee_required": 3900,
@@ -389,7 +390,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 0,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-007",
@@ -429,9 +430,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Ama Fosuaa",
     "mother_contact": "024 327 5855",
     "reg_fees": 200,
-    "base_dues_paid": 3300,
+    "base_dues_paid": 3100,
     "base_shares_value": 3361.650103555589,
-    "dues_paid": 3300,
+    "dues_paid": 3100,
     "levy_paid": 100,
     "total_payments": 3600,
     "dues_fee_required": 3300,
@@ -445,7 +446,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 0,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-008",
@@ -501,7 +502,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 300,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-009",
@@ -596,9 +597,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Elizabeth Antwi",
     "mother_contact": "054 328 3970",
     "reg_fees": 200,
-    "base_dues_paid": 3400,
+    "base_dues_paid": 3200,
     "base_shares_value": 3906.197664207724,
-    "dues_paid": 3400,
+    "dues_paid": 3200,
     "levy_paid": 800,
     "total_payments": 4400,
     "dues_fee_required": 3900,
@@ -612,7 +613,7 @@ const INITIAL_MEMBERS = [
     "role": "admin",
     "balance_owed": 500,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-011",
@@ -652,9 +653,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Kate Ennin",
     "mother_contact": "050 258 3546",
     "reg_fees": 200,
-    "base_dues_paid": 3500,
+    "base_dues_paid": 3700,
     "base_shares_value": 4335.423975252416,
-    "dues_paid": 3500,
+    "dues_paid": 3700,
     "levy_paid": 1000,
     "total_payments": 4700,
     "dues_fee_required": 3900,
@@ -667,8 +668,8 @@ const INITIAL_MEMBERS = [
     "status": "ACTIVE",
     "role": "member",
     "balance_owed": 400,
-    "vehicle_shares_paid": 2000,
-    "vehicle_shares_count": 1000
+    "vehicle_shares_paid": 0,
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-012",
@@ -707,9 +708,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "",
     "mother_contact": "",
     "reg_fees": 200,
-    "base_dues_paid": 3600,
+    "base_dues_paid": 3700,
     "base_shares_value": 3608.0288207754843,
-    "dues_paid": 3600,
+    "dues_paid": 3700,
     "levy_paid": 1000,
     "total_payments": 4800,
     "dues_fee_required": 3900,
@@ -723,7 +724,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 300,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-013",
@@ -767,8 +768,8 @@ const INITIAL_MEMBERS = [
     "base_shares_value": 6739.343459754082,
     "dues_paid": 3900,
     "levy_paid": 1000,
-    "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0,
+    "vehicle_shares_paid": 2000,
+    "vehicle_shares_count": 1000,
     "total_payments": 5100,
     "dues_fee_required": 3900,
     "shares_dividends": 3364.1776290113085,
@@ -874,9 +875,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Esi Mansah",
     "mother_contact": "055 504 6416",
     "reg_fees": 200,
-    "base_dues_paid": 3000,
+    "base_dues_paid": 3900,
     "base_shares_value": 3778.346603615437,
-    "dues_paid": 3000,
+    "dues_paid": 3900,
     "levy_paid": 1000,
     "total_payments": 4200,
     "dues_fee_required": 3900,
@@ -890,7 +891,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 900,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-016",
@@ -946,7 +947,7 @@ const INITIAL_MEMBERS = [
     "role": "admin",
     "balance_owed": 600,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-017",
@@ -986,9 +987,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Leticia Oye Siaw",
     "mother_contact": "020 477 7999",
     "reg_fees": 200,
-    "base_dues_paid": 3700,
+    "base_dues_paid": 3500,
     "base_shares_value": 4535.750598960889,
-    "dues_paid": 3700,
+    "dues_paid": 3500,
     "levy_paid": 1000,
     "total_payments": 4900,
     "dues_fee_required": 3900,
@@ -1002,7 +1003,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 200,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-018",
@@ -1098,9 +1099,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Akua Mansah",
     "mother_contact": "",
     "reg_fees": 200,
-    "base_dues_paid": 3500,
+    "base_dues_paid": 3900,
     "base_shares_value": 6338.690212337137,
-    "dues_paid": 3500,
+    "dues_paid": 3900,
     "levy_paid": 1000,
     "vehicle_shares_paid": 2000,
     "vehicle_shares_count": 1000,
@@ -1210,9 +1211,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Gladys Asante",
     "mother_contact": "054 501 5197",
     "reg_fees": 200,
-    "base_dues_paid": 3300,
+    "base_dues_paid": 3500,
     "base_shares_value": 4135.097351543945,
-    "dues_paid": 3300,
+    "dues_paid": 3500,
     "levy_paid": 900,
     "total_payments": 4400,
     "dues_fee_required": 3900,
@@ -1226,7 +1227,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 600,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-022",
@@ -1321,9 +1322,9 @@ const INITIAL_MEMBERS = [
     "mother_name": "Victoria Donkor",
     "mother_contact": "054 509 4585",
     "reg_fees": 200,
-    "base_dues_paid": 3700,
+    "base_dues_paid": 3900,
     "base_shares_value": 4535.750598960889,
-    "dues_paid": 3700,
+    "dues_paid": 3900,
     "levy_paid": 1200,
     "total_payments": 5100,
     "dues_fee_required": 3900,
@@ -1337,7 +1338,7 @@ const INITIAL_MEMBERS = [
     "role": "member",
     "balance_owed": 200,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   },
   {
     "id": "m-024",
@@ -1393,7 +1394,7 @@ const INITIAL_MEMBERS = [
     "role": "admin",
     "balance_owed": 0,
     "vehicle_shares_paid": 0,
-    "vehicle_shares_count": 0
+    "vehicle_shares_count": 0,
   }
 ];
 
@@ -1418,36 +1419,28 @@ export const recalculateMemberFinancials = (member) => {
   const regFees = parseFloat(member.reg_fees) || 200;
   const duesFeeRequired = parseFloat(member.dues_fee_required) || 3900;
   const vehPaid = member.vehicle_shares_paid !== undefined ? parseFloat(member.vehicle_shares_paid) : 0;
-  const vehSharesCount = member.vehicle_shares_count !== undefined ? parseInt(member.vehicle_shares_count, 10) : Math.floor(vehPaid / SHARE_UNIT_PRICE);
+  const vehSharesCount = Math.floor(vehPaid / SHARE_UNIT_PRICE);
 
   member.vehicle_shares_paid = vehPaid;
   member.vehicle_shares_count = vehSharesCount;
   member.total_payments = regFees + duesPaid + levyPaid + vehPaid;
   member.balance_owed = Math.max(0, duesFeeRequired - duesPaid);
-  
-  const baseDues = member.base_dues_paid !== undefined ? parseFloat(member.base_dues_paid) : duesPaid;
-  const baseShares = member.base_shares_value !== undefined ? parseFloat(member.base_shares_value) : (parseFloat(member.shares_value) || 0);
-  const tBill = parseFloat(member.treasurer_bill) || 0;
 
-  // If member has exactly baseline dues, preserve exact Excel shares_value and grand holding
-  if (duesPaid === baseDues && baseShares > 0) {
-    member.shares_value = baseShares;
-    member.shares_holding = baseShares + tBill;
-    return member;
-  }
-
-  // Real-time delta recalculation when new dues are keyed in (rate: 2.00326 per unit)
-  const duesDelta = duesPaid - baseDues;
-  const duesSharesDeltaCount = Math.floor(duesDelta / SHARE_UNIT_PRICE);
-  const duesSharesDeltaVal = duesSharesDeltaCount * 2.00326578;
-
-  member.shares_value = Math.max(0, baseShares + duesSharesDeltaVal);
+  // Exact programmable live Excel formulas:
+  // Dues Shares = Dues Paid ÷ GH₵ 2.00
+  // Vehicle Shares = Vehicle Paid ÷ GH₵ 2.00
+  // T-Bill Shares = Fixed Historical Treasury Bill Allocation
+  const duesShares = duesPaid / SHARE_UNIT_PRICE;
+  const tBill = getMemberTBillShares(member.full_name);
+  member.treasurer_bill = tBill;
+  member.shares_value = duesShares + vehSharesCount;
   member.shares_holding = member.shares_value + tBill;
+  member.shares_dividends = member.shares_holding;
   
   return member;
 };
 
-const DATA_VERSION = '2026-11-08-v23-special-levy-7-acheampong-sync-1794152000000';
+const DATA_VERSION = '2026-11-15-v24-dynamic-shares-dividend-engine-1794759000000';
 
 export const getMembers = () => {
   try {
@@ -2159,6 +2152,32 @@ export const INITIAL_TRIAL_BALANCE = [
   { id: 'tb-asset-momo', particulars: 'CASH IN MOMO ACCOUNT', amount: 566.60, type: 'expenditure', category: 'MoMo Wallet' },
   { id: 'tb-asset-vehicle', particulars: 'CASH MENT FOR VEHICLE', amount: 68000.00, type: 'expenditure', category: 'Asset Transfer' }
 ];
+
+
+export const getFellowshipDividendPool = () => {
+  try {
+    const items = getTrialBalanceItems();
+    const liquidAssets = items
+      .filter(item => {
+        const p = (item.particulars || '').toUpperCase().trim();
+        return p.includes('FIDELITY BANK') ||
+               p.includes('BANK TEMA') ||
+               p.includes('MOMO ACCOUNT') ||
+               p.includes('CASH MENT FOR VEHICLE') ||
+               p.includes('VEHICLE CONTRIBUTION ACCOUNT');
+      })
+      .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    return liquidAssets > 0 ? liquidAssets : 80153.10;
+  } catch (e) {
+    return 80153.10;
+  }
+};
+
+export const getLiveFellowshipFinancials = (membersList = null) => {
+  const members = membersList || getMembers();
+  const dividendPool = getFellowshipDividendPool();
+  return calculateFellowshipPools(members, dividendPool);
+};
 
 export const getTrialBalanceItems = () => {
   let items = INITIAL_TRIAL_BALANCE;

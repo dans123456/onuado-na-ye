@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, UploadCloud, PlusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle, Camera } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals, getLiveFellowshipFinancials } from '../services/store';
 import { getMemberLevyDetails, getSpecialLeviesMaster } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -1117,6 +1117,11 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
         </div>
 
         {(() => {
+          const livePools = getLiveFellowshipFinancials(members);
+          const totalSharesPool = livePools.totalSharesPool;
+          const dividendPool = livePools.dividendPool;
+          const dividendRate = livePools.dividendRate;
+
           return (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
 
@@ -1127,7 +1132,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                   <span className="badge" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(220, 38, 38, 0.12)', color: '#dc2626' }}>Dividend Pool</span>
                 </div>
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  GH₵ 79,531.72
+                  GH₵ {dividendPool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Total Liquid Dividend Pool Across Fellowship Accounts</div>
               </div>
@@ -1139,7 +1144,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                   <span className="badge" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(37, 99, 235, 0.12)', color: '#2563eb' }}>Shares Count</span>
                 </div>
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  45,152.70
+                  {totalSharesPool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Cumulative Member Qualifying Shares</div>
               </div>
@@ -1151,9 +1156,9 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                   <span className="badge badge-dues" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>Rate / Share</span>
                 </div>
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  GH₵ 1.77
+                  GH₵ {dividendRate.toFixed(2)}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Dividend Rate Per Qualifying Share (GH₵ 79,531.72 ÷ 45,152.70)</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Dividend Rate Per Qualifying Share (GH₵ {dividendPool.toFixed(2)} ÷ {totalSharesPool.toFixed(2)})</div>
               </div>
 
               {/* CARD 4: TRIAL BALANCE */}
