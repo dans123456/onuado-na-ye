@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Phone, MapPin, AlertCircle, Edit3, Save, CheckCircle2, Wallet, Calendar, Search, Download, CreditCard, ShieldCheck, Heart, Award, FileText, Printer, Building2, Sparkles, TrendingUp, DollarSign, Shield, Eye, EyeOff, Lock, Camera, Copy } from 'lucide-react';
-import { updateMemberProfile, addContribution, getMembers, getContributions, getTrialBalanceItems } from '../services/store';
+import { updateMemberProfile, addContribution, getMembers, getContributions, getTrialBalanceItems, getLiveFellowshipFinancials } from '../services/store';
 import { getMemberLevyDetails } from '../utils/levyData';
 import { getMemberVehicleShares, VEHICLE_SHARES_POOL } from '../utils/vehicleSharesData';
 import { getMemberSharesSchedule, calculateFellowshipPools, calculateMemberShares, FELLOWSHIP_TOTAL_DIVIDEND, FELLOWSHIP_TOTAL_SHARES, FELLOWSHIP_DIVIDEND_RATE } from '../utils/sharesDividendData.js';
@@ -101,7 +101,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
 
   // 🚀 LIVE PROGRAMMABLE FORMULA ENGINE:
   // Dynamically calculate master fellowship pools and this member's shares & dividend
-  const livePools = calculateFellowshipPools(members || []);
+  const livePools = getLiveFellowshipFinancials(members || []);
   const totalSharesPool = livePools.totalSharesPool;
   const dividendPool = livePools.dividendPool;
   const dividendRate = livePools.dividendRate;

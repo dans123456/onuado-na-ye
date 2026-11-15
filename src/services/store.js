@@ -1440,7 +1440,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-11-15-v24-dynamic-shares-dividend-engine-1794759000000';
+const DATA_VERSION = '2026-11-15-v25-trial-balance-111446-balanced-reactive-1794765000000';
 
 export const getMembers = () => {
   try {
@@ -2113,15 +2113,15 @@ export const saveAnnouncement = (text) => {
 
 // ==========================================
 // 📊 TRIAL BALANCE DYNAMIC MANAGEMENT SYSTEM
-// Verified directly from Excel Sheet "TRAIL BALANCE" (Balanced at GH₵ 106,446.72)
+// Verified directly from Excel Sheet "TRAIL BALANCE" (100% Balanced at GH₵ 111,446.72)
 // ==========================================
 export const INITIAL_TRIAL_BALANCE = [
-  // Income Items (Total: GH₵ 107,646.72)
+  // Income Items (Total: GH₵ 111,446.72)
   { id: 'tb-inc-reg', particulars: 'REGISTRATION', amount: 4800.00, type: 'income', category: 'Registration Fees' },
   { id: 'tb-inc-dues-2023', particulars: 'TOTAL MONTHLY DUES FOR 2023', amount: 10800.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-dues-2024', particulars: 'TOTAL MONTHLY DUES FOR 2024', amount: 16900.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-dues-2025', particulars: 'TOTAL MONTHLY DUES FOR 2025', amount: 22350.00, type: 'income', category: 'Monthly Dues' },
-  { id: 'tb-inc-dues-2026', particulars: 'TOTAL MONTHLY DUES FOR 2026', amount: 17400.00, type: 'income', category: 'Monthly Dues' },
+  { id: 'tb-inc-dues-2026', particulars: 'TOTAL MONTHLY DUES FOR 2026', amount: 18000.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-dues-2027', particulars: 'TOTAL MONTHLY DUES FOR 2027', amount: 0.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-levy-1', particulars: 'FIRST LEVY', amount: 3400.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-levy-2', particulars: 'SECOND LEVY', amount: 1700.00, type: 'income', category: 'Special Levy' },
@@ -2129,42 +2129,40 @@ export const INITIAL_TRIAL_BALANCE = [
   { id: 'tb-inc-levy-4', particulars: 'FORTH LEVY', amount: 3600.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-levy-5', particulars: 'FIFTH LEVY', amount: 3600.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-levy-6', particulars: 'SIXTH LEVY', amount: 2200.00, type: 'income', category: 'Special Levy' },
-  { id: 'tb-inc-levy-7', particulars: 'SEVENTH LEVY', amount: 400.00, type: 'income', category: 'Special Levy' },
+  { id: 'tb-inc-levy-7', particulars: 'SEVENTH LEVY', amount: 3600.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-tbill-int', particulars: 'TREASURER BILL INTREST', amount: 10402.70, type: 'income', category: 'Investment Returns' },
+  { id: 'tb-inc-vehicle', particulars: 'VEHICLE CONTRIBUTIONS', amount: 6000.00, type: 'income', category: 'Vehicle Capital' },
   { id: 'tb-inc-int-fidelity', particulars: 'INTREST FIDELITY BANK', amount: 88.37, type: 'income', category: 'Bank Interest' },
   { id: 'tb-inc-int-ashaiman', particulars: 'INTREST ASHAIMAN BANK', amount: 166.24, type: 'income', category: 'Bank Interest' },
   { id: 'tb-inc-int-momo', particulars: 'INTREST MTM MOMO ACCOUNT', amount: 239.41, type: 'income', category: 'Bank Interest' },
-  { id: 'tb-inc-vehicle', particulars: 'VEHICLE CONTRIBUTIONS', amount: 6000.00, type: 'income', category: 'Vehicle Capital' },
 
-  // Expenditure & Asset Items (Total: GH₵ 107,646.72)
+  // Expenditure & Asset Items (Total: GH₵ 111,446.72)
   { id: 'tb-exp-bank-shares', particulars: 'BANK TEMA SHARES', amount: 100.00, type: 'expenditure', category: 'Shares Investment' },
-  { id: 'tb-exp-destitution', particulars: 'DESTITUTION', amount: 400.00, type: 'expenditure', category: 'Welfare Benefit' },
-  { id: 'tb-exp-docs', particulars: 'DOCUMENTATIONS', amount: 400.00, type: 'expenditure', category: 'Administrative' },
+  { id: 'tb-exp-destitution', particulars: 'DESTITUTION', amount: 3060.30, type: 'expenditure', category: 'Welfare Benefit' },
+  { id: 'tb-exp-docs', particulars: 'DOCUMENTATIONS', amount: 1318.32, type: 'expenditure', category: 'Administrative' },
   { id: 'tb-exp-naming', particulars: 'DONATIONS CHILD NAMING', amount: 2000.00, type: 'expenditure', category: 'Welfare Benefit' },
   { id: 'tb-exp-funeral', particulars: 'DONATIONS FUNERAL', amount: 13720.00, type: 'expenditure', category: 'Welfare Benefit' },
   { id: 'tb-exp-gen-exp', particulars: 'GENERAL EXPENSES', amount: 810.00, type: 'expenditure', category: 'Expenditure' },
   { id: 'tb-exp-printing', particulars: 'PRINTING & STATIONERY', amount: 785.00, type: 'expenditure', category: 'Expenditure' },
   { id: 'tb-exp-reg-gen', particulars: 'REGISREAL GENERAL', amount: 1300.00, type: 'expenditure', category: 'Legal & Compliance' },
   { id: 'tb-exp-transport', particulars: 'TRANPORTATIONS', amount: 8200.00, type: 'expenditure', category: 'Expenditure' },
-  { id: 'tb-exp-vehicle-acc', particulars: 'VEHICLE ACCOUNT', amount: 400.00, type: 'expenditure', category: 'Expenditure' },
   { id: 'tb-asset-fidelity', particulars: 'CASH IN FIDELITY BANK BALANCE', amount: 10698.88, type: 'expenditure', category: 'Bank Asset' },
   { id: 'tb-asset-bank-tema', particulars: 'CASH IN BANK TEMA BALANCE', amount: 266.24, type: 'expenditure', category: 'Bank Asset' },
-  { id: 'tb-asset-momo', particulars: 'CASH IN MOMO ACCOUNT', amount: 566.60, type: 'expenditure', category: 'MoMo Wallet' },
+  { id: 'tb-asset-momo', particulars: 'CASH IN MOMO ACCOUNT', amount: 1187.98, type: 'expenditure', category: 'MoMo Wallet' },
   { id: 'tb-asset-vehicle', particulars: 'CASH MENT FOR VEHICLE', amount: 68000.00, type: 'expenditure', category: 'Asset Transfer' }
 ];
 
 
-export const getFellowshipDividendPool = () => {
+export const getFellowshipDividendPool = (customTBItems = null) => {
   try {
-    const items = getTrialBalanceItems();
+    const items = customTBItems || getTrialBalanceItems();
     const liquidAssets = items
       .filter(item => {
         const p = (item.particulars || '').toUpperCase().trim();
-        return p.includes('FIDELITY BANK') ||
-               p.includes('BANK TEMA') ||
-               p.includes('MOMO ACCOUNT') ||
-               p.includes('CASH MENT FOR VEHICLE') ||
-               p.includes('VEHICLE CONTRIBUTION ACCOUNT');
+        return p === 'CASH IN FIDELITY BANK BALANCE' ||
+               p === 'CASH IN BANK TEMA BALANCE' ||
+               p === 'CASH IN MOMO ACCOUNT' ||
+               p === 'CASH MENT FOR VEHICLE';
       })
       .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
     return liquidAssets > 0 ? liquidAssets : 80153.10;
@@ -2195,72 +2193,15 @@ export const getTrialBalanceItems = () => {
     console.error('Error reading stored trial balance', e);
     items = INITIAL_TRIAL_BALANCE;
   }
-
-  // Dynamically link live Treasury Account ending balances and member key-in inflows
-  try {
-    const treasury = calculateTreasuryTotals();
-    const momoEnding = treasury.momo?.endingBalance ?? 166.60;
-    const fidelityEnding = treasury.fidelity?.endingBalance ?? 10698.88;
-    const bankTemaEnding = treasury.bankTema?.endingBalance ?? 266.24;
-    const vehicleEnding = treasury.pettyCashVehicle?.endingBalance ?? 68000.00;
-
-    // Calculate total extra key-in additions recorded across members
-    const history = getKeyInHistory();
-
-    const updated = items.map(item => {
-      const part = (item.particulars || '').toUpperCase().trim();
-
-      // 1. MoMo Account Ending Balance
-      if (part === 'CASH IN MOMO ACCOUNT' || part === 'MOMO ACCOUNT ENDING BALANCE' || item.id === 'tb-asset-momo' || item.id === 'tb-20') {
-        return { ...item, amount: momoEnding };
-      }
-      // 2. Fidelity Bank Ending Balance
-      if (part === 'CASH IN FIDELITY BANK BALANCE' || part === 'FIDELITY BANK ENDING BALANCE' || item.id === 'tb-asset-fidelity' || item.id === 'tb-18') {
-        return { ...item, amount: fidelityEnding };
-      }
-      // 3. Bank Tema Ending Balance
-      if (part === 'CASH IN BANK TEMA BALANCE' || part === 'BANK TEMA ENDING BALANCE' || item.id === 'tb-asset-bank-tema' || item.id === 'tb-19') {
-        return { ...item, amount: bankTemaEnding };
-      }
-      // 4. Vehicle Contribution Account Ending Balance
-      if ((part.includes('VEHICLE CONTRIBUTION') && (part.includes('ACCOUNT') || item.type === 'expenditure')) || item.id === 'tb-asset-vehicle' || item.id === 'tb-17') {
-        return { ...item, amount: vehicleEnding };
-      }
-
-      // 5. Update Income line items so Trial Balance stays balanced with any new dynamic member key-in inflows
-      if (part === 'TOTAL MONTHLY DUES FOR 2025' || item.id === 'tb-inc-dues-2025' || item.id === 'tb-04') {
-        const base2025 = 22350.00;
-        const totalExtraDues = history
-          .filter(h => (h.category === 'dues' || !h.category) && (h.duesYear === '2025' || !h.duesYear || h.duesYear === 'General Dues Pool' || h.entryType?.includes('2025')) && (h.delta > 0 || h.amount > 0))
-          .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
-        return { ...item, amount: base2025 + totalExtraDues };
-      }
-      if (part === 'SIX LEVY' || item.id === 'tb-inc-levy-6' || item.id === 'tb-11') {
-        const baseLevy = 2200.00;
-        const totalExtraLevy = history
-          .filter(h => h.category === 'levy' && (h.delta > 0 || h.amount > 0))
-          .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
-        return { ...item, amount: baseLevy + totalExtraLevy };
-      }
-      if (part === 'REGISTRATION' || part === 'REGISTRATION FEES' || item.id === 'tb-inc-reg' || item.id === 'tb-01') {
-        const baseReg = 4800.00;
-        const totalExtraReg = history
-          .filter(h => h.category === 'member_registration' && (h.delta > 0 || h.amount > 0))
-          .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
-        return { ...item, amount: baseReg + totalExtraReg };
-      }
-      return item;
-    });
-
-    return updated;
-  } catch (err) {
-    console.error('Error linking live treasury to trial balance:', err);
-    return items;
-  }
+  return items;
 };
 
 export const saveTrialBalanceItems = (items) => {
+  localStorage.setItem('ony_data_version', DATA_VERSION);
   localStorage.setItem('ony_trial_balance', JSON.stringify(items));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('ony_data_updated'));
+  }
   return items;
 };
 
@@ -2280,19 +2221,66 @@ export const addTrialBalanceItem = (newItem) => {
 
 export const updateTrialBalanceItem = (id, updatedFields) => {
   const items = getTrialBalanceItems();
+  let changedAssetKey = null;
+  let newAssetAmount = 0;
+
   const updated = items.map(item => {
     if (item.id === id) {
+      const newPart = updatedFields.particulars !== undefined ? updatedFields.particulars.toUpperCase().trim() : item.particulars;
+      const newAmt = updatedFields.amount !== undefined ? (parseFloat(updatedFields.amount) || 0) : item.amount;
+      
+      if (newPart === 'CASH IN MOMO ACCOUNT' || item.id === 'tb-asset-momo' || item.id === 'tb-20') {
+        changedAssetKey = 'momo';
+        newAssetAmount = newAmt;
+      } else if (newPart === 'CASH IN FIDELITY BANK BALANCE' || item.id === 'tb-asset-fidelity' || item.id === 'tb-18') {
+        changedAssetKey = 'fidelity';
+        newAssetAmount = newAmt;
+      } else if (newPart === 'CASH IN BANK TEMA BALANCE' || item.id === 'tb-asset-bank-tema' || item.id === 'tb-19') {
+        changedAssetKey = 'bankTema';
+        newAssetAmount = newAmt;
+      } else if (newPart === 'CASH MENT FOR VEHICLE' || item.id === 'tb-asset-vehicle' || item.id === 'tb-17') {
+        changedAssetKey = 'pettyCashVehicle';
+        newAssetAmount = newAmt;
+      }
+
       return {
         ...item,
-        particulars: updatedFields.particulars !== undefined ? updatedFields.particulars.toUpperCase().trim() : item.particulars,
-        amount: updatedFields.amount !== undefined ? (parseFloat(updatedFields.amount) || 0) : item.amount,
+        particulars: newPart,
+        amount: newAmt,
         type: updatedFields.type || item.type,
         category: updatedFields.category || item.category
       };
     }
     return item;
   });
+
   saveTrialBalanceItems(updated);
+
+  // Bi-directional sync back into Treasury Accounts data
+  if (changedAssetKey) {
+    try {
+      const treasury = getTreasuryAccountsData();
+      if (changedAssetKey === 'momo' && treasury.momo) {
+        const baseInf = parseFloat(treasury.momo.baseInflows) || 100550.00;
+        treasury.momo.baseDisbursements = Math.max(0, baseInf - newAssetAmount);
+        localStorage.setItem('ony_treasury_accounts_data', JSON.stringify(treasury));
+      } else if (changedAssetKey === 'fidelity' && treasury.fidelity) {
+        const baseDep = parseFloat(treasury.fidelity.baseCashDeposited) || 125113.88;
+        treasury.fidelity.baseWithdrawals = Math.max(0, baseDep - newAssetAmount);
+        localStorage.setItem('ony_treasury_accounts_data', JSON.stringify(treasury));
+      } else if (changedAssetKey === 'bankTema' && treasury.bankTema) {
+        const baseInf = parseFloat(treasury.bankTema.baseInflows) || 5666.24;
+        treasury.bankTema.baseOutflows = Math.max(0, baseInf - newAssetAmount);
+        localStorage.setItem('ony_treasury_accounts_data', JSON.stringify(treasury));
+      } else if (changedAssetKey === 'pettyCashVehicle' && treasury.pettyCashVehicle) {
+        treasury.pettyCashVehicle.baseBankReserve = Math.max(0, newAssetAmount - (parseFloat(treasury.pettyCashVehicle.baseMemberShares) || 6000.00));
+        localStorage.setItem('ony_treasury_accounts_data', JSON.stringify(treasury));
+      }
+    } catch (e) {
+      console.error('Error syncing trial balance edit back to treasury accounts', e);
+    }
+  }
+
   return updated;
 };
 
@@ -2304,7 +2292,12 @@ export const deleteTrialBalanceItem = (id) => {
 };
 
 export const resetTrialBalanceToDefaults = () => {
-  localStorage.removeItem('ony_trial_balance');
+  localStorage.setItem('ony_data_version', DATA_VERSION);
+  localStorage.setItem('ony_trial_balance', JSON.stringify(INITIAL_TRIAL_BALANCE));
+  localStorage.setItem('ony_treasury_accounts_data', JSON.stringify(INITIAL_TREASURY_ACCOUNTS));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('ony_data_updated'));
+  }
   return INITIAL_TRIAL_BALANCE;
 };
 
@@ -2316,8 +2309,8 @@ export const INITIAL_TREASURY_ACCOUNTS = {
     accountName: "MTN Mobile Money Account",
     line: "0530486443",
     code: "293658",
-    baseInflows: 101550.00,
-    baseDisbursements: 101383.40,
+    baseInflows: 100550.00,
+    baseDisbursements: 99362.02,
     customTransactions: []
   },
   fidelity: {
@@ -2365,7 +2358,38 @@ export const getTreasuryAccountsData = () => {
 };
 
 export const saveTreasuryAccountsData = (data) => {
+  localStorage.setItem('ony_data_version', DATA_VERSION);
   localStorage.setItem('ony_treasury_accounts_data', JSON.stringify(data));
+
+  // Bi-directional sync: update the 4 liquid bank asset lines in Trial Balance
+  try {
+    const totals = calculateTreasuryTotals(data);
+    const tbItems = getTrialBalanceItems();
+    const updatedTB = tbItems.map(item => {
+      const part = (item.particulars || '').toUpperCase().trim();
+      if (part === 'CASH IN MOMO ACCOUNT' || item.id === 'tb-asset-momo' || item.id === 'tb-20') {
+        return { ...item, amount: totals.momo.endingBalance };
+      }
+      if (part === 'CASH IN FIDELITY BANK BALANCE' || item.id === 'tb-asset-fidelity' || item.id === 'tb-18') {
+        return { ...item, amount: totals.fidelity.endingBalance };
+      }
+      if (part === 'CASH IN BANK TEMA BALANCE' || item.id === 'tb-asset-bank-tema' || item.id === 'tb-19') {
+        return { ...item, amount: totals.bankTema.endingBalance };
+      }
+      if (part === 'CASH MENT FOR VEHICLE' || item.id === 'tb-asset-vehicle' || item.id === 'tb-17') {
+        return { ...item, amount: totals.pettyCashVehicle.endingBalance };
+      }
+      return item;
+    });
+    localStorage.setItem('ony_trial_balance', JSON.stringify(updatedTB));
+  } catch (e) {
+    console.error('Error syncing treasury to trial balance', e);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('ony_data_updated'));
+  }
+
   return data;
 };
 
@@ -2400,8 +2424,8 @@ export const calculateTreasuryTotals = (data = getTreasuryAccountsData()) => {
     })
     .reduce((sum, h) => sum + (parseFloat(h.delta) || parseFloat(h.amount) || 0), 0);
 
-  const momoTotalInflows = (parseFloat(momoData.baseInflows) || 101550.00) + momoCustomInflows + momoKeyInExtra;
-  const momoTotalDisbursements = (parseFloat(momoData.baseDisbursements) || 101383.40) + momoCustomOutflows;
+  const momoTotalInflows = (parseFloat(momoData.baseInflows) || 100550.00) + momoCustomInflows + momoKeyInExtra;
+  const momoTotalDisbursements = (parseFloat(momoData.baseDisbursements) || 99362.02) + momoCustomOutflows;
   const momoEndingBalance = momoTotalInflows - momoTotalDisbursements;
 
   // 2. Fidelity Calculations

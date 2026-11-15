@@ -113,6 +113,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
       setImportSuccess(`✅ Added "${tbParticulars}" to Trial Balance.`);
     }
     setTrialBalanceItems(updated);
+    setTreasuryAccountsData(getTreasuryAccountsData());
     setTbParticulars('');
     setTbAmount('');
     setTbError('');
@@ -124,13 +125,15 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
     if (window.confirm(`Are you sure you want to remove "${particulars}" from the Trial Balance?`)) {
       const updated = deleteTrialBalanceItem(id);
       setTrialBalanceItems(updated);
+      setTreasuryAccountsData(getTreasuryAccountsData());
     }
   };
 
   const handleResetTBToDefaults = () => {
-    if (window.confirm('Reset Trial Balance back to original Excel baseline (GH₵ 106,446.72)? Any custom added items will be cleared.')) {
+    if (window.confirm('Reset Trial Balance back to original verified Excel baseline (GH₵ 111,446.72)? Any custom added items will be cleared.')) {
       const updated = resetTrialBalanceToDefaults();
       setTrialBalanceItems(updated);
+      setTreasuryAccountsData(getTreasuryAccountsData());
     }
   };
 
@@ -1122,6 +1125,15 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
           const dividendPool = livePools.dividendPool;
           const dividendRate = livePools.dividendRate;
 
+          const totalTBIncome = trialBalanceItems
+            .filter(item => item.type === 'income')
+            .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+          const totalTBExpenditure = trialBalanceItems
+            .filter(item => item.type === 'expenditure')
+            .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+          const tbDiff = Math.abs(totalTBIncome - totalTBExpenditure);
+          const isTBBALANCED = tbDiff < 0.05;
+
           return (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
 
@@ -1164,17 +1176,29 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
               {/* CARD 4: TRIAL BALANCE */}
               <div
                 onClick={() => setActiveTab('treasury')}
-                style={{ padding: '1.25rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(5, 150, 105, 0.4)', borderTop: '4px solid #059669', cursor: 'pointer', transition: 'all 0.2s' }}
+                style={{
+                  padding: '1.25rem',
+                  background: 'var(--bg-main)',
+                  borderRadius: '12px',
+                  border: isTBBALANCED ? '1.5px solid rgba(5, 150, 105, 0.4)' : '1.5px solid rgba(220, 38, 38, 0.4)',
+                  borderTop: isTBBALANCED ? '4px solid #059669' : '4px solid #dc2626',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
                 title="Click to view verified Trial Balance table"
               >
-                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: isTBBALANCED ? '#059669' : '#dc2626', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>TRIAL BALANCE</span>
-                  <span className="badge badge-dues" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>Balanced 100% ✓</span>
+                  <span className={isTBBALANCED ? 'badge badge-dues' : 'badge badge-levy-urgent'} style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem' }}>
+                    {isTBBALANCED ? 'Balanced 100% ✓' : `Diff: GH₵ ${tbDiff.toFixed(2)}`}
+                  </span>
                 </div>
-                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#059669', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  GH₵ 107,646.72
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: isTBBALANCED ? '#059669' : '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
+                  GH₵ {totalTBIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Click to View Full Trial Balance Sheet &rarr;</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                  {isTBBALANCED ? 'Click to View Full Trial Balance Sheet →' : '⚠️ Discrepancy detected - Click to reconcile →'}
+                </div>
               </div>
             </div>
           );
