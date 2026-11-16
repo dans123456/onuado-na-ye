@@ -426,7 +426,7 @@ export default function GalleryPage({ currentUser, setActivePage }) {
           >
             <option value="all">📍 All 16 Branches</option>
             {OFFICIAL_BRANCHES.map(b => (
-              <option key={b.name} value={b.name}>{b.name} ({b.region})</option>
+              <option key={b} value={b}>{b} Branch</option>
             ))}
           </select>
 
@@ -977,7 +977,7 @@ export default function GalleryPage({ currentUser, setActivePage }) {
                     style={{ width: '100%', fontSize: '0.85rem', fontWeight: 700 }}
                   >
                     {OFFICIAL_BRANCHES.map(b => (
-                      <option key={b.name} value={b.name}>{b.name} ({b.region})</option>
+                      <option key={b} value={b}>{b} Branch</option>
                     ))}
                     <option value="All 16 Branches">All 16 Branches (National)</option>
                   </select>
