@@ -82,15 +82,35 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
   const regFees = currentMember?.reg_fees || 200.00;
   const duesPaid = currentMember?.dues_paid !== undefined ? parseFloat(currentMember.dues_paid) : 3900.00;
   const levyPaid = currentMember?.levy_paid !== undefined ? parseFloat(currentMember.levy_paid) : 1000.00;
-  
+
   // Dynamic vehicle contribution from member record or fallback
   let vehicleContribution = 0;
   if (currentMember?.vehicle_shares_paid !== undefined && currentMember?.vehicle_shares_paid !== null && currentMember?.vehicle_shares_paid !== '') {
     vehicleContribution = parseFloat(currentMember.vehicle_shares_paid) || 0;
   } else {
-    const vehicleSharesData = getMemberVehicleShares(currentMember?.full_name || currentUser?.full_name);
-    vehicleContribution = vehicleSharesData?.totalPaid || 0;
+    const vFallback = getMemberVehicleShares(currentMember?.full_name || currentUser?.full_name);
+    vehicleContribution = vFallback?.totalPaid || 0;
   }
+
+  // Dynamic vehicle shares data object
+  const vehicleSharesData = getMemberVehicleShares(currentMember?.full_name || currentUser?.full_name) || {
+    totalPaid: vehicleContribution,
+    sharesCount: Math.floor(vehicleContribution / 50),
+    status: vehicleContribution >= 2000 ? 'PAID' : 'PARTIAL',
+    payments: {
+      p1: Math.min(vehicleContribution, 500),
+      p2: Math.max(0, Math.min(vehicleContribution - 500, 500)),
+      p3: Math.max(0, Math.min(vehicleContribution - 1000, 500)),
+      p4: Math.max(0, Math.min(vehicleContribution - 1500, 500))
+    }
+  };
+
+  const duesShares = duesPaid / 2.0;
+  const vehicleShares = vehicleContribution / 2.0;
+  const treasurerBill = currentMember?.treasurer_bill !== undefined ? parseFloat(currentMember.treasurer_bill) : 0;
+  const sharesDividends = currentMember?.shares_dividends !== undefined ? parseFloat(currentMember.shares_dividends) : duesShares;
+  const sharesValue = currentMember?.shares_value !== undefined ? parseFloat(currentMember.shares_value) : duesShares;
+  const sharesHolding = currentMember?.shares_holding !== undefined ? parseFloat(currentMember.shares_holding) : (sharesValue + treasurerBill);
 
   // Total payments = Registration (200) + Dues Paid + Levy Paid + Vehicle Contribution
   const totalPayments = regFees + duesPaid + levyPaid + vehicleContribution;
@@ -477,7 +497,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             <div style={{ color: 'var(--text-muted)', fontWeight: 800, fontSize: '1.1rem' }}>×</div>
             <div>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>1 Divident Rate</span>
-              <strong style={{ color: '#d97706', fontSize: '0.95rem' }}>GH₵ 1.77</strong>
+              <strong style={{ color: '#d97706', fontSize: '0.95rem' }}>GH₵ {dividendRate.toFixed(2)}</strong>
             </div>
             <div style={{ color: '#7c3aed', fontWeight: 900, fontSize: '1.1rem' }}>=</div>
             <div style={{ background: 'rgba(124, 58, 237, 0.1)', padding: '0.35rem 0.75rem', borderRadius: '8px' }}>
@@ -1367,39 +1387,41 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
               </button>
             </div>
 
-            {/* Key Summary Grid */}
+            {/* Key Summary Grid (Dues Shares, Vehicle Shares, Total Shares, Individual Dividend) */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.85rem', marginBottom: '1.5rem' }}>
 
               <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(139, 92, 246, 0.3)', borderTop: '4px solid #8b5cf6' }}>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Total Combined Shares</div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#8b5cf6', marginTop: '0.15rem' }}>
-                  {(parseFloat(currentMember?.total_shares_count) || (parseFloat(sharesSchedule.totalShares) || 0)).toFixed(2)} Shares
+                  {(parseFloat(individualShares) || 0).toFixed(2)} Shares
                 </div>
                 <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)' }}>
-                  {vehicleSharesData.sharesCount > 0 ? `${(parseFloat(sharesDividends) || 0).toFixed(2)} Dues + ${vehicleSharesData.sharesCount} Vehicle` : 'Dues Dividends'}
+                  {duesShares.toFixed(2)} Dues + {vehicleShares.toFixed(2)} Veh + {treasurerBill.toFixed(2)} T-Bill
                 </div>
               </div>
 
               <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(2, 132, 199, 0.3)', borderTop: '4px solid #0284c7' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Shares Base Value</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Dues Shares</div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0284c7', marginTop: '0.15rem' }}>
-                  GH₵ {sharesValue.toFixed(2)}
+                  {duesShares.toFixed(2)} Shares
                 </div>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Rate: 50.584373</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Dues Paid ÷ GH₵ 2.00</div>
               </div>
 
-              <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(236, 72, 153, 0.3)', borderTop: '4px solid #ec4899' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Treasurer Bill</div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ec4899', marginTop: '0.15rem' }}>
-                  GH₵ {treasurerBill.toFixed(2)}
+              <div style={{ padding: '0.9rem', background: 'var(--bg-main)', borderRadius: '12px', border: '1.5px solid rgba(234, 88, 12, 0.3)', borderTop: '4px solid #ea580c' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 800 }}>Vehicle Shares</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ea580c', marginTop: '0.15rem' }}>
+                  {vehicleShares.toFixed(2)} Shares
                 </div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Vehicle Paid ÷ GH₵ 2.00</div>
               </div>
 
               <div style={{ padding: '0.9rem', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(217, 119, 6, 0.1))', borderRadius: '12px', border: '2px solid #7c3aed', borderTop: '4px solid #7c3aed' }}>
-                <div style={{ fontSize: '0.7rem', color: '#7c3aed', textTransform: 'uppercase', fontWeight: 900 }}>Grand Holding</div>
+                <div style={{ fontSize: '0.7rem', color: '#7c3aed', textTransform: 'uppercase', fontWeight: 900 }}>Individual Dividend</div>
                 <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#7c3aed', marginTop: '0.15rem' }}>
-                  GH₵ {sharesHolding.toFixed(2)}
+                  GH₵ {individualDividend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Rate: GH₵ {dividendRate.toFixed(2)} / Share</div>
               </div>
 
             </div>
@@ -1416,7 +1438,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                     <tr>
                       <th>Dues Year / Category</th>
                       <th>Shares Allocated</th>
-                      <th>Base Value (GH₵)</th>
+                      <th>Base Amount (GH₵)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1440,17 +1462,24 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
                       <td style={{ fontWeight: 900, color: '#8b5cf6' }}>{sharesSchedule.s2026} Shares</td>
                       <td>GH₵ {(sharesSchedule.s2026 * 2.00).toFixed(2)}</td>
                     </tr>
-                    {sharesSchedule.vehicleShares > 0 && (
+                    {vehicleShares > 0 && (
                       <tr style={{ background: 'rgba(234, 88, 12, 0.08)' }}>
                         <td style={{ fontWeight: 900, color: '#ea580c' }}>🚗 Vehicle Shares Allocation</td>
-                        <td style={{ fontWeight: 900, color: '#ea580c' }}>{sharesSchedule.vehicleShares} Shares</td>
-                        <td style={{ fontWeight: 900, color: '#ea580c' }}>GH₵ 2,000.00</td>
+                        <td style={{ fontWeight: 900, color: '#ea580c' }}>{vehicleShares.toFixed(2)} Shares</td>
+                        <td style={{ fontWeight: 900, color: '#ea580c' }}>GH₵ {vehicleContribution.toFixed(2)}</td>
+                      </tr>
+                    )}
+                    {treasurerBill > 0 && (
+                      <tr style={{ background: 'rgba(236, 72, 153, 0.08)' }}>
+                        <td style={{ fontWeight: 900, color: '#ec4899' }}>📜 Historical Treasurer Bill Allocation</td>
+                        <td style={{ fontWeight: 900, color: '#ec4899' }}>{treasurerBill.toFixed(2)} Shares</td>
+                        <td style={{ fontWeight: 900, color: '#ec4899' }}>Fixed Allocation</td>
                       </tr>
                     )}
                     <tr style={{ borderTop: '2px solid var(--border-color)', fontWeight: 900 }}>
                       <td>TOTAL SHARES ALLOCATED</td>
-                      <td style={{ color: '#8b5cf6', fontSize: '0.95rem' }}>{sharesSchedule.totalShares} SHARES</td>
-                      <td style={{ color: '#0284c7', fontSize: '0.95rem' }}>GH₵ {sharesValue.toFixed(2)}</td>
+                      <td style={{ color: '#8b5cf6', fontSize: '0.95rem' }}>{(parseFloat(individualShares) || 0).toFixed(2)} SHARES</td>
+                      <td style={{ color: '#0284c7', fontSize: '0.95rem' }}>GH₵ {individualDividend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (Dividend)</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1460,7 +1489,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
             {/* Note */}
             <div style={{ padding: '0.85rem 1rem', background: 'rgba(139, 92, 246, 0.08)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.25)', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
               <strong style={{ color: '#8b5cf6', display: 'block', marginBottom: '0.2rem' }}>📌 Shares Calculation Formula:</strong>
-              1 Share is allocated for every GH₵ 2.00 of dues paid. Total Shares Value is backed by the official fellowship Cash on Hand Shares Pool (<strong>GH₵ 79,131.72</strong>), plus interest earned on Treasurer Bills.
+              1 Share is allocated for every GH₵ 2.00 of dues paid + vehicle contributions (÷ 2) + historical Treasurer Bill shares. Member Individual Dividend is calculated dynamically as <strong>Total Shares × 1 Dividend Rate (GH₵ {dividendRate.toFixed(2)})</strong>.
             </div>
 
             <button
