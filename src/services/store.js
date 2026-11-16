@@ -3013,6 +3013,78 @@ export const parseVideoEmbedUrl = (rawUrl) => {
   return trimmed;
 };
 
+export const MEDIA_SERVER_URL = 'https://media.onuadonaeyemens.org';
+
+// Upload media file directly to dedicated Oracle Cloud Media Server
+export const uploadMediaFile = (file, onProgress) => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    xhr.open('POST', `${MEDIA_SERVER_URL}/api/upload`, true);
+
+    if (xhr.upload && onProgress) {
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          onProgress(percent);
+        }
+      };
+    }
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const res = JSON.parse(xhr.responseText);
+          resolve(res);
+        } catch (e) {
+          reject(new Error('Invalid JSON response from media server'));
+        }
+      } else {
+        try {
+          const errRes = JSON.parse(xhr.responseText);
+          reject(new Error(errRes.error || `Upload failed with status ${xhr.status}`));
+        } catch (e) {
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
+      }
+    };
+
+    xhr.onerror = () => reject(new Error('Network error uploading to media server'));
+    xhr.ontimeout = () => reject(new Error('Upload to media server timed out'));
+    xhr.send(formData);
+  });
+};
+
+export const fetchGalleryMediaFromServer = async () => {
+  try {
+    const res = await fetch(`${MEDIA_SERVER_URL}/api/media`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && Array.isArray(data.items) && data.items.length > 0) {
+        saveGalleryMedia(data.items, false);
+        return data.items;
+      }
+    }
+  } catch (err) {
+    console.warn('Media server not reachable, using cached gallery:', err);
+  }
+  return getGalleryMedia();
+};
+
+export const syncGalleryMediaToServer = async (items) => {
+  try {
+    await fetch(`${MEDIA_SERVER_URL}/api/media`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+  } catch (err) {
+    console.warn('Failed syncing gallery items to server:', err);
+  }
+};
+
 export const getGalleryMedia = () => {
   try {
     const raw = localStorage.getItem('ony_fellowship_gallery');
@@ -3026,7 +3098,7 @@ export const getGalleryMedia = () => {
   return INITIAL_GALLERY_MEDIA;
 };
 
-export const saveGalleryMedia = (items) => {
+export const saveGalleryMedia = (items, syncWithServer = true) => {
   try {
     localStorage.setItem('ony_fellowship_gallery', JSON.stringify(items));
     if (typeof window !== 'undefined') {
@@ -3034,6 +3106,9 @@ export const saveGalleryMedia = (items) => {
     }
   } catch (e) {
     console.error('Failed saving gallery media:', e);
+  }
+  if (syncWithServer) {
+    syncGalleryMediaToServer(items);
   }
   return items;
 };

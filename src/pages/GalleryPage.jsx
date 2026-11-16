@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Camera, Video, Play, Image as ImageIcon, Heart, Search, Filter, Plus, 
   X, Check, Trash2, Edit3, Download, Share2, Calendar, MapPin, User, 
-  Sparkles, ExternalLink, ShieldCheck, CheckCircle2, RotateCcw, AlertCircle
+  Sparkles, ExternalLink, ShieldCheck, CheckCircle2, RotateCcw, AlertCircle,
+  UploadCloud, Loader2
 } from 'lucide-react';
 import { 
   getGalleryMedia, addGalleryMedia, updateGalleryMedia, deleteGalleryMedia, 
-  resetGalleryMediaToDefaults, OFFICIAL_BRANCHES, parseVideoEmbedUrl 
+  resetGalleryMediaToDefaults, OFFICIAL_BRANCHES, parseVideoEmbedUrl,
+  uploadMediaFile, fetchGalleryMediaFromServer, MEDIA_SERVER_URL
 } from '../services/store';
 
 export default function GalleryPage({ currentUser, setActivePage }) {
@@ -31,13 +33,24 @@ export default function GalleryPage({ currentUser, setActivePage }) {
   const [formUrl, setFormUrl] = useState('');
   const [formThumbnail, setFormThumbnail] = useState('');
   const [uploadMode, setUploadMode] = useState('file'); // 'file' or 'url'
-  const [isCompressing, setIsCompressing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [formError, setFormError] = useState('');
   const [successToast, setSuccessToast] = useState('');
 
   const fileInputRef = useRef(null);
+  const videoFileInputRef = useRef(null);
 
   const isAdmin = currentUser?.role === 'admin' || (typeof window !== 'undefined' && !!sessionStorage.getItem('ony_impersonated_by'));
+
+  // Sync with dedicated Oracle Cloud Media Server on mount
+  useEffect(() => {
+    fetchGalleryMediaFromServer().then(items => {
+      if (items && Array.isArray(items) && items.length > 0) {
+        setMediaList(items);
+      }
+    });
+  }, []);
 
   // Listen for live updates across tabs / components
   useEffect(() => {
@@ -60,58 +73,56 @@ export default function GalleryPage({ currentUser, setActivePage }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Client-Side Image Compression using Canvas (< 300KB)
-  const handleImageFileSelect = (e) => {
+  // Direct File Upload to Oracle Cloud Media Server
+  const handleMediaUpload = async (e, type = 'image') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setFormError('Please select a valid image file (JPG, PNG, WebP).');
+    if (type === 'image' && !file.type.startsWith('image/')) {
+      setFormError('Please select a valid image file (JPG, PNG, WebP, GIF).');
       return;
     }
 
-    setIsCompressing(true);
+    if (type === 'video') {
+      const isVideoFile = file.type.startsWith('video/') || 
+        ['.mp4', '.mov', '.webm', '.mkv', '.avi'].some(ext => file.name.toLowerCase().endsWith(ext));
+      if (!isVideoFile) {
+        setFormError('Please select a valid video file (MP4, MOV, WebM).');
+        return;
+      }
+    }
+
+    if (file.size > 500 * 1024 * 1024) {
+      setFormError('File exceeds 500MB server limit.');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgress(0);
     setFormError('');
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 1280;
-        const MAX_HEIGHT = 1280;
-        let width = img.width;
-        let height = img.height;
+    try {
+      const res = await uploadMediaFile(file, (percent) => {
+        setUploadProgress(percent);
+      });
 
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height = Math.round((height * MAX_WIDTH) / width);
-            width = MAX_WIDTH;
-          }
+      if (res && res.success && res.url) {
+        setFormUrl(res.url);
+        if (type === 'image') {
+          setFormThumbnail(res.url);
         } else {
-          if (height > MAX_HEIGHT) {
-            width = Math.round((width * MAX_HEIGHT) / height);
-            height = MAX_HEIGHT;
-          }
+          setFormThumbnail('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=600&q=80');
         }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-        setFormUrl(dataUrl);
-        setFormThumbnail(dataUrl);
-        setIsCompressing(false);
-      };
-      img.onerror = () => {
-        setIsCompressing(false);
-        setFormError('Failed to read image file.');
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
+      } else {
+        setFormError('Failed to get uploaded file URL from media server.');
+      }
+    } catch (err) {
+      console.error('Media upload error:', err);
+      setFormError(err.message || 'Error uploading file to media server.');
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
   };
 
   const openAddModal = () => {
@@ -126,6 +137,8 @@ export default function GalleryPage({ currentUser, setActivePage }) {
     setFormThumbnail('');
     setUploadMode('file');
     setFormError('');
+    setIsUploading(false);
+    setUploadProgress(0);
     setIsAddModalOpen(true);
   };
 
@@ -139,8 +152,10 @@ export default function GalleryPage({ currentUser, setActivePage }) {
     setFormDescription(item.description || '');
     setFormUrl(item.url || '');
     setFormThumbnail(item.thumbnail_url || '');
-    setUploadMode(item.url?.startsWith('data:') ? 'file' : 'url');
+    setUploadMode('url');
     setFormError('');
+    setIsUploading(false);
+    setUploadProgress(0);
     setIsAddModalOpen(true);
   };
 
@@ -996,7 +1011,7 @@ export default function GalleryPage({ currentUser, setActivePage }) {
                         onClick={() => setUploadMode('file')}
                         style={{ fontSize: '0.72rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: uploadMode === 'file' ? '#059669' : 'transparent', color: uploadMode === 'file' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
                       >
-                        Device File
+                        Device File (Server Upload)
                       </button>
                       <button
                         type="button"
@@ -1010,13 +1025,13 @@ export default function GalleryPage({ currentUser, setActivePage }) {
 
                   {uploadMode === 'file' ? (
                     <div 
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={() => !isUploading && fileInputRef.current?.click()}
                       style={{ 
                         border: '2px dashed var(--border-color)', 
                         padding: '1.25rem', 
                         borderRadius: '12px', 
                         textAlign: 'center', 
-                        cursor: 'pointer',
+                        cursor: isUploading ? 'wait' : 'pointer',
                         background: 'var(--bg-main)',
                         transition: 'border-color 0.2s ease'
                       }}
@@ -1025,23 +1040,28 @@ export default function GalleryPage({ currentUser, setActivePage }) {
                         type="file" 
                         ref={fileInputRef} 
                         accept="image/*" 
-                        onChange={handleImageFileSelect} 
+                        onChange={(e) => handleMediaUpload(e, 'image')} 
                         style={{ display: 'none' }} 
+                        disabled={isUploading}
                       />
-                      {isCompressing ? (
+                      {isUploading ? (
                         <div style={{ color: '#059669', fontWeight: 700, fontSize: '0.85rem' }}>
-                          ⚡ Optimizing and compressing image...
+                          <Loader2 size={26} className="animate-spin" style={{ margin: '0 auto 0.4rem', animation: 'spin 1s linear infinite' }} />
+                          <div>Uploading photo to Cloud Media Server... {uploadProgress}%</div>
+                          <div style={{ width: '80%', margin: '0.6rem auto 0', height: '6px', background: 'rgba(5, 150, 105, 0.2)', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ width: `${uploadProgress}%`, height: '100%', background: '#059669', transition: 'width 0.2s ease' }} />
+                          </div>
                         </div>
                       ) : formUrl ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                           <img src={formUrl} alt="Preview" style={{ height: '90px', borderRadius: '8px', objectFit: 'cover' }} />
-                          <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Photo ready for upload (Click to change)</span>
+                          <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Stored on Cloud Media Server (Click to replace)</span>
                         </div>
                       ) : (
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                          <Camera size={26} style={{ margin: '0 auto 0.4rem', color: '#059669' }} />
+                          <UploadCloud size={26} style={{ margin: '0 auto 0.4rem', color: '#059669' }} />
                           <div>Click or tap to snap / upload photo from your device</div>
-                          <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: '0.2rem' }}>Automatic client-side compression for high performance</div>
+                          <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: '0.2rem' }}>Direct upload to <code>media.onuadonaeyemens.org</code></div>
                         </div>
                       )}
                     </div>
@@ -1059,29 +1079,92 @@ export default function GalleryPage({ currentUser, setActivePage }) {
               ) : (
                 /* Video Input */
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-                    6. Video Link (YouTube, Vimeo, or MP4 URL) *
-                  </label>
-                  <input
-                    type="url"
-                    required
-                    placeholder="e.g. https://www.youtube.com/watch?v=VIDEO_ID or Vimeo link"
-                    value={formUrl}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setFormUrl(val);
-                      // Try extracting YouTube thumbnail
-                      const ytMatch = val.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
-                      if (ytMatch && ytMatch[1]) {
-                        setFormThumbnail(`https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`);
-                      }
-                    }}
-                    className="form-input"
-                    style={{ width: '100%', fontSize: '0.85rem', fontWeight: 700 }}
-                  />
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
-                    💡 Paste any YouTube link. It is automatically converted into a responsive, mobile-friendly in-app player.
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                    <label style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+                      6. Video Source *
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => setUploadMode('file')}
+                        style={{ fontSize: '0.72rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: uploadMode === 'file' ? '#dc2626' : 'transparent', color: uploadMode === 'file' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
+                      >
+                        Upload Video (MP4 / Clip)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUploadMode('url')}
+                        style={{ fontSize: '0.72rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: uploadMode === 'url' ? '#dc2626' : 'transparent', color: uploadMode === 'url' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
+                      >
+                        YouTube / Vimeo Link
+                      </button>
+                    </div>
                   </div>
+
+                  {uploadMode === 'file' ? (
+                    <div 
+                      onClick={() => !isUploading && videoFileInputRef.current?.click()}
+                      style={{ 
+                        border: '2px dashed var(--border-color)', 
+                        padding: '1.25rem', 
+                        borderRadius: '12px', 
+                        textAlign: 'center', 
+                        cursor: isUploading ? 'wait' : 'pointer',
+                        background: 'var(--bg-main)',
+                        transition: 'border-color 0.2s ease'
+                      }}
+                    >
+                      <input 
+                        type="file" 
+                        ref={videoFileInputRef} 
+                        accept="video/*" 
+                        onChange={(e) => handleMediaUpload(e, 'video')} 
+                        style={{ display: 'none' }} 
+                        disabled={isUploading}
+                      />
+                      {isUploading ? (
+                        <div style={{ color: '#dc2626', fontWeight: 700, fontSize: '0.85rem' }}>
+                          <Loader2 size={26} className="animate-spin" style={{ margin: '0 auto 0.4rem', animation: 'spin 1s linear infinite' }} />
+                          <div>Uploading video to Cloud Media Server... {uploadProgress}%</div>
+                          <div style={{ width: '80%', margin: '0.6rem auto 0', height: '6px', background: 'rgba(220, 38, 38, 0.2)', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ width: `${uploadProgress}%`, height: '100%', background: '#dc2626', transition: 'width 0.2s ease' }} />
+                          </div>
+                        </div>
+                      ) : formUrl ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                          <video src={formUrl} controls style={{ height: '110px', borderRadius: '8px', maxWidth: '100%' }} />
+                          <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Video stored on Cloud Media Server (Click to replace)</span>
+                        </div>
+                      ) : (
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                          <UploadCloud size={26} style={{ margin: '0 auto 0.4rem', color: '#dc2626' }} />
+                          <div>Click or tap to upload video file (MP4, MOV, WebM up to 500MB)</div>
+                          <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: '0.2rem' }}>Direct upload to <code>media.onuadonaeyemens.org</code></div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        type="url"
+                        placeholder="e.g. https://www.youtube.com/watch?v=VIDEO_ID or Vimeo link"
+                        value={formUrl}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFormUrl(val);
+                          const ytMatch = val.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+                          if (ytMatch && ytMatch[1]) {
+                            setFormThumbnail(`https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`);
+                          }
+                        }}
+                        className="form-input"
+                        style={{ width: '100%', fontSize: '0.85rem', fontWeight: 700 }}
+                      />
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+                        💡 Paste any YouTube link. It is automatically converted into a responsive, mobile-friendly in-app player.
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1112,7 +1195,7 @@ export default function GalleryPage({ currentUser, setActivePage }) {
                 </button>
                 <button
                   type="submit"
-                  disabled={isCompressing}
+                  disabled={isUploading}
                   className="btn btn-primary"
                   style={{ padding: '0.55rem 1.4rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 >

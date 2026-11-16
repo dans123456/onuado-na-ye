@@ -25,6 +25,13 @@ constitution_text.txt
 *.njsproj
 *.sln
 *.sw?
+# Security keys
+*.key
+*.pem
+*.id_rsa
+id_rsa*
+*.pub
+
 # Scratch scripts
 scratch/
 ~$*
