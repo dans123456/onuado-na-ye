@@ -1436,7 +1436,7 @@ export const recalculateMemberFinancials = (member) => {
   member.shares_value = duesShares + vehSharesCount;
   member.shares_holding = member.shares_value + tBill;
   member.shares_dividends = member.shares_holding;
-  
+
   return member;
 };
 
@@ -2206,9 +2206,9 @@ export const getFellowshipDividendPool = (customTBItems = null) => {
       .filter(item => {
         const p = (item.particulars || '').toUpperCase().trim();
         return p === 'CASH IN FIDELITY BANK BALANCE' ||
-               p === 'CASH IN BANK TEMA BALANCE' ||
-               p === 'CASH IN MOMO ACCOUNT' ||
-               p === 'CASH MENT FOR VEHICLE';
+          p === 'CASH IN BANK TEMA BALANCE' ||
+          p === 'CASH IN MOMO ACCOUNT' ||
+          p === 'CASH MENT FOR VEHICLE';
       })
       .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
     return liquidAssets > 0 ? liquidAssets : 80153.10;
@@ -2274,7 +2274,7 @@ export const updateTrialBalanceItem = (id, updatedFields) => {
     if (item.id === id) {
       const newPart = updatedFields.particulars !== undefined ? updatedFields.particulars.toUpperCase().trim() : item.particulars;
       const newAmt = updatedFields.amount !== undefined ? (parseFloat(updatedFields.amount) || 0) : item.amount;
-      
+
       if (newPart === 'CASH IN MOMO ACCOUNT' || item.id === 'tb-asset-momo' || item.id === 'tb-20') {
         changedAssetKey = 'momo';
         newAssetAmount = newAmt;
@@ -2624,12 +2624,12 @@ export const resetTreasuryAccountToBaseline = (accountKey) => {
 
 export const addNewMember = (newMemberData) => {
   const members = getMembers();
-  
+
   // Calculate next member_no
   const maxNo = members.reduce((max, m) => Math.max(max, parseInt(m.member_no) || 0), 0);
   const nextNo = maxNo + 1;
   const excelId = `ONY-${String(nextNo).padStart(3, '0')}`;
-  
+
   const createdMember = {
     id: `m-${Date.now()}`,
     excel_member_id: excelId,
@@ -3166,6 +3166,156 @@ export const deleteGalleryMedia = (id) => {
 export const resetGalleryMediaToDefaults = () => {
   saveGalleryMedia(INITIAL_GALLERY_MEDIA);
   return INITIAL_GALLERY_MEDIA;
+};
+
+// ==========================================
+// 📁 ALBUM & KNOW YOUR MEMBERS API HELPERS
+// ==========================================
+
+export const fetchAlbumsFromServer = async ({ tab = 'all', branch = 'all', q = '' } = {}) => {
+  try {
+    const params = new URLSearchParams();
+    if (tab && tab !== 'all') params.set('tab', tab);
+    if (branch && branch !== 'all') params.set('branch', branch);
+    if (q && q.trim()) params.set('q', q.trim());
+    const res = await fetch(`${MEDIA_SERVER_URL}/api/albums?${params.toString()}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && Array.isArray(data.albums)) {
+        try {
+          localStorage.setItem('ony_fellowship_albums', JSON.stringify(data.albums));
+        } catch (_) {}
+        return data.albums;
+      }
+    }
+  } catch (err) {
+    console.warn('Failed fetching albums from server, using cache:', err);
+  }
+  try {
+    const cached = localStorage.getItem('ony_fellowship_albums');
+    if (cached) return JSON.parse(cached);
+  } catch (_) {}
+  return INITIAL_GALLERY_MEDIA.map((item, idx) => ({
+    id: item.id || `album_${idx}`,
+    title: item.title,
+    branch: item.branch,
+    date: item.date,
+    description: item.description,
+    category: item.category,
+    cover_media_id: `m_${idx}`,
+    media_count: 1,
+    media_type_summary: item.media_type === 'video' ? 'video' : 'photo',
+    is_featured: !!item.featured,
+    status: 'published',
+    created_by: item.uploaded_by,
+    items: [
+      {
+        id: `m_${idx}`,
+        type: item.media_type === 'video' ? 'video' : 'photo',
+        url: item.url,
+        embed_url: item.embed_url || '',
+        thumbnail_url: item.thumbnail_url || item.url,
+        order_in_album: 0,
+        album_id: item.id || `album_${idx}`
+      }
+    ]
+  }));
+};
+
+export const createAlbumOnServer = async (albumData) => {
+  const res = await fetch(`${MEDIA_SERVER_URL}/api/albums`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(albumData)
+  });
+  if (!res.ok) throw new Error('Failed to create album');
+  return res.json();
+};
+
+export const uploadMediaToAlbum = (albumId, file, orderInAlbum, onProgressBytes) => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('order_in_album', String(orderInAlbum ?? 0));
+
+    xhr.open('POST', `${MEDIA_SERVER_URL}/api/albums/${albumId}/media`, true);
+
+    if (xhr.upload && onProgressBytes) {
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          onProgressBytes(event.loaded, event.total);
+        }
+      };
+    }
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch (e) {
+          reject(new Error('Invalid JSON from media server'));
+        }
+      } else {
+        reject(new Error(`Upload failed (${xhr.status})`));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Network error during file upload'));
+    xhr.ontimeout = () => reject(new Error('Upload timed out'));
+    xhr.send(formData);
+  });
+};
+
+export const updateAlbumOnServer = async (albumId, fields) => {
+  const res = await fetch(`${MEDIA_SERVER_URL}/api/albums/${albumId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields)
+  });
+  if (!res.ok) throw new Error('Failed to update album');
+  return res.json();
+};
+
+export const deleteAlbumOnServer = async (albumId) => {
+  const res = await fetch(`${MEDIA_SERVER_URL}/api/albums/${albumId}`, {
+    method: 'DELETE'
+  });
+  if (!res.ok) throw new Error('Failed to delete album');
+  return res.json();
+};
+
+export const fetchMembersDirectoryFromServer = async ({ branch = 'all', q = '' } = {}) => {
+  try {
+    const params = new URLSearchParams();
+    if (branch && branch !== 'all') params.set('branch', branch);
+    if (q && q.trim()) params.set('q', q.trim());
+    const res = await fetch(`${MEDIA_SERVER_URL}/api/members?${params.toString()}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && Array.isArray(data.members)) return data.members;
+    }
+  } catch (err) {
+    console.warn('Failed fetching members directory:', err);
+  }
+  return [];
+};
+
+export const saveMemberDirectoryRecord = async (memberData, id = null) => {
+  const url = id ? `${MEDIA_SERVER_URL}/api/members/${id}` : `${MEDIA_SERVER_URL}/api/members`;
+  const method = id ? 'PATCH' : 'POST';
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(memberData)
+  });
+  if (!res.ok) throw new Error('Failed saving member record');
+  return res.json();
+};
+
+export const deleteMemberDirectoryRecord = async (id) => {
+  const res = await fetch(`${MEDIA_SERVER_URL}/api/members/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed deleting member record');
+  return res.json();
 };
 
 

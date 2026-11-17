@@ -1,1214 +1,1383 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Camera, Video, Play, Image as ImageIcon, Heart, Search, Filter, Plus, 
-  X, Check, Trash2, Edit3, Download, Share2, Calendar, MapPin, User, 
-  Sparkles, ExternalLink, ShieldCheck, CheckCircle2, RotateCcw, AlertCircle,
-  UploadCloud, Loader2
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import {
+  Camera, Video, Play, Image as ImageIcon, Search, Plus, X, Check, Trash2, Edit3,
+  Download, Calendar, MapPin, User, Sparkles, ShieldCheck, AlertCircle, UploadCloud,
+  Loader2, ChevronLeft, ChevronRight, Users, Layers, RefreshCw, Star, ArrowLeft, ArrowRight
 } from 'lucide-react';
-import { 
-  getGalleryMedia, addGalleryMedia, updateGalleryMedia, deleteGalleryMedia, 
-  resetGalleryMediaToDefaults, OFFICIAL_BRANCHES, parseVideoEmbedUrl,
-  uploadMediaFile, fetchGalleryMediaFromServer, MEDIA_SERVER_URL
+import {
+  OFFICIAL_BRANCHES,
+  parseVideoEmbedUrl,
+  uploadMediaFile,
+  fetchAlbumsFromServer,
+  createAlbumOnServer,
+  uploadMediaToAlbum,
+  updateAlbumOnServer,
+  deleteAlbumOnServer,
+  fetchMembersDirectoryFromServer,
+  saveMemberDirectoryRecord,
+  deleteMemberDirectoryRecord
 } from '../services/store';
 
-export default function GalleryPage({ currentUser, setActivePage }) {
-  const [mediaList, setMediaList] = useState(() => getGalleryMedia());
-  const [activeCategory, setActiveCategory] = useState('all'); // 'all', 'welfare_evidence', 'video', 'image', 'annual_conference', 'thanksgiving'
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedBranch, setSelectedBranch] = useState('all');
+const TABS = [
+  { id: 'all', label: 'All Media', icon: Sparkles },
+  { id: 'members', label: 'Know Your Members', icon: Users },
+  { id: 'photos', label: 'Photos', icon: ImageIcon },
+  { id: 'videos', label: 'Videos', icon: Video }
+];
 
-  // Modals
-  const [activeLightboxMedia, setActiveLightboxMedia] = useState(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingMedia, setEditingMedia] = useState(null);
-  const [copiedLink, setCopiedLink] = useState(false);
+const CATEGORIES = [
+  { id: 'welfare_evidence', label: '🤝 Welfare Hand-Over' },
+  { id: 'annual_conference', label: '⛪ Annual Conference' },
+  { id: 'general_meeting', label: '👥 Executive & General' },
+  { id: 'thanksgiving', label: '🌾 Thanksgiving & Praise' },
+  { id: 'executive_message', label: '📢 Executive Address' }
+];
 
-  // Form State for Adding / Editing Media
-  const [formType, setFormType] = useState('image'); // 'image' or 'video'
+function getInitialQueryParam(key, fallback) {
+  if (typeof window === 'undefined') return fallback;
+  const params = new URLSearchParams(window.location.search);
+  return params.get(key) || fallback;
+}
+
+export default function GalleryPage({ currentUser }) {
+  // Navigation & Filters (synced with URL query params)
+  const [activeTab, setActiveTab] = useState(() => {
+    const t = getInitialQueryParam('tab', 'all');
+    return TABS.some(x => x.id === t) ? t : 'all';
+  });
+  const [selectedBranch, setSelectedBranch] = useState(() => getInitialQueryParam('branch', 'all'));
+  const [searchQuery, setSearchQuery] = useState(() => getInitialQueryParam('q', ''));
+
+  // Data
+  const [albums, setAlbums] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [animKey, setAnimKey] = useState(0);
+  const [toast, setToast] = useState('');
+
+  // Album Lightbox
+  const [lightboxAlbum, setLightboxAlbum] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Member Profile Lightbox
+  const [lightboxMember, setLightboxMember] = useState(null);
+
+  // Admin Upload Modal (Single + Album)
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadMode, setUploadMode] = useState('album'); // 'single' | 'album'
+  const [editingAlbum, setEditingAlbum] = useState(null);
   const [formTitle, setFormTitle] = useState('');
-  const [formCategory, setFormCategory] = useState('welfare_evidence');
   const [formBranch, setFormBranch] = useState('Aburi');
   const [formDate, setFormDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [formCategory, setFormCategory] = useState('welfare_evidence');
   const [formDescription, setFormDescription] = useState('');
-  const [formUrl, setFormUrl] = useState('');
-  const [formThumbnail, setFormThumbnail] = useState('');
-  const [uploadMode, setUploadMode] = useState('file'); // 'file' or 'url'
+  const [formFeatured, setFormFeatured] = useState(false);
+  const [singleSourceType, setSingleSourceType] = useState('file'); // 'file' | 'url'
+  const [singleVideoUrl, setSingleVideoUrl] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]); // { id, file, previewUrl, type, status: 'pending'|'uploading'|'done'|'error', loaded, total, error }
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [formError, setFormError] = useState('');
-  const [successToast, setSuccessToast] = useState('');
+
+  // Admin Member Modal
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
+  const [memName, setMemName] = useState('');
+  const [memBranch, setMemBranch] = useState('Aburi');
+  const [memRole, setMemRole] = useState('Member');
+  const [memBio, setMemBio] = useState('');
+  const [memPhotoUrl, setMemPhotoUrl] = useState('');
+  const [isUploadingMemPhoto, setIsUploadingMemPhoto] = useState(false);
 
   const fileInputRef = useRef(null);
-  const videoFileInputRef = useRef(null);
+  const memPhotoInputRef = useRef(null);
 
-  const isAdmin = currentUser?.role === 'admin' || (typeof window !== 'undefined' && !!sessionStorage.getItem('ony_impersonated_by'));
+  const isAdmin =
+    currentUser?.role === 'admin' ||
+    (typeof window !== 'undefined' && !!sessionStorage.getItem('ony_impersonated_by'));
 
-  // Sync with dedicated Oracle Cloud Media Server on mount
+  // Sync URL query params
   useEffect(() => {
-    fetchGalleryMediaFromServer().then(items => {
-      if (items && Array.isArray(items) && items.length > 0) {
-        setMediaList(items);
-      }
-    });
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', activeTab);
+    if (selectedBranch !== 'all') params.set('branch', selectedBranch);
+    else params.delete('branch');
+    if (searchQuery.trim()) params.set('q', searchQuery.trim());
+    else params.delete('q');
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+  }, [activeTab, selectedBranch, searchQuery]);
+
+  // Load Albums & Members
+  const loadData = async () => {
+    setIsLoading(true);
+    const [fetchedAlbums, fetchedMembers] = await Promise.all([
+      fetchAlbumsFromServer(),
+      fetchMembersDirectoryFromServer()
+    ]);
+    setAlbums(fetchedAlbums || []);
+    setMembers(fetchedMembers || []);
+    setIsLoading(false);
+    setAnimKey(k => k + 1);
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
-  // Listen for live updates across tabs / components
-  useEffect(() => {
-    const handleGalleryUpdate = () => {
-      setMediaList(getGalleryMedia());
-    };
-    window.addEventListener('ony_gallery_updated', handleGalleryUpdate);
-    return () => window.removeEventListener('ony_gallery_updated', handleGalleryUpdate);
-  }, []);
+  // Re-trigger stagger animation on tab/filter change
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    setAnimKey(k => k + 1);
+  };
 
-  // Keyboard navigation for lightbox
+  // Filtered Albums
+  const filteredAlbums = useMemo(() => {
+    let list = [...albums];
+    if (activeTab === 'photos') {
+      list = list.filter(a => a.media_type_summary === 'photo' || a.media_type_summary === 'mixed');
+    } else if (activeTab === 'videos') {
+      list = list.filter(a => a.media_type_summary === 'video' || a.media_type_summary === 'mixed');
+    }
+
+    if (selectedBranch !== 'all') {
+      list = list.filter(a => (a.branch || '').toLowerCase().includes(selectedBranch.toLowerCase()));
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter(
+        a =>
+          (a.title || '').toLowerCase().includes(q) ||
+          (a.branch || '').toLowerCase().includes(q) ||
+          (a.description || '').toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [albums, activeTab, selectedBranch, searchQuery]);
+
+  // Filtered Members
+  const filteredMembers = useMemo(() => {
+    let list = [...members];
+    if (selectedBranch !== 'all') {
+      list = list.filter(m => (m.branch || '').toLowerCase().includes(selectedBranch.toLowerCase()));
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter(
+        m =>
+          (m.name || '').toLowerCase().includes(q) ||
+          (m.role || '').toLowerCase().includes(q) ||
+          (m.branch || '').toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [members, selectedBranch, searchQuery]);
+
+  // Featured Album for Hero Spotlight
+  const featuredAlbum = useMemo(() => {
+    const pool = activeTab === 'all' ? albums : filteredAlbums;
+    return pool.find(a => a.is_featured) || pool[0] || null;
+  }, [albums, filteredAlbums, activeTab]);
+
+  // Keyboard navigation for Lightbox
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const onKeyDown = (e) => {
       if (e.key === 'Escape') {
-        setActiveLightboxMedia(null);
-        setIsAddModalOpen(false);
+        setLightboxAlbum(null);
+        setLightboxMember(null);
+        if (!isUploading) setIsUploadModalOpen(false);
+        setIsMemberModalOpen(false);
+      }
+      if (lightboxAlbum && lightboxAlbum.items?.length > 1) {
+        if (e.key === 'ArrowRight') {
+          setLightboxIndex(i => (i + 1) % lightboxAlbum.items.length);
+        } else if (e.key === 'ArrowLeft') {
+          setLightboxIndex(i => (i - 1 + lightboxAlbum.items.length) % lightboxAlbum.items.length);
+        }
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [lightboxAlbum, isUploading]);
 
-  // Direct File Upload to Oracle Cloud Media Server
-  const handleMediaUpload = async (e, type = 'image') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3500);
+  };
 
-    if (type === 'image' && !file.type.startsWith('image/')) {
-      setFormError('Please select a valid image file (JPG, PNG, WebP, GIF).');
+  // ==========================================
+  // UPLOAD MODAL HANDLERS (Single + Album)
+  // ==========================================
+  const openCreateModal = () => {
+    setEditingAlbum(null);
+    setUploadMode('album');
+    setFormTitle('');
+    setFormBranch('Aburi');
+    setFormDate(new Date().toISOString().split('T')[0]);
+    setFormCategory('welfare_evidence');
+    setFormDescription('');
+    setFormFeatured(false);
+    setSingleSourceType('file');
+    setSingleVideoUrl('');
+    setSelectedFiles([]);
+    setFormError('');
+    setIsUploadModalOpen(true);
+  };
+
+  const openEditAlbumModal = (album, e) => {
+    e.stopPropagation();
+    setEditingAlbum(album);
+    setFormTitle(album.title || '');
+    setFormBranch(album.branch || 'Aburi');
+    setFormDate(album.date || new Date().toISOString().split('T')[0]);
+    setFormCategory(album.category || 'welfare_evidence');
+    setFormDescription(album.description || '');
+    setFormFeatured(!!album.is_featured);
+    setSelectedFiles([]);
+    setFormError('');
+    setIsUploadModalOpen(true);
+  };
+
+  const handleFilesSelected = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const mapped = files.map((file, idx) => {
+      const isVideo =
+        file.type.startsWith('video/') ||
+        ['.mp4', '.mov', '.webm', '.mkv', '.avi'].some(ext => file.name.toLowerCase().endsWith(ext));
+      return {
+        id: `f_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 6)}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+        type: isVideo ? 'video' : 'photo',
+        status: 'pending',
+        loaded: 0,
+        total: file.size || 1,
+        error: ''
+      };
+    });
+
+    if (uploadMode === 'single') {
+      setSelectedFiles([mapped[0]]);
+    } else {
+      setSelectedFiles(prev => [...prev, ...mapped]);
+    }
+    setFormError('');
+  };
+
+  const removeSelectedFile = (id) => {
+    setSelectedFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const moveSelectedFile = (index, direction) => {
+    setSelectedFiles(prev => {
+      const copy = [...prev];
+      const target = index + direction;
+      if (target < 0 || target >= copy.length) return copy;
+      const temp = copy[index];
+      copy[index] = copy[target];
+      copy[target] = temp;
+      return copy;
+    });
+  };
+
+  // Parallel upload with concurrency cap of 4
+  const runParallelUploads = async (albumId, filesToUpload) => {
+    const concurrency = 4;
+    let cursor = 0;
+
+    const worker = async () => {
+      while (cursor < filesToUpload.length) {
+        const idx = cursor++;
+        const item = filesToUpload[idx];
+        const orderIndex = selectedFiles.findIndex(f => f.id === item.id);
+
+        setSelectedFiles(prev =>
+          prev.map(f => (f.id === item.id ? { ...f, status: 'uploading', error: '' } : f))
+        );
+
+        try {
+          await uploadMediaToAlbum(albumId, item.file, orderIndex >= 0 ? orderIndex : idx, (loaded, total) => {
+            setSelectedFiles(prev =>
+              prev.map(f => (f.id === item.id ? { ...f, loaded, total } : f))
+            );
+          });
+          setSelectedFiles(prev =>
+            prev.map(f => (f.id === item.id ? { ...f, status: 'done', loaded: f.total } : f))
+          );
+        } catch (err) {
+          setSelectedFiles(prev =>
+            prev.map(f =>
+              f.id === item.id ? { ...f, status: 'error', error: err.message || 'Upload failed' } : f
+            )
+          );
+        }
+      }
+    };
+
+    const workers = Array.from({ length: Math.min(concurrency, filesToUpload.length) }, () => worker());
+    await Promise.all(workers);
+  };
+
+  const handleSubmitAlbum = async (e) => {
+    e.preventDefault();
+    if (!formTitle.trim()) {
+      setFormError('Please enter a Title / Occasion Name.');
       return;
     }
 
-    if (type === 'video') {
-      const isVideoFile = file.type.startsWith('video/') || 
-        ['.mp4', '.mov', '.webm', '.mkv', '.avi'].some(ext => file.name.toLowerCase().endsWith(ext));
-      if (!isVideoFile) {
-        setFormError('Please select a valid video file (MP4, MOV, WebM).');
-        return;
+    // Editing existing album metadata
+    if (editingAlbum) {
+      try {
+        setIsUploading(true);
+        await updateAlbumOnServer(editingAlbum.id, {
+          title: formTitle,
+          branch: formBranch,
+          date: formDate,
+          category: formCategory,
+          description: formDescription,
+          is_featured: formFeatured
+        });
+        await loadData();
+        setIsUploadModalOpen(false);
+        showToast('✅ Album updated successfully!');
+      } catch (err) {
+        setFormError(err.message || 'Failed to update album.');
+      } finally {
+        setIsUploading(false);
       }
+      return;
     }
 
-    if (file.size > 500 * 1024 * 1024) {
-      setFormError('File exceeds 500MB server limit.');
+    // Single YouTube / External Video Link
+    if (uploadMode === 'single' && singleSourceType === 'url') {
+      if (!singleVideoUrl.trim()) {
+        setFormError('Please paste a YouTube, Vimeo, or video URL.');
+        return;
+      }
+      try {
+        setIsUploading(true);
+        const embed = parseVideoEmbedUrl(singleVideoUrl);
+        const ytMatch = singleVideoUrl.match(
+          /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i
+        );
+        const thumb = ytMatch?.[1]
+          ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`
+          : 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=600&q=80';
+
+        await createAlbumOnServer({
+          title: formTitle,
+          branch: formBranch,
+          date: formDate,
+          category: formCategory,
+          description: formDescription,
+          is_featured: formFeatured,
+          created_by: currentUser?.full_name || 'Executive Board',
+          items: [
+            {
+              type: 'video',
+              url: singleVideoUrl.trim(),
+              embed_url: embed,
+              thumbnail_url: thumb,
+              order_in_album: 0
+            }
+          ]
+        });
+        await loadData();
+        setIsUploadModalOpen(false);
+        showToast('✅ Video published to Gallery!');
+      } catch (err) {
+        setFormError(err.message || 'Failed publishing video.');
+      } finally {
+        setIsUploading(false);
+      }
+      return;
+    }
+
+    // File Upload (Single or Album)
+    if (selectedFiles.length === 0) {
+      setFormError('Please select at least one photo or video file.');
       return;
     }
 
     setIsUploading(true);
-    setUploadProgress(0);
     setFormError('');
 
     try {
-      const res = await uploadMediaFile(file, (percent) => {
-        setUploadProgress(percent);
+      const created = await createAlbumOnServer({
+        title: formTitle,
+        branch: formBranch,
+        date: formDate,
+        category: formCategory,
+        description: formDescription,
+        is_featured: formFeatured,
+        created_by: currentUser?.full_name || 'Executive Board',
+        items: []
       });
 
-      if (res && res.success && res.url) {
-        setFormUrl(res.url);
-        if (type === 'image') {
-          setFormThumbnail(res.url);
-        } else {
-          setFormThumbnail('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=600&q=80');
-        }
-      } else {
-        setFormError('Failed to get uploaded file URL from media server.');
-      }
+      const albumId = created.album.id;
+      await runParallelUploads(albumId, selectedFiles);
+
+      await loadData();
+      setIsUploadModalOpen(false);
+      showToast(`✅ Published "${formTitle}" (${selectedFiles.length} item${selectedFiles.length > 1 ? 's' : ''})!`);
     } catch (err) {
-      console.error('Media upload error:', err);
-      setFormError(err.message || 'Error uploading file to media server.');
+      setFormError(err.message || 'Error uploading album.');
     } finally {
       setIsUploading(false);
-      setUploadProgress(0);
     }
   };
 
-  const openAddModal = () => {
-    setEditingMedia(null);
-    setFormType('image');
-    setFormTitle('');
-    setFormCategory('welfare_evidence');
-    setFormBranch('Aburi');
-    setFormDate(new Date().toISOString().split('T')[0]);
-    setFormDescription('');
-    setFormUrl('');
-    setFormThumbnail('');
-    setUploadMode('file');
-    setFormError('');
-    setIsUploading(false);
-    setUploadProgress(0);
-    setIsAddModalOpen(true);
+  const handleDeleteAlbum = async (album, e) => {
+    e.stopPropagation();
+    if (!window.confirm(`Delete "${album.title}" and all ${album.media_count} item(s) inside it?`)) return;
+    try {
+      await deleteAlbumOnServer(album.id);
+      await loadData();
+      if (lightboxAlbum?.id === album.id) setLightboxAlbum(null);
+      showToast('🗑️ Album deleted.');
+    } catch (err) {
+      showToast('❌ Failed to delete album.');
+    }
   };
 
-  const openEditModal = (item) => {
-    setEditingMedia(item);
-    setFormType(item.media_type || 'image');
-    setFormTitle(item.title || '');
-    setFormCategory(item.category || 'general_meeting');
-    setFormBranch(item.branch || 'Aburi');
-    setFormDate(item.date || new Date().toISOString().split('T')[0]);
-    setFormDescription(item.description || '');
-    setFormUrl(item.url || '');
-    setFormThumbnail(item.thumbnail_url || '');
-    setUploadMode('url');
-    setFormError('');
-    setIsUploading(false);
-    setUploadProgress(0);
-    setIsAddModalOpen(true);
+  // Aggregate byte progress
+  const totalBytes = selectedFiles.reduce((acc, f) => acc + (f.total || 0), 0);
+  const loadedBytes = selectedFiles.reduce((acc, f) => acc + (f.loaded || 0), 0);
+  const aggregatePercent = totalBytes > 0 ? Math.min(100, Math.round((loadedBytes / totalBytes) * 100)) : 0;
+
+  // ==========================================
+  // MEMBER DIRECTORY HANDLERS
+  // ==========================================
+  const openAddMember = () => {
+    setEditingMember(null);
+    setMemName('');
+    setMemBranch('Aburi');
+    setMemRole('Member');
+    setMemBio('');
+    setMemPhotoUrl('');
+    setIsMemberModalOpen(true);
   };
 
-  const handleSaveMedia = (e) => {
+  const openEditMember = (m, e) => {
+    e.stopPropagation();
+    setEditingMember(m);
+    setMemName(m.name || '');
+    setMemBranch(m.branch || 'Aburi');
+    setMemRole(m.role || 'Member');
+    setMemBio(m.bio || '');
+    setMemPhotoUrl(m.photo_url || '');
+    setIsMemberModalOpen(true);
+  };
+
+  const handleMemberPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingMemPhoto(true);
+    try {
+      const res = await uploadMediaFile(file);
+      if (res?.success && res.url) setMemPhotoUrl(res.url);
+    } catch (err) {
+      alert('Failed uploading member photo.');
+    } finally {
+      setIsUploadingMemPhoto(false);
+    }
+  };
+
+  const handleSaveMember = async (e) => {
     e.preventDefault();
-    if (!formTitle.trim()) {
-      setFormError('Please enter a title for this fellowship moment.');
-      return;
-    }
-    if (!formUrl.trim()) {
-      setFormError(formType === 'image' ? 'Please upload or provide an image URL.' : 'Please provide a video URL.');
-      return;
-    }
-
-    if (editingMedia) {
-      updateGalleryMedia(editingMedia.id, {
-        title: formTitle,
-        category: formCategory,
-        branch: formBranch,
-        date: formDate,
-        description: formDescription,
-        media_type: formType,
-        url: formUrl,
-        thumbnail_url: formThumbnail || (formType === 'image' ? formUrl : '')
-      });
-      setSuccessToast('✅ Fellowship media entry updated successfully!');
-    } else {
-      addGalleryMedia({
-        title: formTitle,
-        category: formCategory,
-        branch: formBranch,
-        date: formDate,
-        description: formDescription,
-        media_type: formType,
-        url: formUrl,
-        thumbnail_url: formThumbnail || (formType === 'image' ? formUrl : ''),
-        uploaded_by: currentUser?.full_name || 'Executive Secretary'
-      });
-      setSuccessToast('✅ New fellowship moment added to the gallery!');
-    }
-
-    setMediaList(getGalleryMedia());
-    setIsAddModalOpen(false);
-    setTimeout(() => setSuccessToast(''), 3500);
+    if (!memName.trim()) return;
+    await saveMemberDirectoryRecord(
+      { name: memName, branch: memBranch, role: memRole, bio: memBio, photo_url: memPhotoUrl },
+      editingMember?.id || null
+    );
+    await loadData();
+    setIsMemberModalOpen(false);
+    showToast(editingMember ? '✅ Member updated!' : '✅ Member added to directory!');
   };
 
-  const handleDeleteMedia = (id, title) => {
-    if (window.confirm(`Are you sure you want to remove "${title}" from the fellowship gallery?`)) {
-      deleteGalleryMedia(id);
-      setMediaList(getGalleryMedia());
-      if (activeLightboxMedia?.id === id) {
-        setActiveLightboxMedia(null);
-      }
-      setSuccessToast('🗑️ Media item deleted.');
-      setTimeout(() => setSuccessToast(''), 3000);
-    }
+  const handleDeleteMember = async (m, e) => {
+    e.stopPropagation();
+    if (!window.confirm(`Remove ${m.name} from Know Your Members?`)) return;
+    await deleteMemberDirectoryRecord(m.id);
+    await loadData();
+    showToast('🗑️ Member removed.');
   };
 
-  const handleResetDefaults = () => {
-    if (window.confirm('Reset gallery to default verified fellowship moments?')) {
-      resetGalleryMediaToDefaults();
-      setMediaList(getGalleryMedia());
-      setSuccessToast('Restored initial fellowship gallery.');
-      setTimeout(() => setSuccessToast(''), 3000);
-    }
+  const getCoverUrl = (album) => {
+    if (!album?.items?.length) return 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80';
+    const cover = album.items.find(i => i.id === album.cover_media_id) || album.items[0];
+    return cover.thumbnail_url || cover.url;
   };
 
-  // Filtered Media List
-  const filteredMedia = mediaList.filter(item => {
-    // Category match
-    if (activeCategory === 'video' && item.media_type !== 'video') return false;
-    if (activeCategory === 'image' && item.media_type !== 'image') return false;
-    if (activeCategory !== 'all' && activeCategory !== 'video' && activeCategory !== 'image') {
-      if (item.category !== activeCategory) return false;
-    }
-
-    // Branch match
-    if (selectedBranch !== 'all' && item.branch !== selectedBranch) return false;
-
-    // Search query match
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const matchTitle = item.title?.toLowerCase().includes(q);
-      const matchDesc = item.description?.toLowerCase().includes(q);
-      const matchBranch = item.branch?.toLowerCase().includes(q);
-      const matchUploadedBy = item.uploaded_by?.toLowerCase().includes(q);
-      if (!matchTitle && !matchDesc && !matchBranch && !matchUploadedBy) return false;
-    }
-
-    return true;
-  });
-
-  const getCategoryBadge = (cat) => {
-    switch (cat) {
-      case 'welfare_evidence':
-        return { label: '🤝 Welfare Hand-Over', bg: 'rgba(5, 150, 105, 0.12)', color: '#059669', border: 'rgba(5, 150, 105, 0.3)' };
-      case 'annual_conference':
-        return { label: '⛪ Annual Conference', bg: 'rgba(37, 99, 235, 0.12)', color: '#2563eb', border: 'rgba(37, 99, 235, 0.3)' };
-      case 'general_meeting':
-        return { label: '👥 Executive & General', bg: 'rgba(124, 58, 237, 0.12)', color: '#7c3aed', border: 'rgba(124, 58, 237, 0.3)' };
-      case 'thanksgiving':
-        return { label: '🌾 Thanksgiving & Praise', bg: 'rgba(217, 119, 6, 0.12)', color: '#d97706', border: 'rgba(217, 119, 6, 0.3)' };
-      case 'executive_message':
-        return { label: '📢 Executive Address', bg: 'rgba(220, 38, 38, 0.12)', color: '#dc2626', border: 'rgba(220, 38, 38, 0.3)' };
-      default:
-        return { label: '📸 Fellowship Life', bg: 'rgba(100, 116, 139, 0.12)', color: 'var(--text-muted)', border: 'var(--border-color)' };
-    }
+  const getCountBadge = (album) => {
+    if (!album || album.media_count <= 1) return null;
+    if (album.media_type_summary === 'mixed') return `📸🎥 ${album.media_count} Items`;
+    if (album.media_type_summary === 'video') return `🎥 ${album.media_count} Videos`;
+    return `📸 ${album.media_count} Photos`;
   };
-
-  const copyToClipboard = (text) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    }
-  };
-
-  const photoCount = mediaList.filter(m => m.media_type === 'image').length;
-  const videoCount = mediaList.filter(m => m.media_type === 'video').length;
 
   return (
-    <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '1.5rem 1rem 4rem' }}>
+    <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
+      <style>{`
+        @keyframes galleryFadeUp {
+          from { opacity: 0; transform: translateY(18px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes heroSlowZoom {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.07); }
+          100% { transform: scale(1); }
+        }
+        @keyframes shimmerPulse {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .gallery-card-reveal {
+          animation: galleryFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .hero-zoom-img {
+          animation: heroSlowZoom 22s ease-in-out infinite;
+        }
+        .gallery-card-media {
+          transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .gallery-card:hover .gallery-card-media {
+          transform: scale(1.05);
+        }
+        .gallery-card-pill {
+          opacity: 0;
+          transform: translateY(6px);
+          transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .gallery-card:hover .gallery-card-pill {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .skeleton-box {
+          background: linear-gradient(90deg, rgba(148,163,184,0.12) 25%, rgba(148,163,184,0.24) 50%, rgba(148,163,184,0.12) 75%);
+          background-size: 200% 100%;
+          animation: shimmerPulse 1.5s infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .gallery-card-reveal, .hero-zoom-img {
+            animation: none !important;
+          }
+          .gallery-card-media, .gallery-card-pill {
+            transition: none !important;
+          }
+        }
+      `}</style>
 
-      {/* Success Toast Notification */}
-      {successToast && (
-        <div style={{ 
-          position: 'fixed', 
-          bottom: '24px', 
-          right: '24px', 
-          zIndex: 99999, 
-          background: '#064e3b', 
-          color: '#ffffff', 
-          padding: '0.85rem 1.4rem', 
-          borderRadius: '12px', 
-          fontWeight: 800, 
-          boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.65rem'
-        }}>
-          <CheckCircle2 size={18} color="#34d399" /> {successToast}
+      {/* Toast */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 999999,
+            background: '#059669',
+            color: '#fff',
+            padding: '0.75rem 1.25rem',
+            borderRadius: '12px',
+            fontWeight: 800,
+            fontSize: '0.88rem',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+          }}
+        >
+          {toast}
         </div>
       )}
 
-      {/* Hero Banner Header */}
-      <div 
-        className="glass-card" 
-        style={{ 
-          padding: '2.5rem 1.75rem', 
-          borderRadius: '20px', 
-          marginBottom: '2rem',
-          background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(37, 99, 235, 0.08), rgba(217, 119, 6, 0.06))',
-          border: '1.5px solid rgba(5, 150, 105, 0.25)',
-          position: 'relative',
-          overflow: 'hidden'
+      {/* ========================================================= */}
+      {/* 1. EDITORIAL HEADER & 4-TAB PRIMARY NAVIGATION           */}
+      {/* ========================================================= */}
+      <div
+        style={{
+          background: 'var(--bg-card)',
+          borderBottom: '1px solid var(--border-color)',
+          padding: '1.75rem 1.25rem 1.25rem'
         }}
       >
-        <div style={{ maxWidth: '780px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(5, 150, 105, 0.15)', color: '#059669', padding: '0.3rem 0.85rem', borderRadius: '30px', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.85rem' }}>
-            <Sparkles size={14} /> Fellowship Life & Welfare Evidence
-          </div>
-
-          <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 900, lineHeight: 1.15, margin: '0 0 0.85rem', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
-            📸 Fellowship Media & Video Hub
-          </h1>
-
-          <p style={{ fontSize: '1rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
-            Visual testimonies of brotherly love, annual conferences, welfare grant hand-overs, and video addresses across all <strong>16 branches</strong> of Onuado Na Ye Men's Fellowship.
-          </p>
-
-          {/* Quick Metrics Bar */}
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', background: 'var(--bg-main)', padding: '0.4rem 0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-              <ImageIcon size={16} color="#059669" /> {photoCount} Photos
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', background: 'var(--bg-main)', padding: '0.4rem 0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-              <Video size={16} color="#dc2626" /> {videoCount} Video Recordings
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', background: 'var(--bg-main)', padding: '0.4rem 0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-              <MapPin size={16} color="#d97706" /> 16 Branches Covered
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+                <Sparkles size={14} /> Onuado Na Eye Men's Fellowship
+              </div>
+              <h1 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.25rem)', fontWeight: 900, margin: 0, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
+                Fellowship Media Showcase
+              </h1>
             </div>
 
             {isAdmin && (
-              <button
-                onClick={openAddModal}
-                className="btn btn-primary"
-                style={{ 
-                  padding: '0.5rem 1.15rem', 
-                  fontSize: '0.85rem', 
-                  fontWeight: 800, 
-                  background: 'linear-gradient(135deg, #059669, #065f46)', 
-                  borderColor: '#059669', 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '0.45rem',
-                  boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)',
-                  marginLeft: 'auto'
-                }}
-              >
-                <Plus size={16} /> ➕ Upload Photo / Add Video
-              </button>
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                {activeTab === 'members' ? (
+                  <button
+                    onClick={openAddMember}
+                    className="btn btn-primary"
+                    style={{
+                      padding: '0.6rem 1.2rem',
+                      fontSize: '0.85rem',
+                      fontWeight: 800,
+                      background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                      borderColor: '#2563eb',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.45rem'
+                    }}
+                  >
+                    <Plus size={16} /> Add Member
+                  </button>
+                ) : (
+                  <button
+                    onClick={openCreateModal}
+                    className="btn btn-primary"
+                    style={{
+                      padding: '0.6rem 1.25rem',
+                      fontSize: '0.85rem',
+                      fontWeight: 800,
+                      background: 'linear-gradient(135deg, #059669, #065f46)',
+                      borderColor: '#059669',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.45rem',
+                      boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)'
+                    }}
+                  >
+                    <Plus size={16} /> Upload Photo / Video
+                  </button>
+                )}
+              </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Filter Tabs & Search Controls */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
-        
-        {/* Category Pill Tabs */}
-        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.4rem', WebkitOverflowScrolling: 'touch' }}>
-          {[
-            { id: 'all', label: 'All Media', icon: Sparkles },
-            { id: 'welfare_evidence', label: '🤝 Welfare Hand-Overs', icon: Heart },
-            { id: 'video', label: '🎥 Videos & Addresses', icon: Video },
-            { id: 'image', label: '📸 Photos Gallery', icon: ImageIcon },
-            { id: 'annual_conference', label: '⛪ Annual Conferences', icon: Calendar },
-            { id: 'thanksgiving', label: '🌾 Thanksgiving & Praise', icon: Sparkles }
-          ].map(tab => {
-            const isActive = activeCategory === tab.id;
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveCategory(tab.id)}
-                style={{
-                  padding: '0.5rem 1rem',
-                  borderRadius: '30px',
-                  fontSize: '0.82rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  border: isActive ? '1.5px solid #059669' : '1px solid var(--border-color)',
-                  background: isActive ? '#059669' : 'var(--bg-main)',
-                  color: isActive ? '#ffffff' : 'var(--text-main)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  whiteSpace: 'nowrap',
-                  boxShadow: isActive ? '0 4px 12px rgba(5, 150, 105, 0.25)' : 'none',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Icon size={14} /> {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search & Branch Select Row */}
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
-            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input 
-              type="text"
-              placeholder="Search by title, event, elder, or branch..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="form-input"
-              style={{ width: '100%', paddingLeft: '2.4rem', fontSize: '0.85rem' }}
-            />
-          </div>
-
-          <select
-            value={selectedBranch}
-            onChange={(e) => setSelectedBranch(e.target.value)}
-            className="form-select"
-            style={{ width: 'auto', minWidth: '170px', fontSize: '0.85rem', fontWeight: 700 }}
+          {/* 4-Tab Primary Navigation */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+              marginTop: '1.35rem',
+              overflowX: 'auto',
+              paddingBottom: '0.25rem',
+              scrollbarWidth: 'none'
+            }}
           >
-            <option value="all">📍 All 16 Branches</option>
-            {OFFICIAL_BRANCHES.map(b => (
-              <option key={b} value={b}>{b} Branch</option>
-            ))}
-          </select>
-
-          {isAdmin && (
-            <button
-              onClick={handleResetDefaults}
-              className="btn btn-secondary"
-              title="Reset gallery to default fellowship photos"
-              style={{ padding: '0.5rem 0.85rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}
-            >
-              <RotateCcw size={14} /> Reset
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Media Grid */}
-      {filteredMedia.length === 0 ? (
-        <div className="glass-card" style={{ padding: '4rem 1.5rem', textAlign: 'center', borderRadius: '16px' }}>
-          <ImageIcon size={48} color="var(--text-muted)" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem', color: 'var(--text-main)' }}>
-            No fellowship media found
-          </h3>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '400px', margin: '0 auto 1.5rem' }}>
-            Try clearing your search query or switching category filters to see all fellowship pictures and videos.
-          </p>
-          <button 
-            onClick={() => { setActiveCategory('all'); setSearchQuery(''); setSelectedBranch('all'); }} 
-            className="btn btn-secondary"
-          >
-            View All Media
-          </button>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-          {filteredMedia.map((item) => {
-            const badge = getCategoryBadge(item.category);
-            const isVideo = item.media_type === 'video';
-
-            return (
-              <div 
-                key={item.id}
-                className="glass-card"
-                style={{ 
-                  borderRadius: '16px', 
-                  overflow: 'hidden', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  border: '1px solid var(--border-color)',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                  background: 'var(--bg-main)'
-                }}
-              >
-                {/* Media Preview Container */}
-                <div 
-                  onClick={() => setActiveLightboxMedia(item)}
-                  style={{ 
-                    position: 'relative', 
-                    width: '100%', 
-                    paddingTop: '56.25%', // 16:9 Aspect Ratio
-                    background: '#0f172a', 
+            {TABS.map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    padding: '0.6rem 1.15rem',
+                    borderRadius: '999px',
+                    fontSize: '0.86rem',
+                    fontWeight: 800,
+                    whiteSpace: 'nowrap',
                     cursor: 'pointer',
-                    overflow: 'hidden'
+                    border: isActive ? '1.5px solid #059669' : '1px solid var(--border-color)',
+                    background: isActive ? '#059669' : 'var(--bg-main)',
+                    color: isActive ? '#fff' : 'var(--text-main)',
+                    transition: 'all 0.2s ease',
+                    boxShadow: isActive ? '0 4px 12px rgba(5, 150, 105, 0.28)' : 'none'
                   }}
                 >
-                  <img 
-                    src={item.thumbnail_url || item.url} 
-                    alt={item.title}
-                    style={{ 
-                      position: 'absolute', 
-                      top: 0, 
-                      left: 0, 
-                      width: '100%', 
-                      height: '100%', 
-                      objectFit: 'cover',
-                      transition: 'transform 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80';
-                    }}
-                  />
+                  <Icon size={15} /> {tab.label}
+                </button>
+              );
+            })}
+          </div>
 
-                  {/* Top Badges */}
-                  <div style={{ position: 'absolute', top: '12px', left: '12px', right: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', pointerEvents: 'none' }}>
-                    <span 
-                      style={{ 
-                        fontSize: '0.7rem', 
-                        fontWeight: 800, 
-                        padding: '0.25rem 0.65rem', 
-                        borderRadius: '20px', 
-                        background: 'rgba(15, 23, 42, 0.85)', 
-                        color: badge.color, 
-                        border: `1px solid ${badge.border}`,
-                        backdropFilter: 'blur(4px)',
-                        pointerEvents: 'auto'
-                      }}
-                    >
-                      {badge.label}
+          {/* Secondary Compact Row: Branch Filter + Search */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.75rem',
+              marginTop: '1rem',
+              flexWrap: 'wrap',
+              alignItems: 'center'
+            }}
+          >
+            <div style={{ position: 'relative', flex: '1 1 240px', maxWidth: '420px' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                placeholder={activeTab === 'members' ? 'Search member name, role, or branch...' : 'Search occasion, title, or branch...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="form-input"
+                style={{ width: '100%', paddingLeft: '2.3rem', fontSize: '0.84rem', borderRadius: '10px' }}
+              />
+            </div>
+
+            <select
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(e.target.value)}
+              className="form-select"
+              style={{ width: 'auto', minWidth: '180px', fontSize: '0.84rem', fontWeight: 700, borderRadius: '10px' }}
+            >
+              <option value="all">📍 All 16 Branches</option>
+              {OFFICIAL_BRANCHES.map(b => (
+                <option key={b} value={b}>{b} Branch</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================= */}
+      {/* 2. MAIN CONTENT CONTAINER                                 */}
+      {/* ========================================================= */}
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.75rem 1.25rem 0' }}>
+        {activeTab !== 'members' ? (
+          <>
+            {/* FEATURED SPOTLIGHT HERO */}
+            {!isLoading && featuredAlbum && !searchQuery.trim() && selectedBranch === 'all' && (
+              <div
+                onClick={() => {
+                  setLightboxAlbum(featuredAlbum);
+                  setLightboxIndex(0);
+                }}
+                style={{
+                  position: 'relative',
+                  borderRadius: '22px',
+                  overflow: 'hidden',
+                  height: 'clamp(280px, 42vw, 420px)',
+                  marginBottom: '2rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 20px 45px rgba(0,0,0,0.22)'
+                }}
+              >
+                <img
+                  src={getCoverUrl(featuredAlbum)}
+                  alt={featuredAlbum.title}
+                  className="hero-zoom-img"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(to top, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.45) 55%, rgba(15, 23, 42, 0.15) 100%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-end',
+                    padding: 'clamp(1.25rem, 3vw, 2.5rem)'
+                  }}
+                >
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.65rem', flexWrap: 'wrap' }}>
+                    <span style={{ background: '#059669', color: '#fff', fontSize: '0.72rem', fontWeight: 900, padding: '0.25rem 0.7rem', borderRadius: '999px', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <Star size={12} fill="#fff" /> FEATURED HIGHLIGHT
                     </span>
-
-                    {isVideo && (
-                      <span 
-                        style={{ 
-                          fontSize: '0.7rem', 
-                          fontWeight: 900, 
-                          padding: '0.2rem 0.55rem', 
-                          borderRadius: '6px', 
-                          background: '#dc2626', 
-                          color: '#fff',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.25rem'
-                        }}
-                      >
-                        <Play size={10} fill="#fff" /> VIDEO
+                    {getCountBadge(featuredAlbum) && (
+                      <span style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '0.25rem 0.7rem', borderRadius: '999px' }}>
+                        {getCountBadge(featuredAlbum)}
                       </span>
                     )}
                   </div>
-
-                  {/* Play Button Overlay for Videos */}
-                  {isVideo && (
-                    <div 
-                      style={{ 
-                        position: 'absolute', 
-                        inset: 0, 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        background: 'rgba(0,0,0,0.3)' 
+                  <h2 style={{ color: '#fff', fontSize: 'clamp(1.35rem, 3vw, 2.1rem)', fontWeight: 900, margin: '0 0 0.4rem', maxWidth: '780px', lineHeight: 1.2 }}>
+                    {featuredAlbum.title}
+                  </h2>
+                  <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: '0.9rem', margin: '0 0 1rem', maxWidth: '640px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {featuredAlbum.description}
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                    <span
+                      style={{
+                        background: '#fff',
+                        color: '#0f172a',
+                        padding: '0.55rem 1.2rem',
+                        borderRadius: '999px',
+                        fontSize: '0.84rem',
+                        fontWeight: 900,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem'
                       }}
                     >
-                      <div 
-                        style={{ 
-                          width: '54px', 
-                          height: '54px', 
-                          borderRadius: '50%', 
-                          background: 'rgba(220, 38, 38, 0.95)', 
-                          color: '#fff', 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          boxShadow: '0 8px 25px rgba(220, 38, 38, 0.5)',
-                          transition: 'transform 0.2s ease'
-                        }}
-                      >
-                        <Play size={24} fill="#fff" style={{ marginLeft: '3px' }} />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Photo Expand Pill */}
-                  {!isVideo && (
-                    <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.65)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <ImageIcon size={12} /> View Full
-                    </div>
-                  )}
-                </div>
-
-                {/* Content Box */}
-                <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  
-                  {/* Meta Bar */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <MapPin size={13} color="#d97706" /> {item.branch}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Calendar size={13} /> {item.date}
-                    </div>
+                      {featuredAlbum.media_type_summary === 'video' ? <Play size={15} fill="#0f172a" /> : <ImageIcon size={15} />}
+                      {featuredAlbum.media_count > 1 ? 'View Album' : featuredAlbum.media_type_summary === 'video' ? 'Watch Video' : 'View Photo'}
+                    </span>
+                    <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', fontWeight: 700 }}>
+                      📍 {featuredAlbum.branch} • {featuredAlbum.date}
+                    </span>
                   </div>
-
-                  <h3 
-                    onClick={() => setActiveLightboxMedia(item)}
-                    style={{ 
-                      fontSize: '1.05rem', 
-                      fontWeight: 800, 
-                      color: 'var(--text-main)', 
-                      margin: '0 0 0.5rem', 
-                      cursor: 'pointer',
-                      lineHeight: 1.35
-                    }}
-                  >
-                    {item.title}
-                  </h3>
-
-                  <p style={{ 
-                    fontSize: '0.85rem', 
-                    color: 'var(--text-muted)', 
-                    lineHeight: 1.5, 
-                    margin: '0 0 1rem', 
-                    flex: 1,
-                    display: '-webkit-box',
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
-                  }}>
-                    {item.description || 'Verified fellowship activity recorded in the official archives.'}
-                  </p>
-
-                  {/* Footer Action Bar */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)', fontSize: '0.78rem' }}>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <User size={12} /> {item.uploaded_by || 'Executive'}
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {isAdmin && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); openEditModal(item); }}
-                            style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', padding: '0.2rem' }}
-                            title="Edit this moment"
-                          >
-                            <Edit3 size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); handleDeleteMedia(item.id, item.title); }}
-                            style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.2rem' }}
-                            title="Delete this moment"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={() => setActiveLightboxMedia(item)}
-                        className="btn btn-secondary"
-                        style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 800 }}
-                      >
-                        {isVideo ? 'Play Video ▶' : 'View Photo 🔍'}
-                      </button>
-                    </div>
-                  </div>
-
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+            )}
+
+            {/* SHIMMER SKELETONS */}
+            {isLoading ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.25rem' }}>
+                {[1, 2, 3, 4, 5, 6].map(n => (
+                  <div key={n} className="skeleton-box" style={{ height: '300px', borderRadius: '18px' }} />
+                ))}
+              </div>
+            ) : filteredAlbums.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '4rem 1rem', background: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+                <ImageIcon size={42} style={{ color: 'var(--text-muted)', opacity: 0.5, margin: '0 auto 0.75rem' }} />
+                <h3 style={{ margin: '0 0 0.35rem', fontWeight: 800 }}>No media found</h3>
+                <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                  Try clearing your search or switching branches.
+                </p>
+              </div>
+            ) : (
+              /* EDITORIAL BENTO / GRID */
+              <div
+                key={animKey}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+                  gap: '1.25rem'
+                }}
+              >
+                {filteredAlbums.map((album, idx) => {
+                  const badge = getCountBadge(album);
+                  const isVideo = album.media_type_summary === 'video';
+                  return (
+                    <div
+                      key={album.id}
+                      onClick={() => {
+                        setLightboxAlbum(album);
+                        setLightboxIndex(0);
+                      }}
+                      className="gallery-card gallery-card-reveal"
+                      style={{
+                        position: 'relative',
+                        borderRadius: '18px',
+                        overflow: 'hidden',
+                        aspectRatio: '4 / 3',
+                        cursor: 'pointer',
+                        background: '#0f172a',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
+                        animationDelay: `${Math.min(idx * 50, 400)}ms`
+                      }}
+                    >
+                      <img
+                        src={getCoverUrl(album)}
+                        alt={album.title}
+                        loading="lazy"
+                        className="gallery-card-media"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+
+                      {/* Top Badges & Admin Controls */}
+                      <div style={{ position: 'absolute', top: '12px', left: '12px', right: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', pointerEvents: 'none' }}>
+                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          {badge && (
+                            <span style={{ background: 'rgba(15, 23, 42, 0.82)', backdropFilter: 'blur(6px)', color: '#fff', fontSize: '0.72rem', fontWeight: 800, padding: '0.28rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.18)' }}>
+                              {badge}
+                            </span>
+                          )}
+                          {isVideo && !badge && (
+                            <span style={{ background: '#dc2626', color: '#fff', fontSize: '0.7rem', fontWeight: 900, padding: '0.25rem 0.6rem', borderRadius: '999px', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <Play size={10} fill="#fff" /> VIDEO
+                            </span>
+                          )}
+                        </div>
+
+                        {isAdmin && (
+                          <div style={{ display: 'flex', gap: '0.35rem', pointerEvents: 'auto' }}>
+                            <button
+                              onClick={(e) => openEditAlbumModal(album, e)}
+                              title="Edit Album"
+                              style={{ width: '30px', height: '30px', borderRadius: '50%', border: 'none', background: 'rgba(15,23,42,0.75)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              <Edit3 size={13} />
+                            </button>
+                            <button
+                              onClick={(e) => handleDeleteAlbum(album, e)}
+                              title="Delete Album"
+                              style={{ width: '30px', height: '30px', borderRadius: '50%', border: 'none', background: 'rgba(220,38,38,0.85)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Center Hover Pill */}
+                      <div
+                        className="gallery-card-pill"
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          background: 'rgba(255,255,255,0.9)',
+                          backdropFilter: 'blur(8px)',
+                          color: '#0f172a',
+                          padding: '0.45rem 1rem',
+                          borderRadius: '999px',
+                          fontSize: '0.78rem',
+                          fontWeight: 900,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          pointerEvents: 'none'
+                        }}
+                      >
+                        {isVideo ? <Play size={14} fill="#0f172a" /> : <ImageIcon size={14} />}
+                        {album.media_count > 1 ? 'Open Album' : isVideo ? 'Watch' : 'View'}
+                      </div>
+
+                      {/* Bottom Gradient Overlay */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 'auto 0 0 0',
+                          background: 'linear-gradient(to top, rgba(15, 23, 42, 0.94) 0%, rgba(15, 23, 42, 0.55) 65%, transparent 100%)',
+                          padding: '2rem 1rem 0.9rem'
+                        }}
+                      >
+                        <h3 style={{ color: '#fff', fontSize: '0.98rem', fontWeight: 800, margin: '0 0 0.3rem', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {album.title}
+                        </h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.74rem', color: 'rgba(255,255,255,0.78)', fontWeight: 600 }}>
+                          <span>📍 {album.branch}</span>
+                          <span>{album.date}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        ) : (
+          /* ========================================================= */
+          /* 3. KNOW YOUR MEMBERS DIRECTORY TAB                        */
+          /* ========================================================= */
+          <div key={animKey}>
+            {filteredMembers.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '4rem 1rem', background: 'var(--bg-card)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+                <Users size={42} style={{ color: 'var(--text-muted)', opacity: 0.5, margin: '0 auto 0.75rem' }} />
+                <h3 style={{ margin: '0 0 0.35rem', fontWeight: 800 }}>No members listed yet</h3>
+                <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                  {isAdmin ? 'Click "Add Member" above to showcase fellowship members.' : 'Check back soon for fellowship member profiles.'}
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: '1.25rem' }}>
+                {filteredMembers.map((m, idx) => (
+                  <div
+                    key={m.id}
+                    onClick={() => setLightboxMember(m)}
+                    className="gallery-card gallery-card-reveal"
+                    style={{
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '18px',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      animationDelay: `${Math.min(idx * 45, 350)}ms`,
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ aspectRatio: '1 / 1', overflow: 'hidden', background: 'var(--bg-main)', position: 'relative' }}>
+                      {m.photo_url ? (
+                        <img src={m.photo_url} alt={m.name} className="gallery-card-media" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                          <User size={48} />
+                        </div>
+                      )}
+                      {isAdmin && (
+                        <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', gap: '0.3rem' }}>
+                          <button onClick={(e) => openEditMember(m, e)} style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', background: 'rgba(15,23,42,0.75)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Edit3 size={12} />
+                          </button>
+                          <button onClick={(e) => handleDeleteMember(m, e)} style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', background: 'rgba(220,38,38,0.85)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ padding: '1rem' }}>
+                      <h3 style={{ margin: '0 0 0.2rem', fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>{m.name}</h3>
+                      <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#059669', marginBottom: '0.35rem' }}>{m.role}</div>
+                      <span style={{ display: 'inline-block', fontSize: '0.72rem', fontWeight: 700, padding: '0.2rem 0.55rem', borderRadius: '999px', background: 'var(--bg-main)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                        📍 {m.branch}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* ========================================================= */}
-      {/* 🔍 LIGHTBOX & EMBEDDED VIDEO PLAYER MODAL                 */}
+      {/* 4. ALBUM-SCOPED LIGHTBOX VIEWER                           */}
       {/* ========================================================= */}
-      {activeLightboxMedia && (
-        <div 
-          onClick={() => setActiveLightboxMedia(null)}
-          style={{ 
-            position: 'fixed', 
-            inset: 0, 
-            zIndex: 99999, 
-            background: 'rgba(5, 10, 20, 0.92)', 
-            backdropFilter: 'blur(10px)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            padding: '1rem',
-            overflowY: 'auto'
-          }}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="glass-card"
-            style={{ 
-              width: '100%', 
-              maxWidth: '920px', 
-              maxHeight: '94vh', 
-              background: 'var(--bg-card)', 
-              borderRadius: '20px', 
-              border: '1.5px solid var(--border-color)', 
-              boxShadow: '0 25px 60px rgba(0,0,0,0.6)', 
-              display: 'flex', 
+      {lightboxAlbum && lightboxAlbum.items?.length > 0 && (() => {
+        const items = lightboxAlbum.items;
+        const current = items[lightboxIndex] || items[0];
+        return (
+          <div
+            onClick={() => setLightboxAlbum(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99999,
+              background: 'rgba(10, 15, 28, 0.92)',
+              backdropFilter: 'blur(10px)',
+              display: 'flex',
               flexDirection: 'column',
-              overflow: 'hidden'
+              justifyContent: 'space-between',
+              padding: '1rem'
             }}
           >
             {/* Top Bar */}
-            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-main)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                <span 
-                  style={{ 
-                    fontSize: '0.72rem', 
-                    fontWeight: 800, 
-                    padding: '0.2rem 0.6rem', 
-                    borderRadius: '20px', 
-                    background: getCategoryBadge(activeLightboxMedia.category).bg, 
-                    color: getCategoryBadge(activeLightboxMedia.category).color,
-                    border: `1px solid ${getCategoryBadge(activeLightboxMedia.category).border}`
-                  }}
-                >
-                  {getCategoryBadge(activeLightboxMedia.category).label}
-                </span>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <MapPin size={12} color="#d97706" /> {activeLightboxMedia.branch} • {activeLightboxMedia.date}
-                </span>
+            <div onClick={e => e.stopPropagation()} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff', maxWidth: '1100px', width: '100%', margin: '0 auto' }}>
+              <div>
+                <div style={{ fontSize: '1rem', fontWeight: 900 }}>{lightboxAlbum.title}</div>
+                <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.72)' }}>
+                  📍 {lightboxAlbum.branch} • {lightboxAlbum.date} {items.length > 1 ? `• ${lightboxIndex + 1} of ${items.length}` : ''}
+                </div>
               </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <button
-                  onClick={() => copyToClipboard(activeLightboxMedia.url)}
-                  className="btn btn-secondary"
-                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', fontWeight: 700 }}
-                  title="Copy media URL"
-                >
-                  {copiedLink ? <Check size={14} color="#059669" /> : <Share2 size={14} />} {copiedLink ? 'Copied' : 'Share'}
-                </button>
-
-                {activeLightboxMedia.media_type === 'image' && (
-                  <a
-                    href={activeLightboxMedia.url}
-                    download={`onuado-na-ye-${activeLightboxMedia.id}.jpg`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary"
-                    style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', fontWeight: 700 }}
-                    title="Download Photo"
-                  >
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                {current.type === 'photo' && (
+                  <a href={current.url} download target="_blank" rel="noopener noreferrer" style={{ color: '#fff', background: 'rgba(255,255,255,0.15)', padding: '0.4rem 0.75rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                     <Download size={14} /> Download
                   </a>
                 )}
-
-                <button
-                  onClick={() => setActiveLightboxMedia(null)}
-                  style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-main)' }}
-                >
-                  <X size={18} />
+                <button onClick={() => setLightboxAlbum(null)} style={{ width: '36px', height: '36px', borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.18)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <X size={20} />
                 </button>
               </div>
             </div>
 
-            {/* Media Body Container */}
-            <div style={{ background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-              {activeLightboxMedia.media_type === 'video' ? (
-                <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%' /* 16:9 */ }}>
-                  {activeLightboxMedia.embed_url ? (
-                    <iframe
-                      src={`${activeLightboxMedia.embed_url}?autoplay=1`}
-                      title={activeLightboxMedia.title}
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  ) : (
-                    <video
-                      controls
-                      autoPlay
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                      src={activeLightboxMedia.url}
-                    >
-                      Your browser does not support HTML5 video.
-                    </video>
-                  )}
-                </div>
-              ) : (
-                <div style={{ maxHeight: '68vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                  <img
-                    src={activeLightboxMedia.url}
-                    alt={activeLightboxMedia.title}
-                    style={{ maxWidth: '100%', maxHeight: '68vh', objectFit: 'contain' }}
+            {/* Center Media + Arrows */}
+            <div onClick={e => e.stopPropagation()} style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', maxWidth: '1100px', width: '100%', margin: '0.75rem auto', minHeight: 0 }}>
+              {items.length > 1 && (
+                <button
+                  onClick={() => setLightboxIndex(i => (i - 1 + items.length) % items.length)}
+                  style={{ position: 'absolute', left: '8px', zIndex: 10, width: '42px', height: '42px', borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.6)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <ChevronLeft size={24} />
+                </button>
+              )}
+
+              {current.type === 'video' ? (
+                current.embed_url ? (
+                  <iframe
+                    src={`${current.embed_url}?autoplay=1`}
+                    title={lightboxAlbum.title}
+                    style={{ width: '100%', maxWidth: '900px', aspectRatio: '16 / 9', border: 'none', borderRadius: '12px' }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
                   />
-                </div>
+                ) : (
+                  <video controls autoPlay playsInline src={current.url} style={{ maxHeight: '68vh', maxWidth: '100%', borderRadius: '12px' }} />
+                )
+              ) : (
+                <img src={current.url} alt={lightboxAlbum.title} style={{ maxHeight: '68vh', maxWidth: '100%', objectFit: 'contain', borderRadius: '12px' }} />
+              )}
+
+              {items.length > 1 && (
+                <button
+                  onClick={() => setLightboxIndex(i => (i + 1) % items.length)}
+                  style={{ position: 'absolute', right: '8px', zIndex: 10, width: '42px', height: '42px', borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.6)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <ChevronRight size={24} />
+                </button>
               )}
             </div>
 
-            {/* Description & Metadata Footer */}
-            <div style={{ padding: '1.25rem 1.5rem', background: 'var(--bg-card)' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 0.5rem' }}>
-                {activeLightboxMedia.title}
-              </h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
-                {activeLightboxMedia.description || 'Fellowship archival activity verified by the Executive Secretary.'}
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.85rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                <span>Recorded by: <strong>{activeLightboxMedia.uploaded_by || 'Executive Council'}</strong></span>
-                <span>Branch: <strong>{activeLightboxMedia.branch}</strong></span>
+            {/* Bottom Thumbnail Strip (Album-Scoped) */}
+            {items.length > 1 && (
+              <div onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', overflowX: 'auto', padding: '0.25rem 0', maxWidth: '100%' }}>
+                {items.map((it, idx) => (
+                  <button
+                    key={it.id}
+                    onClick={() => setLightboxIndex(idx)}
+                    style={{
+                      position: 'relative',
+                      width: '60px',
+                      height: '46px',
+                      flexShrink: 0,
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      border: idx === lightboxIndex ? '2.5px solid #10b981' : '2px solid transparent',
+                      opacity: idx === lightboxIndex ? 1 : 0.55,
+                      cursor: 'pointer',
+                      padding: 0,
+                      background: '#000'
+                    }}
+                  >
+                    <img src={it.thumbnail_url || it.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {it.type === 'video' && (
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.35)' }}>
+                        <Play size={14} fill="#fff" color="#fff" />
+                      </div>
+                    )}
+                  </button>
+                ))}
               </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* ========================================================= */}
+      {/* 5. MEMBER PROFILE LIGHTBOX                                */}
+      {/* ========================================================= */}
+      {lightboxMember && (
+        <div
+          onClick={() => setLightboxMember(null)}
+          style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(10,15,28,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', borderRadius: '20px', maxWidth: '440px', width: '100%', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.4)' }}>
+            <div style={{ position: 'relative', height: '280px', background: 'var(--bg-main)' }}>
+              {lightboxMember.photo_url ? (
+                <img src={lightboxMember.photo_url} alt={lightboxMember.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={64} /></div>
+              )}
+              <button onClick={() => setLightboxMember(null)} style={{ position: 'absolute', top: '12px', right: '12px', width: '32px', height: '32px', borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.6)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ padding: '1.5rem' }}>
+              <h2 style={{ margin: '0 0 0.25rem', fontSize: '1.3rem', fontWeight: 900 }}>{lightboxMember.name}</h2>
+              <div style={{ color: '#059669', fontWeight: 800, fontSize: '0.88rem', marginBottom: '0.5rem' }}>{lightboxMember.role} • {lightboxMember.branch} Branch</div>
+              <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: 1.6 }}>
+                {lightboxMember.bio || 'Dedicated member of the Onuado Na Eye Men\'s Fellowship.'}
+              </p>
             </div>
           </div>
         </div>
       )}
 
       {/* ========================================================= */}
-      {/* ➕ EXECUTIVE ADD / EDIT MEDIA MODAL                      */}
+      {/* 6. ADMIN SINGLE + ALBUM UPLOAD MODAL                      */}
       {/* ========================================================= */}
-      {isAddModalOpen && (
-        <div 
-          style={{ 
-            position: 'fixed', 
-            inset: 0, 
-            zIndex: 99999, 
-            background: 'rgba(15, 23, 42, 0.85)', 
-            backdropFilter: 'blur(8px)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            padding: '1.25rem' 
-          }}
-        >
-          <div 
-            className="glass-card"
-            style={{ 
-              width: '100%', 
-              maxWidth: '620px', 
-              maxHeight: '90vh', 
-              borderRadius: '20px', 
-              border: '1.5px solid rgba(5, 150, 105, 0.4)', 
-              background: 'var(--bg-card)', 
-              display: 'flex', 
-              flexDirection: 'column',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
-              overflow: 'hidden'
-            }}
-          >
-            {/* Modal Header */}
-            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(90deg, rgba(5, 150, 105, 0.1), rgba(37, 99, 235, 0.08))' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(5, 150, 105, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669' }}>
-                  {formType === 'image' ? <Camera size={22} /> : <Video size={22} />}
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>
-                    {editingMedia ? '✏️ Edit Fellowship Media' : '➕ Upload Photo or Video'}
-                  </h3>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Add visual memories, welfare hand-overs, and video messages to the hub
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(0,0,0,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-main)' }}
-              >
+      {isUploadModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ width: '100%', maxWidth: '640px', maxHeight: '92vh', borderRadius: '20px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+            <div style={{ padding: '1.15rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>
+                {editingAlbum ? '✏️ Edit Album' : '➕ Upload to Fellowship Gallery'}
+              </h3>
+              <button onClick={() => !isUploading && setIsUploadModalOpen(false)} style={{ width: '32px', height: '32px', borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-main)' }}>
                 <X size={18} />
               </button>
             </div>
 
-            {/* Error Message */}
             {formError && (
-              <div style={{ padding: '0.75rem 1.5rem', background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(220, 38, 38, 0.2)' }}>
+              <div style={{ padding: '0.7rem 1.5rem', background: 'rgba(220,38,38,0.1)', color: '#dc2626', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <AlertCircle size={16} /> {formError}
               </div>
             )}
 
-            {/* Form Body */}
-            <form onSubmit={handleSaveMedia} style={{ padding: '1.25rem 1.5rem', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              
-              {/* Type Switcher */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
-                  1. Media Format
-                </label>
+            <form onSubmit={handleSubmitAlbum} style={{ padding: '1.25rem 1.5rem', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.95rem' }}>
+              {!editingAlbum && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                   <button
                     type="button"
-                    onClick={() => setFormType('image')}
+                    onClick={() => { setUploadMode('album'); setSelectedFiles([]); }}
                     style={{
-                      padding: '0.65rem',
+                      padding: '0.6rem',
                       borderRadius: '10px',
-                      fontSize: '0.85rem',
                       fontWeight: 800,
+                      fontSize: '0.84rem',
                       cursor: 'pointer',
-                      border: formType === 'image' ? '2px solid #059669' : '1px solid var(--border-color)',
-                      background: formType === 'image' ? 'rgba(5, 150, 105, 0.12)' : 'var(--bg-main)',
-                      color: formType === 'image' ? '#059669' : 'var(--text-main)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.45rem'
+                      border: uploadMode === 'album' ? '2px solid #059669' : '1px solid var(--border-color)',
+                      background: uploadMode === 'album' ? 'rgba(5, 150, 105, 0.12)' : 'var(--bg-main)',
+                      color: uploadMode === 'album' ? '#059669' : 'var(--text-main)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem'
                     }}
                   >
-                    <ImageIcon size={16} /> 📸 Photograph
+                    <Layers size={16} /> Album (Multiple Files)
                   </button>
-
                   <button
                     type="button"
-                    onClick={() => setFormType('video')}
+                    onClick={() => { setUploadMode('single'); setSelectedFiles([]); }}
                     style={{
-                      padding: '0.65rem',
+                      padding: '0.6rem',
                       borderRadius: '10px',
-                      fontSize: '0.85rem',
                       fontWeight: 800,
+                      fontSize: '0.84rem',
                       cursor: 'pointer',
-                      border: formType === 'video' ? '2px solid #dc2626' : '1px solid var(--border-color)',
-                      background: formType === 'video' ? 'rgba(220, 38, 38, 0.12)' : 'var(--bg-main)',
-                      color: formType === 'video' ? '#dc2626' : 'var(--text-main)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.45rem'
+                      border: uploadMode === 'single' ? '2px solid #059669' : '1px solid var(--border-color)',
+                      background: uploadMode === 'single' ? 'rgba(5, 150, 105, 0.12)' : 'var(--bg-main)',
+                      color: uploadMode === 'single' ? '#059669' : 'var(--text-main)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem'
                     }}
                   >
-                    <Video size={16} /> 🎥 Video Recording
+                    <ImageIcon size={16} /> Single Photo / Video
                   </button>
                 </div>
-              </div>
+              )}
 
-              {/* Title */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-                  2. Title / Occasion Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Welfare Support Grant Hand-over to Eld. Kojo Acheampong"
-                  value={formTitle}
-                  onChange={(e) => setFormTitle(e.target.value)}
-                  className="form-input"
-                  style={{ width: '100%', fontSize: '0.88rem', fontWeight: 700 }}
-                />
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Title / Occasion Name *</label>
+                <input type="text" required placeholder="e.g. Annual Men's Conference 2026" value={formTitle} onChange={e => setFormTitle(e.target.value)} className="form-input" style={{ width: '100%', fontWeight: 700 }} />
               </div>
 
-              {/* Category & Branch Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-                    3. Category
-                  </label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="form-select"
-                    style={{ width: '100%', fontSize: '0.85rem', fontWeight: 700 }}
-                  >
-                    <option value="welfare_evidence">🤝 Welfare Hand-Over (Special Levies)</option>
-                    <option value="annual_conference">⛪ Annual General Conference</option>
-                    <option value="general_meeting">👥 Executive & General Meetings</option>
-                    <option value="thanksgiving">🌾 Thanksgiving & Praise Service</option>
-                    <option value="executive_message">📢 Executive Keynote Address</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-                    4. Fellowship Branch
-                  </label>
-                  <select
-                    value={formBranch}
-                    onChange={(e) => setFormBranch(e.target.value)}
-                    className="form-select"
-                    style={{ width: '100%', fontSize: '0.85rem', fontWeight: 700 }}
-                  >
-                    {OFFICIAL_BRANCHES.map(b => (
-                      <option key={b} value={b}>{b} Branch</option>
-                    ))}
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Branch</label>
+                  <select value={formBranch} onChange={e => setFormBranch(e.target.value)} className="form-select" style={{ width: '100%', fontWeight: 700 }}>
+                    {OFFICIAL_BRANCHES.map(b => <option key={b} value={b}>{b} Branch</option>)}
                     <option value="All 16 Branches">All 16 Branches (National)</option>
                   </select>
                 </div>
-              </div>
-
-              {/* Event Date */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-                  5. Event Date
-                </label>
-                <input
-                  type="date"
-                  value={formDate}
-                  onChange={(e) => setFormDate(e.target.value)}
-                  className="form-input"
-                  style={{ width: '100%', fontSize: '0.85rem', fontWeight: 700 }}
-                />
-              </div>
-
-              {/* Image Source or Video Link */}
-              {formType === 'image' ? (
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                    <label style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                      6. Photo Source *
-                    </label>
-                    <div style={{ display: 'flex', gap: '0.4rem' }}>
-                      <button
-                        type="button"
-                        onClick={() => setUploadMode('file')}
-                        style={{ fontSize: '0.72rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: uploadMode === 'file' ? '#059669' : 'transparent', color: uploadMode === 'file' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
-                      >
-                        Device File (Server Upload)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setUploadMode('url')}
-                        style={{ fontSize: '0.72rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: uploadMode === 'url' ? '#059669' : 'transparent', color: uploadMode === 'url' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
-                      >
-                        Web Link
-                      </button>
-                    </div>
-                  </div>
-
-                  {uploadMode === 'file' ? (
-                    <div 
-                      onClick={() => !isUploading && fileInputRef.current?.click()}
-                      style={{ 
-                        border: '2px dashed var(--border-color)', 
-                        padding: '1.25rem', 
-                        borderRadius: '12px', 
-                        textAlign: 'center', 
-                        cursor: isUploading ? 'wait' : 'pointer',
-                        background: 'var(--bg-main)',
-                        transition: 'border-color 0.2s ease'
-                      }}
-                    >
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        accept="image/*" 
-                        onChange={(e) => handleMediaUpload(e, 'image')} 
-                        style={{ display: 'none' }} 
-                        disabled={isUploading}
-                      />
-                      {isUploading ? (
-                        <div style={{ color: '#059669', fontWeight: 700, fontSize: '0.85rem' }}>
-                          <Loader2 size={26} className="animate-spin" style={{ margin: '0 auto 0.4rem', animation: 'spin 1s linear infinite' }} />
-                          <div>Uploading photo to Cloud Media Server... {uploadProgress}%</div>
-                          <div style={{ width: '80%', margin: '0.6rem auto 0', height: '6px', background: 'rgba(5, 150, 105, 0.2)', borderRadius: '3px', overflow: 'hidden' }}>
-                            <div style={{ width: `${uploadProgress}%`, height: '100%', background: '#059669', transition: 'width 0.2s ease' }} />
-                          </div>
-                        </div>
-                      ) : formUrl ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                          <img src={formUrl} alt="Preview" style={{ height: '90px', borderRadius: '8px', objectFit: 'cover' }} />
-                          <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Stored on Cloud Media Server (Click to replace)</span>
-                        </div>
-                      ) : (
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                          <UploadCloud size={26} style={{ margin: '0 auto 0.4rem', color: '#059669' }} />
-                          <div>Click or tap to snap / upload photo from your device</div>
-                          <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: '0.2rem' }}>Direct upload to <code>media.onuadonaeyemens.org</code></div>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <input
-                      type="url"
-                      placeholder="https://example.com/fellowship-photo.jpg"
-                      value={formUrl}
-                      onChange={(e) => { setFormUrl(e.target.value); setFormThumbnail(e.target.value); }}
-                      className="form-input"
-                      style={{ width: '100%', fontSize: '0.85rem' }}
-                    />
-                  )}
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Event Date</label>
+                  <input type="date" value={formDate} onChange={e => setFormDate(e.target.value)} className="form-input" style={{ width: '100%', fontWeight: 700 }} />
                 </div>
-              ) : (
-                /* Video Input */
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem', alignItems: 'center' }}>
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                    <label style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                      6. Video Source *
-                    </label>
-                    <div style={{ display: 'flex', gap: '0.4rem' }}>
-                      <button
-                        type="button"
-                        onClick={() => setUploadMode('file')}
-                        style={{ fontSize: '0.72rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: uploadMode === 'file' ? '#dc2626' : 'transparent', color: uploadMode === 'file' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
-                      >
-                        Upload Video (MP4 / Clip)
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Category</label>
+                  <select value={formCategory} onChange={e => setFormCategory(e.target.value)} className="form-select" style={{ width: '100%', fontWeight: 700 }}>
+                    {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+                  </select>
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer', marginTop: '1.1rem' }}>
+                  <input type="checkbox" checked={formFeatured} onChange={e => setFormFeatured(e.target.checked)} /> Featured Hero
+                </label>
+              </div>
+
+              {!editingAlbum && (
+                <div>
+                  {uploadMode === 'single' && (
+                    <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                      <button type="button" onClick={() => setSingleSourceType('file')} style={{ fontSize: '0.75rem', fontWeight: 800, padding: '0.25rem 0.65rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: singleSourceType === 'file' ? '#059669' : 'transparent', color: singleSourceType === 'file' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}>
+                        Upload File
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setUploadMode('url')}
-                        style={{ fontSize: '0.72rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: uploadMode === 'url' ? '#dc2626' : 'transparent', color: uploadMode === 'url' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}
-                      >
-                        YouTube / Vimeo Link
+                      <button type="button" onClick={() => setSingleSourceType('url')} style={{ fontSize: '0.75rem', fontWeight: 800, padding: '0.25rem 0.65rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: singleSourceType === 'url' ? '#059669' : 'transparent', color: singleSourceType === 'url' ? '#fff' : 'var(--text-main)', cursor: 'pointer' }}>
+                        YouTube / Video Link
                       </button>
                     </div>
-                  </div>
+                  )}
 
-                  {uploadMode === 'file' ? (
-                    <div 
-                      onClick={() => !isUploading && videoFileInputRef.current?.click()}
-                      style={{ 
-                        border: '2px dashed var(--border-color)', 
-                        padding: '1.25rem', 
-                        borderRadius: '12px', 
-                        textAlign: 'center', 
-                        cursor: isUploading ? 'wait' : 'pointer',
-                        background: 'var(--bg-main)',
-                        transition: 'border-color 0.2s ease'
-                      }}
-                    >
-                      <input 
-                        type="file" 
-                        ref={videoFileInputRef} 
-                        accept="video/*" 
-                        onChange={(e) => handleMediaUpload(e, 'video')} 
-                        style={{ display: 'none' }} 
-                        disabled={isUploading}
-                      />
-                      {isUploading ? (
-                        <div style={{ color: '#dc2626', fontWeight: 700, fontSize: '0.85rem' }}>
-                          <Loader2 size={26} className="animate-spin" style={{ margin: '0 auto 0.4rem', animation: 'spin 1s linear infinite' }} />
-                          <div>Uploading video to Cloud Media Server... {uploadProgress}%</div>
-                          <div style={{ width: '80%', margin: '0.6rem auto 0', height: '6px', background: 'rgba(220, 38, 38, 0.2)', borderRadius: '3px', overflow: 'hidden' }}>
-                            <div style={{ width: `${uploadProgress}%`, height: '100%', background: '#dc2626', transition: 'width 0.2s ease' }} />
-                          </div>
+                  {uploadMode === 'single' && singleSourceType === 'url' ? (
+                    <input type="url" placeholder="https://www.youtube.com/watch?v=..." value={singleVideoUrl} onChange={e => setSingleVideoUrl(e.target.value)} className="form-input" style={{ width: '100%' }} />
+                  ) : (
+                    <>
+                      <div
+                        onClick={() => !isUploading && fileInputRef.current?.click()}
+                        style={{ border: '2px dashed var(--border-color)', padding: '1.15rem', borderRadius: '12px', textAlign: 'center', cursor: isUploading ? 'wait' : 'pointer', background: 'var(--bg-main)' }}
+                      >
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple={uploadMode === 'album'}
+                          accept="image/*,video/*"
+                          onChange={handleFilesSelected}
+                          style={{ display: 'none' }}
+                          disabled={isUploading}
+                        />
+                        <UploadCloud size={26} style={{ margin: '0 auto 0.35rem', color: '#059669' }} />
+                        <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+                          {uploadMode === 'album' ? 'Click to select multiple Photos & Videos' : 'Click to select a Photo or Video'}
                         </div>
-                      ) : formUrl ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                          <video src={formUrl} controls style={{ height: '110px', borderRadius: '8px', maxWidth: '100%' }} />
-                          <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 800 }}>✓ Video stored on Cloud Media Server (Click to replace)</span>
-                        </div>
-                      ) : (
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                          <UploadCloud size={26} style={{ margin: '0 auto 0.4rem', color: '#dc2626' }} />
-                          <div>Click or tap to upload video file (MP4, MOV, WebM up to 500MB)</div>
-                          <div style={{ fontSize: '0.72rem', opacity: 0.7, marginTop: '0.2rem' }}>Direct upload to <code>media.onuadonaeyemens.org</code></div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Direct upload to media.onuadonaeyemens.org</div>
+                      </div>
+
+                      {/* Selected Files Strip with Reorder & Remove */}
+                      {selectedFiles.length > 0 && (
+                        <div style={{ display: 'flex', gap: '0.6rem', overflowX: 'auto', padding: '0.6rem 0' }}>
+                          {selectedFiles.map((f, idx) => (
+                            <div key={f.id} style={{ position: 'relative', width: '88px', flexShrink: 0, borderRadius: '10px', border: '1px solid var(--border-color)', overflow: 'hidden', background: 'var(--bg-main)' }}>
+                              {f.type === 'video' ? (
+                                <video src={f.previewUrl} style={{ width: '100%', height: '64px', objectFit: 'cover' }} />
+                              ) : (
+                                <img src={f.previewUrl} alt="" style={{ width: '100%', height: '64px', objectFit: 'cover' }} />
+                              )}
+                              {!isUploading && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.2rem', background: 'var(--bg-card)' }}>
+                                  <button type="button" onClick={() => moveSelectedFile(idx, -1)} disabled={idx === 0} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '2px', opacity: idx === 0 ? 0.3 : 1 }}><ArrowLeft size={12} /></button>
+                                  <button type="button" onClick={() => removeSelectedFile(f.id)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '2px', color: '#dc2626' }}><Trash2 size={12} /></button>
+                                  <button type="button" onClick={() => moveSelectedFile(idx, 1)} disabled={idx === selectedFiles.length - 1} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '2px', opacity: idx === selectedFiles.length - 1 ? 0.3 : 1 }}><ArrowRight size={12} /></button>
+                                </div>
+                              )}
+                              {f.status === 'done' && <div style={{ position: 'absolute', top: 4, right: 4, background: '#059669', color: '#fff', borderRadius: '50%', padding: '2px' }}><Check size={10} /></div>}
+                              {f.status === 'error' && <div style={{ position: 'absolute', top: 4, right: 4, background: '#dc2626', color: '#fff', borderRadius: '50%', padding: '2px' }}><AlertCircle size={10} /></div>}
+                            </div>
+                          ))}
                         </div>
                       )}
-                    </div>
-                  ) : (
-                    <div>
-                      <input
-                        type="url"
-                        placeholder="e.g. https://www.youtube.com/watch?v=VIDEO_ID or Vimeo link"
-                        value={formUrl}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setFormUrl(val);
-                          const ytMatch = val.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
-                          if (ytMatch && ytMatch[1]) {
-                            setFormThumbnail(`https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`);
-                          }
-                        }}
-                        className="form-input"
-                        style={{ width: '100%', fontSize: '0.85rem', fontWeight: 700 }}
-                      />
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
-                        💡 Paste any YouTube link. It is automatically converted into a responsive, mobile-friendly in-app player.
-                      </div>
-                    </div>
+
+                      {/* Aggregate Byte Progress Bar */}
+                      {isUploading && (
+                        <div style={{ marginTop: '0.35rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', fontWeight: 800, color: '#059669', marginBottom: '0.2rem' }}>
+                            <span>Uploading to Cloud Media Server...</span>
+                            <span>{aggregatePercent}%</span>
+                          </div>
+                          <div style={{ height: '7px', background: 'rgba(5,150,105,0.2)', borderRadius: '4px', overflow: 'hidden' }}>
+                            <div style={{ width: `${aggregatePercent}%`, height: '100%', background: '#059669', transition: 'width 0.2s ease' }} />
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
 
-              {/* Description */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-                  7. Description / Testimony Notes
-                </label>
-                <textarea
-                  rows="3"
-                  placeholder="Provide context, scriptures quoted, elder attendees, or welfare recipient details..."
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  className="form-input"
-                  style={{ width: '100%', fontSize: '0.85rem', resize: 'vertical' }}
-                />
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Description</label>
+                <textarea rows="2" placeholder="Occasion details, elders present..." value={formDescription} onChange={e => setFormDescription(e.target.value)} className="form-input" style={{ width: '100%' }} />
               </div>
 
-              {/* Footer Buttons */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.65rem', marginTop: '0.5rem' }}>
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="btn btn-secondary"
-                  style={{ padding: '0.55rem 1rem', fontSize: '0.85rem', fontWeight: 700 }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isUploading}
-                  className="btn btn-primary"
-                  style={{ padding: '0.55rem 1.4rem', fontSize: '0.85rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-                >
-                  <Check size={16} /> {editingMedia ? 'Save Changes' : 'Publish to Gallery'}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem' }}>
+                <button type="button" disabled={isUploading} onClick={() => setIsUploadModalOpen(false)} className="btn btn-secondary" style={{ padding: '0.55rem 1rem' }}>Cancel</button>
+                <button type="submit" disabled={isUploading} className="btn btn-primary" style={{ padding: '0.55rem 1.35rem', background: '#059669', borderColor: '#059669', fontWeight: 800 }}>
+                  {isUploading ? 'Uploading...' : editingAlbum ? 'Save Changes' : 'Publish'}
                 </button>
               </div>
-
             </form>
           </div>
         </div>
       )}
 
+      {/* ========================================================= */}
+      {/* 7. ADMIN MEMBER MODAL (Know Your Members)                 */}
+      {/* ========================================================= */}
+      {isMemberModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ width: '100%', maxWidth: '480px', borderRadius: '20px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+            <div style={{ padding: '1.1rem 1.4rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontWeight: 900 }}>{editingMember ? '✏️ Edit Member' : '➕ Add Fellowship Member'}</h3>
+              <button onClick={() => setIsMemberModalOpen(false)} style={{ width: '30px', height: '30px', borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.08)', cursor: 'pointer' }}><X size={16} /></button>
+            </div>
+            <form onSubmit={handleSaveMember} style={{ padding: '1.25rem 1.4rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <input type="text" required placeholder="Full Name *" value={memName} onChange={e => setMemName(e.target.value)} className="form-input" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                <select value={memBranch} onChange={e => setMemBranch(e.target.value)} className="form-select">
+                  {OFFICIAL_BRANCHES.map(b => <option key={b} value={b}>{b} Branch</option>)}
+                </select>
+                <input type="text" placeholder="Role (e.g. Chairman)" value={memRole} onChange={e => setMemRole(e.target.value)} className="form-input" />
+              </div>
+              <div>
+                <input ref={memPhotoInputRef} type="file" accept="image/*" onChange={handleMemberPhotoUpload} style={{ display: 'none' }} />
+                <button type="button" onClick={() => memPhotoInputRef.current?.click()} className="btn btn-secondary" style={{ width: '100%' }}>
+                  {isUploadingMemPhoto ? 'Uploading Photo...' : memPhotoUrl ? '✓ Photo Uploaded (Click to Change)' : '📸 Upload Member Photo'}
+                </button>
+              </div>
+              <textarea rows="2" placeholder="Short bio or testimony..." value={memBio} onChange={e => setMemBio(e.target.value)} className="form-input" />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                <button type="button" onClick={() => setIsMemberModalOpen(false)} className="btn btn-secondary">Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ background: '#2563eb', borderColor: '#2563eb' }}>Save Member</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
