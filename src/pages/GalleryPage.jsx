@@ -523,29 +523,37 @@ export default function GalleryPage({ currentUser }) {
     <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
       <style>{`
         @keyframes galleryFadeUp {
-          from { opacity: 0; transform: translateY(18px); }
-          to { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(28px) scale(0.96); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes heroSlowZoom {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.07); }
-          100% { transform: scale(1); }
+        @keyframes heroKenBurns {
+          0% { transform: scale(1) translateY(0); }
+          50% { transform: scale(1.08) translateY(-1.5%); }
+          100% { transform: scale(1) translateY(0); }
         }
         @keyframes shimmerPulse {
           0% { background-position: -200% 0; }
           100% { background-position: 200% 0; }
         }
         .gallery-card-reveal {
-          animation: galleryFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: galleryFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         .hero-zoom-img {
-          animation: heroSlowZoom 22s ease-in-out infinite;
+          animation: heroKenBurns 11s ease-in-out infinite;
+        }
+        .gallery-card {
+          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+        }
+        .gallery-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 20px 38px rgba(0,0,0,0.22) !important;
         }
         .gallery-card-media {
-          transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+          object-position: center 20%;
         }
         .gallery-card:hover .gallery-card-media {
-          transform: scale(1.05);
+          transform: scale(1.07);
         }
         .gallery-card-pill {
           opacity: 0;
@@ -758,9 +766,15 @@ export default function GalleryPage({ currentUser }) {
               >
                 <img
                   src={getCoverUrl(featuredAlbum)}
+                  alt=""
+                  aria-hidden="true"
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(24px) brightness(0.55)', transform: 'scale(1.15)' }}
+                />
+                <img
+                  src={getCoverUrl(featuredAlbum)}
                   alt={featuredAlbum.title}
                   className="hero-zoom-img"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ position: 'relative', width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center 20%' }}
                 />
                 <div
                   style={{
