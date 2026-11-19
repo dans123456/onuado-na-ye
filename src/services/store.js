@@ -2857,7 +2857,31 @@ export const savePendingApplication = (appData) => {
 
   const updated = [application, ...pending];
   localStorage.setItem('ony_pending_applications', JSON.stringify(updated));
+
+  // Sync to cloud server for instant cross-device Admin visibility
+  fetch(`${MEDIA_SERVER_URL}/api/applications`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(application)
+  }).catch(err => console.warn('Failed syncing application to server:', err));
+
   return application;
+};
+
+export const fetchPendingApplicationsFromServer = async () => {
+  try {
+    const res = await fetch(`${MEDIA_SERVER_URL}/api/applications`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && Array.isArray(data.applications)) {
+        localStorage.setItem('ony_pending_applications', JSON.stringify(data.applications));
+        return data.applications;
+      }
+    }
+  } catch (err) {
+    console.warn('Failed fetching pending applications from server:', err);
+  }
+  return getPendingApplications();
 };
 
 export const approvePendingApplication = (appId, initialStatus = 'PROBATION') => {
