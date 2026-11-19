@@ -59,8 +59,8 @@ export const MARITAL_STATUSES = [
 const INITIAL_MEMBERS = [
   {
     "id": "m-001",
-    "excel_member_id": "ONY-001",
-    "member_no": 1,
+    "excel_member_id": "ONF-017",
+    "member_no": 17,
     "full_name": "Alex Ackah",
     "profile_picture": "/members/ony-001.png",
     "name_in_capitals": "ALEX ACKAH",
@@ -115,8 +115,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-002",
-    "excel_member_id": "ONY-002",
-    "member_no": 2,
+    "excel_member_id": "ONF-019",
+    "member_no": 19,
     "full_name": "Danso Kingsley",
     "profile_picture": "/members/ony-002.png",
     "name_in_capitals": "DANSO KINGSLEY",
@@ -171,8 +171,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-003",
-    "excel_member_id": "ONY-003",
-    "member_no": 3,
+    "excel_member_id": "ONF-009",
+    "member_no": 9,
     "full_name": "Fanuel Hagan",
     "profile_picture": "/members/ony-003.png",
     "name_in_capitals": "FANUEL HAGAN",
@@ -227,8 +227,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-004",
-    "excel_member_id": "ONY-004",
-    "member_no": 4,
+    "excel_member_id": "ONF-010",
+    "member_no": 10,
     "full_name": "Frederick Wortey Tawiah",
     "profile_picture": "/members/ony-004.png",
     "name_in_capitals": "FREDERICK WORTEY TAWIAH",
@@ -283,8 +283,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-005",
-    "excel_member_id": "ONY-005",
-    "member_no": 5,
+    "excel_member_id": "",
+    "member_no": null,
     "full_name": "George Yeboah",
     "name_in_capitals": "GEORGE YEBOAH",
     "title": "Elder",
@@ -338,8 +338,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-006",
-    "excel_member_id": "ONY-006",
-    "member_no": 6,
+    "excel_member_id": "ONF-016",
+    "member_no": 16,
     "full_name": "Isaac Darko",
     "profile_picture": "/members/ony-006.png",
     "name_in_capitals": "ISAAC DARKO",
@@ -394,8 +394,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-007",
-    "excel_member_id": "ONY-007",
-    "member_no": 7,
+    "excel_member_id": "ONF-018",
+    "member_no": 18,
     "full_name": "Isaac Donkor",
     "profile_picture": "/members/ony-007.png",
     "name_in_capitals": "ISAAC DONKOR",
@@ -450,8 +450,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-008",
-    "excel_member_id": "ONY-008",
-    "member_no": 8,
+    "excel_member_id": "ONF-020",
+    "member_no": 20,
     "full_name": "John Aidoo",
     "profile_picture": "/members/ony-008.png",
     "name_in_capitals": "JOHN AIDOO",
@@ -506,8 +506,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-009",
-    "excel_member_id": "ONY-009",
-    "member_no": 9,
+    "excel_member_id": "",
+    "member_no": null,
     "full_name": "John Darbo",
     "name_in_capitals": "JOHN DARBO",
     "title": "Elder",
@@ -561,8 +561,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-010",
-    "excel_member_id": "ONY-010",
-    "member_no": 10,
+    "excel_member_id": "ONF-006",
+    "member_no": 6,
     "full_name": "John Ofosuhene Asare",
     "profile_picture": "/members/ony-010.png",
     "name_in_capitals": "JOHN OFOSUHENE ASARE",
@@ -617,7 +617,7 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-011",
-    "excel_member_id": "ONY-011",
+    "excel_member_id": "ONF-011",
     "member_no": 11,
     "full_name": "Johnson Wood",
     "profile_picture": "/members/ony-011.png",
@@ -673,8 +673,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-012",
-    "excel_member_id": "ONY-012",
-    "member_no": 12,
+    "excel_member_id": "ONF-014",
+    "member_no": 14,
     "full_name": "Jonas Wereko",
     "name_in_capitals": "JONAS WEREKO",
     "title": "Elder",
@@ -728,8 +728,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-013",
-    "excel_member_id": "ONY-013",
-    "member_no": 13,
+    "excel_member_id": "ONF-003",
+    "member_no": 3,
     "full_name": "Jonathan Danso Siaw",
     "profile_picture": "/members/ony-013.png",
     "name_in_capitals": "JONATHAN DANSO SIAW",
@@ -784,8 +784,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-014",
-    "excel_member_id": "ONY-014",
-    "member_no": 14,
+    "excel_member_id": "",
+    "member_no": null,
     "full_name": "Joseph Kofi Amanfo",
     "name_in_capitals": "JOSEPH KOFI AMANFO",
     "title": "Elder",
@@ -839,8 +839,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-015",
-    "excel_member_id": "ONY-015",
-    "member_no": 15,
+    "excel_member_id": "ONF-012",
+    "member_no": 12,
     "full_name": "Justice Kojo Acheampong",
     "profile_picture": "/members/ony-015.png",
     "name_in_capitals": "JUSTICE KOJO ACHEAMPONG",
@@ -895,8 +895,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-016",
-    "excel_member_id": "ONY-016",
-    "member_no": 16,
+    "excel_member_id": "ONF-004",
+    "member_no": 4,
     "full_name": "Just-Mark Kwabena Quansah",
     "profile_picture": "/members/ony-016.png",
     "name_in_capitals": "JUST-MARK KWABENA QUANSAH",
@@ -951,8 +951,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-017",
-    "excel_member_id": "ONY-017",
-    "member_no": 17,
+    "excel_member_id": "ONF-008",
+    "member_no": 8,
     "full_name": "Maxwell Ofei Siaw",
     "profile_picture": "/members/ony-017.png",
     "name_in_capitals": "MAXWELL OFEI SIAW",
@@ -1007,8 +1007,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-018",
-    "excel_member_id": "ONY-018",
-    "member_no": 18,
+    "excel_member_id": "ONF-001",
+    "member_no": 1,
     "full_name": "Moses Oduro",
     "profile_picture": "/members/ony-018.png",
     "name_in_capitals": "MOSES ODURO",
@@ -1063,8 +1063,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-019",
-    "excel_member_id": "ONY-019",
-    "member_no": 19,
+    "excel_member_id": "ONF-002",
+    "member_no": 2,
     "full_name": "Osei Kwame",
     "profile_picture": "/members/ony-019.png",
     "name_in_capitals": "OSEI KWAME",
@@ -1119,8 +1119,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-020",
-    "excel_member_id": "ONY-020",
-    "member_no": 20,
+    "excel_member_id": "ONF-015",
+    "member_no": 15,
     "full_name": "Peter Kingsford Nkrumah",
     "profile_picture": "/members/ony-020.png",
     "name_in_capitals": "PETER KINGSFORD NKRUMAH",
@@ -1175,8 +1175,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-021",
-    "excel_member_id": "ONY-021",
-    "member_no": 21,
+    "excel_member_id": "ONF-013",
+    "member_no": 13,
     "full_name": "Prince Asante Ahwireng",
     "profile_picture": "/members/ony-021.png",
     "name_in_capitals": "PRINCE ASANTE AHWIRENG",
@@ -1231,8 +1231,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-022",
-    "excel_member_id": "ONY-022",
-    "member_no": 22,
+    "excel_member_id": "",
+    "member_no": null,
     "full_name": "Samuel Yaw Nkansah",
     "name_in_capitals": "SAMUEL YAW NKANSAH",
     "title": "Elder",
@@ -1286,8 +1286,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-023",
-    "excel_member_id": "ONY-023",
-    "member_no": 23,
+    "excel_member_id": "ONF-007",
+    "member_no": 7,
     "full_name": "Vincent Agamatey",
     "profile_picture": "/members/ony-023.png",
     "name_in_capitals": "VINCENT AGAMATEY",
@@ -1342,8 +1342,8 @@ const INITIAL_MEMBERS = [
   },
   {
     "id": "m-024",
-    "excel_member_id": "ONY-024",
-    "member_no": 24,
+    "excel_member_id": "ONF-005",
+    "member_no": 5,
     "full_name": "William Kojo Anane",
     "profile_picture": "/members/ony-024.png",
     "name_in_capitals": "WILLIAM KOJO ANANE",
@@ -2628,7 +2628,7 @@ export const addNewMember = (newMemberData) => {
   // Calculate next member_no
   const maxNo = members.reduce((max, m) => Math.max(max, parseInt(m.member_no) || 0), 0);
   const nextNo = maxNo + 1;
-  const excelId = `ONY-${String(nextNo).padStart(3, '0')}`;
+  const excelId = `ONF-${String(nextNo).padStart(3, '0')}`;
 
   const createdMember = {
     id: `m-${Date.now()}`,
