@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, UploadCloud, PlusCircle, MinusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle, Camera } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals, getLiveFellowshipFinancials, saveMemberDirectoryRecord } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals, getLiveFellowshipFinancials, saveMemberDirectoryRecord, deleteMember } from '../services/store';
 import { getMemberLevyDetails, getSpecialLeviesMaster } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -2308,6 +2308,22 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                                   style={{ padding: '0.35rem 0.65rem', fontSize: '0.78rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--primary-700)', border: '1px solid rgba(5, 150, 105, 0.4)' }}
                                 >
                                   <Eye size={13} color="#059669" /> Dossier
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (window.confirm(`Are you sure you want to PERMANENTLY delete ${m.full_name} from the fellowship roster? This cannot be undone.`)) {
+                                      const updated = deleteMember(m.id, currentUser?.full_name || 'Executive Admin');
+                                      setMembers(updated);
+                                      setKeyInHistory(getKeyInHistory());
+                                      setImportSuccess(`🗑️ Permanently deleted ${m.full_name} from the fellowship roster.`);
+                                      setTimeout(() => setImportSuccess(''), 4000);
+                                    }
+                                  }}
+                                  className="btn btn-secondary"
+                                  style={{ padding: '0.35rem 0.55rem', fontSize: '0.78rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#dc2626', border: '1px solid rgba(220, 38, 38, 0.4)', background: 'rgba(220, 38, 38, 0.06)' }}
+                                  title={`Permanently delete ${m.full_name}`}
+                                >
+                                  <Trash2 size={13} />
                                 </button>
                               </div>
                             </td>

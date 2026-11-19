@@ -1507,6 +1507,34 @@ export const updateMemberProfile = (memberId, updatedFields) => {
   return members;
 };
 
+export const deleteMember = (memberId, recordedBy = 'Executive Admin') => {
+  const members = getMembers();
+  const target = members.find(m => m.id === memberId);
+  if (!target) return members;
+
+  const updated = members.filter(m => m.id !== memberId);
+  saveMembers(updated);
+
+  const historyEntry = {
+    id: 'kh-del-' + Date.now(),
+    timestamp: new Date().toISOString(),
+    paymentDate: new Date().toISOString().split('T')[0],
+    category: 'status_change',
+    memberId: target.id,
+    memberName: target.full_name,
+    excelId: target.excel_member_id || 'REMOVED',
+    amount: 0,
+    action: 'delete',
+    paymentMethod: 'System',
+    referenceNote: `Permanently removed member ${target.full_name}`,
+    recordedBy
+  };
+  const history = getKeyInHistory();
+  saveKeyInHistory([historyEntry, ...history]);
+
+  return updated;
+};
+
 export const getContributions = () => {
   const stored = localStorage.getItem('ony_contributions');
   if (!stored) {
@@ -2757,6 +2785,34 @@ export const updateMemberStatus = (memberId, newStatus, recordedBy = 'Executive 
   saveKeyInHistory([historyEntry, ...history]);
 
   return members;
+};
+
+export const deleteMember = (memberId, recordedBy = 'Executive Admin') => {
+  const members = getMembers();
+  const target = members.find(m => m.id === memberId);
+  if (!target) return members;
+
+  const updated = members.filter(m => m.id !== memberId);
+  saveMembers(updated);
+
+  const historyEntry = {
+    id: 'kh-del-' + Date.now(),
+    timestamp: new Date().toISOString(),
+    paymentDate: new Date().toISOString().split('T')[0],
+    category: 'status_change',
+    memberId: target.id,
+    memberName: target.full_name,
+    excelId: target.excel_member_id || 'REMOVED',
+    amount: 0,
+    action: 'delete',
+    paymentMethod: 'System',
+    referenceNote: `Permanently removed member ${target.full_name}`,
+    recordedBy
+  };
+  const history = getKeyInHistory();
+  saveKeyInHistory([historyEntry, ...history]);
+
+  return updated;
 };
 
 // Pending Self-Registrations
