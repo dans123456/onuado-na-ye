@@ -1440,7 +1440,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-11-15-v25-trial-balance-111446-balanced-reactive-1794765000000';
+const DATA_VERSION = '2026-11-19-v26-onf-member-ids-order';
 
 export const getMembers = () => {
   try {
