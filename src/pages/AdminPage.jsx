@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, UploadCloud, PlusCircle, MinusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle, Camera } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals, getLiveFellowshipFinancials } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals, getLiveFellowshipFinancials, saveMemberDirectoryRecord } from '../services/store';
 import { getMemberLevyDetails, getSpecialLeviesMaster } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -246,6 +246,16 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
       setKeyInHistory(getKeyInHistory());
       setTreasuryAccountsData(getTreasuryAccountsData());
       setTrialBalanceItems(getTrialBalanceItems());
+
+      // Auto-sync newly approved member to Know Your Members directory
+      saveMemberDirectoryRecord({
+        name: res.createdMember.full_name,
+        branch: res.createdMember.branch || 'Aburi',
+        role: res.createdMember.position || 'Member',
+        photo_url: res.createdMember.profile_picture || '',
+        bio: `Joined ${res.createdMember.branch || ''} Branch (${res.createdMember.excel_member_id})`
+      }).catch(err => console.warn('Could not auto-sync to Know Your Members:', err));
+
       setImportSuccess(`🎉 Application Approved! ${res.createdMember.title} ${res.createdMember.full_name} is now registered as ${statusToAssign} member (ID: ${res.createdMember.excel_member_id}). Portal access activated for phone ${res.createdMember.phone_number}.`);
       setTimeout(() => setImportSuccess(''), 7000);
     }
