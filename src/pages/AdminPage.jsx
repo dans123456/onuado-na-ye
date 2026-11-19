@@ -1957,6 +1957,10 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
             if (!nameMatch && !phoneMatch && !branchMatch && !idMatch) return false;
           }
           return true;
+        }).sort((a, b) => {
+          const numA = a.member_no ?? 999999;
+          const numB = b.member_no ?? 999999;
+          return numA - numB;
         });
 
         return (
@@ -2494,6 +2498,10 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
           if (messageFilter === 'unread') return m.status === 'UNREAD';
           if (messageFilter === 'read') return m.status === 'READ';
           return true;
+        }).sort((a, b) => {
+          const numA = a.member_no ?? 999999;
+          const numB = b.member_no ?? 999999;
+          return numA - numB;
         });
 
         return (
