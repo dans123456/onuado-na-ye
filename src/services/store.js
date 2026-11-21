@@ -2811,6 +2811,7 @@ export const savePendingApplication = (appData) => {
     date_submitted: new Date().toISOString().split('T')[0],
     timestamp: new Date().toISOString(),
     // 1. Personal & Church
+    profile_picture: appData.profile_picture || '',
     full_name: appData.full_name?.trim() || '',
     title: appData.title || 'Brother',
     position: appData.position || appData.position_in_church || 'Member',

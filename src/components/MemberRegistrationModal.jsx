@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { X, CheckCircle2, UserPlus, CreditCard, ShieldCheck, Heart, AlertCircle, ArrowRight, ArrowLeft, Printer, Users, MapPin, Briefcase, Sparkles } from 'lucide-react';
-import { savePendingApplication, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES } from '../services/store';
+import React, { useState, useRef } from 'react';
+import { X, CheckCircle2, UserPlus, CreditCard, ShieldCheck, Heart, AlertCircle, ArrowRight, ArrowLeft, Printer, Users, MapPin, Briefcase, Sparkles, Camera, UploadCloud } from 'lucide-react';
+import { savePendingApplication, uploadMediaFile, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES } from '../services/store';
 import OfficialRegistrationPrintModal from './OfficialRegistrationPrintModal';
 
 export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) {
@@ -9,6 +9,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
 
   const [formData, setFormData] = useState({
     // Step 1: Personal & Church
+    profile_picture: '',
     title: 'Brother',
     full_name: '',
     position_in_church: 'Member',
@@ -54,9 +55,34 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
 
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [submittedApp, setSubmittedApp] = useState(null);
+  const photoInputRef = useRef(null);
 
   if (!isOpen) return null;
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (JPG, PNG, WebP).');
+      return;
+    }
+    setIsUploadingPhoto(true);
+    setError('');
+    try {
+      const res = await uploadMediaFile(file);
+      if (res?.success && res.url) {
+        setFormData(prev => ({ ...prev, profile_picture: res.url }));
+      } else {
+        setError('Failed to upload photograph. Please try again.');
+      }
+    } catch (err) {
+      setError(err.message || 'Network error uploading photograph.');
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -65,6 +91,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
   const validateStep = (step) => {
     setError('');
     if (step === 1) {
+      if (!formData.profile_picture) return 'Please upload your passport/profile photograph (required).';
       if (!formData.full_name.trim()) return 'Please enter your full legal name.';
       if (!formData.phone_number.trim()) return 'Please enter your primary telephone number (Telephone No. 1).';
       if (formData.phone_number.trim().length < 9) return 'Please enter a valid Ghanaian phone number (e.g. 024 XXX XXXX).';
@@ -304,6 +331,54 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
           {/* ================= STEP 1: PERSONAL & CHURCH ================= */}
           {currentStep === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* Required Profile Photograph */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                  PASSPORT / PROFILE PHOTOGRAPH *
+                </label>
+                <div
+                  onClick={() => !isUploadingPhoto && photoInputRef.current?.click()}
+                  style={{
+                    border: formData.profile_picture ? '2px solid #059669' : '2px dashed var(--border-color)',
+                    borderRadius: '12px',
+                    padding: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    cursor: isUploadingPhoto ? 'wait' : 'pointer',
+                    background: 'var(--bg-main)'
+                  }}
+                >
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    style={{ display: 'none' }}
+                    disabled={isUploadingPhoto}
+                  />
+                  {formData.profile_picture ? (
+                    <img
+                      src={formData.profile_picture}
+                      alt="Profile preview"
+                      style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 20%', flexShrink: 0 }}
+                    />
+                  ) : (
+                    <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(5, 150, 105, 0.12)', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Camera size={24} />
+                    </div>
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: formData.profile_picture ? '#059669' : 'var(--text-main)' }}>
+                      {isUploadingPhoto ? 'Uploading photograph...' : formData.profile_picture ? '✓ Photograph uploaded (Tap to change)' : 'Tap to upload your passport photo *'}
+                    </div>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                      Required for your Member ID & Know Your Members profile
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="reg-grid-title-name">
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>TITLE *</label>
