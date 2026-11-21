@@ -283,6 +283,29 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
   const [contactMessages, setContactMessages] = useState(() => getContactMessages());
   const [messageFilter, setMessageFilter] = useState('all'); // 'all', 'unread', 'read'
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [replyingToId, setReplyingToId] = useState(null);
+  const [replyText, setReplyText] = useState('');
+
+  const handleSendReply = (msgId) => {
+    if (!replyText.trim()) return;
+    const newReply = {
+      id: 'rep-' + Date.now(),
+      text: replyText.trim(),
+      sender: currentUser?.full_name || 'Executive Secretariat',
+      date: new Date().toISOString()
+    };
+    const updated = contactMessages.map(m =>
+      m.id === msgId
+        ? { ...m, status: 'READ', replies: [...(m.replies || []), newReply] }
+        : m
+    );
+    setContactMessages(updated);
+    localStorage.setItem('ony_contact_messages', JSON.stringify(updated));
+    setReplyingToId(null);
+    setReplyText('');
+    setImportSuccess('✅ Reply saved and message marked as Read.');
+    setTimeout(() => setImportSuccess(''), 3500);
+  };
 
   const unreadMessagesCount = contactMessages.filter(m => m.status === 'UNREAD').length;
 
@@ -2650,9 +2673,52 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                           {msg.message}
                         </div>
 
+                        {/* Sent Replies Thread */}
+                        {Array.isArray(msg.replies) && msg.replies.length > 0 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingLeft: '1rem', borderLeft: '3px solid #059669' }}>
+                            {msg.replies.map(rep => (
+                              <div key={rep.id} style={{ padding: '0.65rem 0.9rem', background: 'rgba(5, 150, 105, 0.06)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 800, color: '#059669', marginBottom: '0.2rem' }}>
+                                  <span>↩ {rep.sender}</span>
+                                  <span>{new Date(rep.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <div style={{ color: 'var(--text-main)', whiteSpace: 'pre-wrap' }}>{rep.text}</div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Inline Reply Box */}
+                        {replyingToId === msg.id && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.75rem', background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid #059669' }}>
+                            <textarea
+                              rows="2"
+                              placeholder={`Write your reply to ${msg.name}...`}
+                              value={replyText}
+                              onChange={e => setReplyText(e.target.value)}
+                              className="form-input"
+                              style={{ width: '100%', fontSize: '0.85rem' }}
+                            />
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.4rem' }}>
+                              <button type="button" onClick={() => setReplyingToId(null)} className="btn btn-secondary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem' }}>Cancel</button>
+                              <button type="button" onClick={() => handleSendReply(msg.id)} className="btn btn-primary" style={{ padding: '0.35rem 0.9rem', fontSize: '0.78rem', background: '#059669', borderColor: '#059669', fontWeight: 800 }}>Send Reply</button>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Actions */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem', paddingTop: '0.35rem' }}>
                           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <button
+                              onClick={() => {
+                                setReplyingToId(replyingToId === msg.id ? null : msg.id);
+                                setReplyText('');
+                              }}
+                              className="btn btn-primary"
+                              style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', fontWeight: 800, background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                            >
+                              <MessageSquare size={14} /> {replyingToId === msg.id ? 'Cancel Reply' : 'Reply'}
+                            </button>
                             {cleanPhone && (
                               <>
                                 <a
