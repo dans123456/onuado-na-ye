@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { X, CheckCircle2, UserPlus, CreditCard, ShieldCheck, Heart, AlertCircle, ArrowRight, ArrowLeft, Printer, Users, MapPin, Briefcase, Sparkles, Camera, UploadCloud } from 'lucide-react';
-import { savePendingApplication, uploadMediaFile, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES } from '../services/store';
+import { savePendingApplication, uploadMediaFile, OFFICIAL_BRANCHES, GHANA_REGIONS, GHANA_TOWNS_BY_REGION, CHURCH_TITLES, MARITAL_STATUSES } from '../services/store';
 import OfficialRegistrationPrintModal from './OfficialRegistrationPrintModal';
 
 export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) {
@@ -398,10 +398,21 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                   <input type="text" name="position_in_church" placeholder="e.g. Member, Youth Leader, Deacon" value={formData.position_in_church} onChange={handleChange} className="form-input" />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>BRANCH *</label>
-                  <select name="branch" value={formData.branch} onChange={handleChange} className="form-select" style={{ fontWeight: 700 }}>
-                    {OFFICIAL_BRANCHES.map(b => <option key={b} value={b}>{b} Branch</option>)}
-                  </select>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>BRANCH / ASSEMBLY *</label>
+                  <input
+                    type="text"
+                    name="branch"
+                    list="reg-branch-suggestions"
+                    required
+                    placeholder="e.g. Aburi, Tema, Kumasi..."
+                    value={formData.branch}
+                    onChange={handleChange}
+                    className="form-input"
+                    style={{ fontWeight: 700 }}
+                  />
+                  <datalist id="reg-branch-suggestions">
+                    {OFFICIAL_BRANCHES.map(b => <option key={b} value={b} />)}
+                  </datalist>
                 </div>
               </div>
 
@@ -450,14 +461,59 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
 
               <div className="reg-grid-2">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>TOWN (CURRENT RESIDENCE) *</label>
-                  <input type="text" name="town" required placeholder="e.g. Mampong Akuapem, Tema" value={formData.town} onChange={handleChange} className="form-input" style={{ fontWeight: 700 }} />
-                </div>
-                <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>REGION (GHANA) *</label>
-                  <select name="region" value={formData.region} onChange={handleChange} className="form-select" style={{ fontWeight: 700 }}>
+                  <select
+                    name="region"
+                    value={formData.region}
+                    onChange={(e) => {
+                      const newRegion = e.target.value;
+                      setFormData(prev => ({ ...prev, region: newRegion, town: '' }));
+                    }}
+                    className="form-select"
+                    style={{ fontWeight: 700 }}
+                  >
                     {GHANA_REGIONS.map(r => <option key={r} value={r}>{r} Region</option>)}
                   </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>TOWN (CURRENT RESIDENCE) *</label>
+                  {(() => {
+                    const regionTowns = GHANA_TOWNS_BY_REGION[formData.region] || [];
+                    const isCustomTown = formData.town !== '' && !regionTowns.includes(formData.town);
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                        <select
+                          value={isCustomTown ? '__OTHER__' : formData.town}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '__OTHER__') {
+                              setFormData(prev => ({ ...prev, town: ' ' }));
+                            } else {
+                              setFormData(prev => ({ ...prev, town: val }));
+                            }
+                          }}
+                          className="form-select"
+                          style={{ fontWeight: 700 }}
+                        >
+                          <option value="">-- Select Town in {formData.region} --</option>
+                          {regionTowns.map(t => <option key={t} value={t}>{t}</option>)}
+                          <option value="__OTHER__">Other (Type your town)...</option>
+                        </select>
+                        {(isCustomTown || formData.town === ' ') && (
+                          <input
+                            type="text"
+                            name="town"
+                            required
+                            placeholder="Type your town name..."
+                            value={formData.town === ' ' ? '' : formData.town}
+                            onChange={handleChange}
+                            className="form-input"
+                            style={{ fontWeight: 700 }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 

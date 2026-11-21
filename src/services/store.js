@@ -40,6 +40,25 @@ export const GHANA_REGIONS = [
   "Western North"
 ];
 
+export const GHANA_TOWNS_BY_REGION = {
+  "Greater Accra": ["Accra", "Tema", "Ashaiman", "Madina", "Dansoman", "Darkuman", "Kotobabi", "Accra New Town", "Teshie", "Nungua", "Spintex", "Adenta", "Amasaman", "Pokuase", "Dome", "Weija", "Dodowa", "Ada"],
+  "Eastern": ["Koforidua", "Aburi", "Nsawam", "Akuapem Mampong", "Akropong", "Suhum", "Nkawkaw", "Mpraeso", "Somanya", "Odumase Krobo", "Asamankese", "Akim Oda", "Kibi", "Begoro", "Noyem"],
+  "Ashanti": ["Kumasi", "Atonsu", "Obuasi", "Ejisu", "Mampong", "Konongo", "Bekwai", "Offinso", "Tafo", "Suame", "Bantama", "Abuakwa", "Agogo", "Juaben"],
+  "Central": ["Cape Coast", "Kasoa", "Mankessim", "Winneba", "Swedru", "Elmina", "Saltpond", "Dunkwa-on-Offin", "Assin Fosu", "Apam"],
+  "Western": ["Takoradi", "Sekondi", "Tarkwa", "Axim", "Prestea", "Bogoso", "Elubo", "Shama"],
+  "Western North": ["Sefwi Wiawso", "Bibiani", "Enchi", "Juaboso", "Bodi"],
+  "Volta": ["Ho", "Hohoe", "Keta", "Aflao", "Sogakope", "Akatsi", "Kpando", "Anloga"],
+  "Oti": ["Dambai", "Jasikan", "Kadjebi", "Nkwanta", "Krachi"],
+  "Bono": ["Sunyani", "Berekum", "Dormaa Ahenkro", "Wenchi", "Sampa"],
+  "Bono East": ["Techiman", "Kintampo", "Nkoranza", "Atebubu", "Yeji"],
+  "Ahafo": ["Goaso", "Bechem", "Duayaw Nkwanta", "Kenyasi", "Hwidiem"],
+  "Northern": ["Tamale", "Yendi", "Savelugu", "Bimbilla", "Tolon"],
+  "Savannah": ["Damongo", "Salaga", "Bole", "Sawla"],
+  "North East": ["Nalerigu", "Walewale", "Gambaga", "Chereponi"],
+  "Upper East": ["Bolgatanga", "Bawku", "Navrongo", "Zebilla", "Sandema"],
+  "Upper West": ["Wa", "Tumu", "Lawra", "Nandom", "Jirapa"]
+};
+
 export const CHURCH_TITLES = [
   "Brother",
   "Elder",
@@ -2787,7 +2806,37 @@ export const deleteMember = (memberId, recordedBy = 'Executive Admin') => {
   return updated;
 };
 
-// Pending Self-Registrations
+export const updateMemberDetails = (memberId, updatedFields, recordedBy = 'Executive Admin') => {
+  const members = getMembers();
+  const index = members.findIndex(m => m.id === memberId);
+  if (index === -1) return members;
+
+  members[index] = {
+    ...members[index],
+    ...updatedFields,
+    name_in_capitals: (updatedFields.full_name || members[index].full_name || '').toUpperCase()
+  };
+  saveMembers(members);
+
+  const historyEntry = {
+    id: 'kh-edit-' + Date.now(),
+    timestamp: new Date().toISOString(),
+    paymentDate: new Date().toISOString().split('T')[0],
+    category: 'status_change',
+    memberId: members[index].id,
+    memberName: members[index].full_name,
+    excelId: members[index].excel_member_id || 'MEMBER',
+    amount: 0,
+    action: 'update',
+    paymentMethod: 'System',
+    referenceNote: `Updated profile details for ${members[index].full_name}`,
+    recordedBy
+  };
+  const history = getKeyInHistory();
+  saveKeyInHistory([historyEntry, ...history]);
+
+  return members;
+};
 export const getPendingApplications = () => {
   const stored = localStorage.getItem('ony_pending_applications');
   if (stored) {

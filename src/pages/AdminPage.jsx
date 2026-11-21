@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, UploadCloud, PlusCircle, MinusCircle, Users, FileSpreadsheet, CheckCircle2, AlertCircle, RefreshCw, Copy, Search, ArrowRight, User, Eye, Download, X, MapPin, Phone, Mail, Heart, Building2, Calendar, FileText, CreditCard, Megaphone, Sparkles, TrendingUp, TrendingDown, Edit3, Zap, Check, Sliders, DollarSign, History, Clock, Filter, ArrowUpRight, ArrowDownRight, Tag, Car, Trash2, UserPlus, UserCheck, UserX, Printer, MessageSquare, CheckCheck, Inbox, MessageCircle, Camera } from 'lucide-react';
 import { parseUploadedFile } from '../utils/excelParser';
 import { handleExcelUpload } from '../utils/excelHandler';
-import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals, getLiveFellowshipFinancials, saveMemberDirectoryRecord, deleteMember, fetchPendingApplicationsFromServer } from '../services/store';
+import { addContribution, bulkAddContributions, getMembers, resetMembersToBaseline, getAnnouncement, saveAnnouncement, updateMemberDuesDirectly, updateMemberLevyDirectly, updateMemberVehicleSharesDirectly, calculateDuesImpact, getKeyInHistory, deleteKeyInHistoryEntry, getTrialBalanceItems, addTrialBalanceItem, updateTrialBalanceItem, deleteTrialBalanceItem, resetTrialBalanceToDefaults, addNewMember, updateMemberStatus, getPendingApplications, approvePendingApplication, rejectPendingApplication, getContactMessages, markContactMessageStatus, deleteContactMessage, OFFICIAL_BRANCHES, GHANA_REGIONS, CHURCH_TITLES, MARITAL_STATUSES, getTreasuryAccountsData, calculateTreasuryTotals, getLiveFellowshipFinancials, saveMemberDirectoryRecord, deleteMember, fetchPendingApplicationsFromServer, updateMemberDetails } from '../services/store';
 import { getMemberLevyDetails, getSpecialLeviesMaster } from '../utils/levyData';
 import { getMemberVehicleShares } from '../utils/vehicleSharesData';
 import LoadingModal from '../components/LoadingModal';
@@ -154,6 +154,8 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
   // Member Roster Status Filter & Registration Management
   const [rosterStatusFilter, setRosterStatusFilter] = useState('all'); // 'all', 'ACTIVE', 'PROBATION', 'REMOVED', 'PENDING'
   const [pendingApps, setPendingApps] = useState(() => getPendingApplications());
+  const [editingMemberDetails, setEditingMemberDetails] = useState(null);
+  const [editMemberForm, setEditMemberForm] = useState({});
 
   useEffect(() => {
     fetchPendingApplicationsFromServer().then(apps => {
@@ -2321,6 +2323,31 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                                 </button>
                                 <button
                                   onClick={() => {
+                                    setEditingMemberDetails(m);
+                                    setEditMemberForm({
+                                      full_name: m.full_name || '',
+                                      title: m.title || 'Brother',
+                                      position: m.position || 'Member',
+                                      branch: m.branch || '',
+                                      phone_number: m.phone_number || '',
+                                      phone_number_2: m.phone_number_2 || '',
+                                      email: m.email || '',
+                                      region: m.region || 'Greater Accra',
+                                      town: m.town || '',
+                                      occupation: m.occupation || '',
+                                      marital_status: m.marital_status || 'Single',
+                                      next_of_kin: m.next_of_kin || '',
+                                      next_of_kin_contact: m.next_of_kin_contact || ''
+                                    });
+                                  }}
+                                  className="btn btn-secondary"
+                                  style={{ padding: '0.35rem 0.55rem', fontSize: '0.78rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#2563eb', border: '1px solid rgba(37, 99, 235, 0.4)', background: 'rgba(37, 99, 235, 0.06)' }}
+                                  title={`Edit ${m.full_name}'s details`}
+                                >
+                                  <Edit3 size={13} />
+                                </button>
+                                <button
+                                  onClick={() => {
                                     if (window.confirm(`Are you sure you want to PERMANENTLY delete ${m.full_name} from the fellowship roster? This cannot be undone.`)) {
                                       const updated = deleteMember(m.id, currentUser?.full_name || 'Executive Admin');
                                       setMembers(updated);
@@ -4001,6 +4028,107 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
         members={members}
         onSaveSuccess={(updated) => setSpecialLeviesList(updated)}
       />
+
+      {/* ========================================================= */}
+      {/* ✏️ EDIT MEMBER DETAILS MODAL                              */}
+      {/* ========================================================= */}
+      {editingMemberDetails && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ width: '100%', maxWidth: '580px', maxHeight: '90vh', borderRadius: '20px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.4)' }}>
+            <div style={{ padding: '1.15rem 1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>
+                ✏️ Edit Member: {editingMemberDetails.full_name}
+              </h3>
+              <button onClick={() => setEditingMemberDetails(null)} style={{ width: '32px', height: '32px', borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const updated = updateMemberDetails(editingMemberDetails.id, editMemberForm, currentUser?.full_name || 'Executive Admin');
+                setMembers(updated);
+                setKeyInHistory(getKeyInHistory());
+                setEditingMemberDetails(null);
+                setImportSuccess(`✅ Updated profile details for ${editMemberForm.full_name}!`);
+                setTimeout(() => setImportSuccess(''), 4000);
+              }}
+              style={{ padding: '1.25rem 1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '0.65rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>TITLE</label>
+                  <select value={editMemberForm.title} onChange={e => setEditMemberForm({ ...editMemberForm, title: e.target.value })} className="form-select">
+                    {CHURCH_TITLES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>FULL NAME *</label>
+                  <input type="text" required value={editMemberForm.full_name} onChange={e => setEditMemberForm({ ...editMemberForm, full_name: e.target.value })} className="form-input" />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>POSITION</label>
+                  <input type="text" value={editMemberForm.position} onChange={e => setEditMemberForm({ ...editMemberForm, position: e.target.value })} className="form-input" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>BRANCH</label>
+                  <input type="text" value={editMemberForm.branch} onChange={e => setEditMemberForm({ ...editMemberForm, branch: e.target.value })} className="form-input" />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>PHONE 1</label>
+                  <input type="tel" value={editMemberForm.phone_number} onChange={e => setEditMemberForm({ ...editMemberForm, phone_number: e.target.value })} className="form-input" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>PHONE 2</label>
+                  <input type="tel" value={editMemberForm.phone_number_2} onChange={e => setEditMemberForm({ ...editMemberForm, phone_number_2: e.target.value })} className="form-input" />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>REGION</label>
+                  <select value={editMemberForm.region} onChange={e => setEditMemberForm({ ...editMemberForm, region: e.target.value })} className="form-select">
+                    {GHANA_REGIONS.map(r => <option key={r} value={r}>{r} Region</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>TOWN</label>
+                  <input type="text" value={editMemberForm.town} onChange={e => setEditMemberForm({ ...editMemberForm, town: e.target.value })} className="form-input" />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>OCCUPATION</label>
+                  <input type="text" value={editMemberForm.occupation} onChange={e => setEditMemberForm({ ...editMemberForm, occupation: e.target.value })} className="form-input" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>MARITAL STATUS</label>
+                  <select value={editMemberForm.marital_status} onChange={e => setEditMemberForm({ ...editMemberForm, marital_status: e.target.value })} className="form-select">
+                    {MARITAL_STATUSES.map(ms => <option key={ms} value={ms}>{ms}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>NEXT OF KIN</label>
+                  <input type="text" value={editMemberForm.next_of_kin} onChange={e => setEditMemberForm({ ...editMemberForm, next_of_kin: e.target.value })} className="form-input" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.2rem' }}>NEXT OF KIN PHONE</label>
+                  <input type="tel" value={editMemberForm.next_of_kin_contact} onChange={e => setEditMemberForm({ ...editMemberForm, next_of_kin_contact: e.target.value })} className="form-input" />
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', marginTop: '0.5rem' }}>
+                <button type="button" onClick={() => setEditingMemberDetails(null)} className="btn btn-secondary">Cancel</button>
+                <button type="submit" className="btn btn-primary" style={{ background: '#2563eb', borderColor: '#2563eb' }}>Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
