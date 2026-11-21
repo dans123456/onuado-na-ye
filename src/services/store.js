@@ -2948,6 +2948,7 @@ export const approvePendingApplication = (appId, initialStatus = 'PROBATION') =>
   // Remove from pending
   const remaining = pending.filter(a => a.id !== appId);
   localStorage.setItem('ony_pending_applications', JSON.stringify(remaining));
+  fetch(`${MEDIA_SERVER_URL}/api/applications/${appId}`, { method: 'DELETE' }).catch(() => {});
 
   return { updatedMembers, createdMember, remainingPending: remaining };
 };
@@ -2956,6 +2957,7 @@ export const rejectPendingApplication = (appId) => {
   const pending = getPendingApplications();
   const remaining = pending.filter(a => a.id !== appId);
   localStorage.setItem('ony_pending_applications', JSON.stringify(remaining));
+  fetch(`${MEDIA_SERVER_URL}/api/applications/${appId}`, { method: 'DELETE' }).catch(() => {});
   return remaining;
 };
 
@@ -3286,7 +3288,7 @@ export const fetchAlbumsFromServer = async ({ tab = 'all', branch = 'all', q = '
       if (data.success && Array.isArray(data.albums)) {
         try {
           localStorage.setItem('ony_fellowship_albums', JSON.stringify(data.albums));
-        } catch (_) {}
+        } catch (_) { }
         return data.albums;
       }
     }
@@ -3296,7 +3298,7 @@ export const fetchAlbumsFromServer = async ({ tab = 'all', branch = 'all', q = '
   try {
     const cached = localStorage.getItem('ony_fellowship_albums');
     if (cached) return JSON.parse(cached);
-  } catch (_) {}
+  } catch (_) { }
   return INITIAL_GALLERY_MEDIA.map((item, idx) => ({
     id: item.id || `album_${idx}`,
     title: item.title,
