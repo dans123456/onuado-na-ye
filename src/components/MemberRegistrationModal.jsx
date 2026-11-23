@@ -1,11 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { X, CheckCircle2, UserPlus, CreditCard, ShieldCheck, Heart, AlertCircle, ArrowRight, ArrowLeft, Printer, Users, MapPin, Briefcase, Sparkles, Camera, UploadCloud } from 'lucide-react';
+import { X, CheckCircle2, UserPlus, CreditCard, ShieldCheck, Heart, AlertCircle, ArrowRight, ArrowLeft, Printer, Users, MapPin, Briefcase, Sparkles, Camera, UploadCloud, BookOpen, Download } from 'lucide-react';
 import { savePendingApplication, uploadMediaFile, OFFICIAL_BRANCHES, GHANA_REGIONS, GHANA_TOWNS_BY_REGION, CHURCH_TITLES, MARITAL_STATUSES } from '../services/store';
 import OfficialRegistrationPrintModal from './OfficialRegistrationPrintModal';
+import { CONSTITUTION_ARTICLES } from './ConstitutionModal';
 
 export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) {
-  const [currentStep, setCurrentStep] = useState(1); // 1: Personal, 2: Location, 3: Vocation, 4: Family, 5: Payment, 6: Success
+  const [currentStep, setCurrentStep] = useState(0); // 0: Constitution Agreement, 1: Personal, 2: Location, 3: Vocation, 4: Family, 5: Payment, 6: Success
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [acceptedConstitution, setAcceptedConstitution] = useState(false);
+  const [finalAgreementConfirmed, setFinalAgreementConfirmed] = useState(false);
+  const [selectedArticleFilter, setSelectedArticleFilter] = useState('all');
 
   const [formData, setFormData] = useState({
     // Step 1: Personal & Church
@@ -125,6 +129,10 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
   };
 
   const handlePaymentConfirm = () => {
+    if (!finalAgreementConfirmed) {
+      setError('Please check the final Constitution reaffirmation box before submitting your registration.');
+      return;
+    }
     setIsSubmitting(true);
     setError('');
 
@@ -132,6 +140,8 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
       try {
         const app = savePendingApplication({
           ...formData,
+          constitution_accepted: true,
+          constitution_accepted_at: new Date().toISOString(),
           payment_reference: `REG-PAY-${Date.now()}`
         });
         setSubmittedApp(app);
@@ -147,7 +157,10 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
   };
 
   const resetAndClose = () => {
-    setCurrentStep(1);
+    setCurrentStep(0);
+    setAcceptedConstitution(false);
+    setFinalAgreementConfirmed(false);
+    setSelectedArticleFilter('all');
     setSubmittedApp(null);
     setError('');
     onClose();
@@ -201,7 +214,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
             </div>
 
             {/* Stepper Progress Bar (Steps 1 to 5) */}
-            {currentStep <= 5 && (
+            {currentStep >= 1 && currentStep <= 5 && (
               <>
                 {/* Desktop Stepper */}
                 <div className="reg-stepper-desktop">
@@ -325,6 +338,146 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
             <div style={{ padding: '0.75rem 1rem', borderRadius: '10px', background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.3)', color: '#dc2626', fontSize: '0.85rem', fontWeight: 600, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <AlertCircle size={18} style={{ flexShrink: 0 }} />
               <div>{error}</div>
+            </div>
+          )}
+
+          {/* ================= STEP 0: CONSTITUTION & TERMS AGREEMENT ================= */}
+          {currentStep === 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+              <div style={{ padding: '0.85rem 1rem', borderRadius: '12px', background: 'rgba(5, 150, 105, 0.08)', border: '1px solid rgba(5, 150, 105, 0.28)', display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
+                <BookOpen size={20} color="#059669" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-main)', lineHeight: 1.5 }}>
+                  <strong style={{ display: 'block', color: '#059669', marginBottom: '0.15rem' }}>
+                    Fellowship Constitution &amp; Membership Agreement
+                  </strong>
+                  Please read the official Constitution of <strong>Onuadɔ Na Ɛyɛ Men&apos;s Fellowship</strong> (Articles 1–19) and accept the terms before proceeding to the registration form.
+                </div>
+              </div>
+
+              {/* Jump to Article + Download Bar */}
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+                <select
+                  value={selectedArticleFilter}
+                  onChange={(e) => setSelectedArticleFilter(e.target.value)}
+                  className="form-select"
+                  style={{ flex: '1 1 200px', fontSize: '0.8rem', fontWeight: 700, padding: '0.45rem 0.65rem' }}
+                >
+                  <option value="all">📜 View All 19 Articles &amp; Declaration</option>
+                  {CONSTITUTION_ARTICLES.map((item) => (
+                    <option key={item.art} value={item.art}>
+                      {item.art} — {item.title}
+                    </option>
+                  ))}
+                </select>
+
+                <a
+                  href="/constitution.doc"
+                  download="ONUADO_NA_EYE_CONSTITUTION.doc"
+                  className="btn btn-secondary"
+                  style={{ padding: '0.45rem 0.8rem', fontSize: '0.78rem', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                >
+                  <Download size={14} /> Download .DOC
+                </a>
+              </div>
+
+              {/* Scrollable Constitution Reading Pane */}
+              <div
+                style={{
+                  maxHeight: '40vh',
+                  overflowY: 'auto',
+                  padding: '1rem',
+                  borderRadius: '12px',
+                  background: 'var(--bg-main)',
+                  border: '1.5px solid var(--border-color)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem'
+                }}
+              >
+                {CONSTITUTION_ARTICLES.filter(a => selectedArticleFilter === 'all' || a.art === selectedArticleFilter).map((article) => (
+                  <div key={article.art} style={{ paddingBottom: '0.85rem', borderBottom: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 900, background: '#059669', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '6px' }}>
+                        {article.art}
+                      </span>
+                      <span style={{ fontSize: '0.86rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                        {article.title}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                      {article.content}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mandatory Agreement Checkbox */}
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.65rem',
+                  padding: '0.85rem 1rem',
+                  borderRadius: '12px',
+                  background: acceptedConstitution ? 'rgba(5, 150, 105, 0.1)' : 'var(--bg-main)',
+                  border: acceptedConstitution ? '1.5px solid #059669' : '1.5px solid var(--border-color)',
+                  cursor: 'pointer',
+                  fontSize: '0.83rem',
+                  fontWeight: 700,
+                  color: 'var(--text-main)',
+                  lineHeight: 1.45
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={acceptedConstitution}
+                  onChange={(e) => {
+                    setAcceptedConstitution(e.target.checked);
+                    if (e.target.checked) setError('');
+                  }}
+                  style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: '#059669', flexShrink: 0 }}
+                />
+                <span>
+                  I have read, understood, and agree to abide by the Constitution (Articles 1–19) of the <strong>Onuadɔ Na Ɛyɛ Men&apos;s Fellowship</strong> as a binding membership agreement. *
+                </span>
+              </label>
+
+              {/* Step 0 Footer Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', gap: '0.6rem' }}>
+                <button
+                  type="button"
+                  onClick={resetAndClose}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.65rem 1.15rem', fontWeight: 700 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={!acceptedConstitution}
+                  onClick={() => {
+                    if (!acceptedConstitution) {
+                      setError('You must accept the Fellowship Constitution before starting registration.');
+                      return;
+                    }
+                    setError('');
+                    setCurrentStep(1);
+                  }}
+                  className="btn btn-primary"
+                  style={{
+                    padding: '0.65rem 1.35rem',
+                    fontWeight: 800,
+                    background: acceptedConstitution ? '#059669' : '#94a3b8',
+                    borderColor: acceptedConstitution ? '#059669' : '#94a3b8',
+                    cursor: acceptedConstitution ? 'pointer' : 'not-allowed',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem'
+                  }}
+                >
+                  Accept &amp; Start Registration <ArrowRight size={16} />
+                </button>
+              </div>
             </div>
           )}
 
@@ -668,6 +821,37 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
                   </select>
                 </div>
               </div>
+
+              {/* Final Digital Sign-Off (Option C) */}
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.65rem',
+                  padding: '0.9rem 1rem',
+                  borderRadius: '12px',
+                  background: finalAgreementConfirmed ? 'rgba(5, 150, 105, 0.1)' : 'rgba(217, 119, 6, 0.06)',
+                  border: finalAgreementConfirmed ? '1.5px solid #059669' : '1.5px solid rgba(217, 119, 6, 0.35)',
+                  cursor: 'pointer',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  color: 'var(--text-main)',
+                  lineHeight: 1.5
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={finalAgreementConfirmed}
+                  onChange={(e) => {
+                    setFinalAgreementConfirmed(e.target.checked);
+                    if (e.target.checked) setError('');
+                  }}
+                  style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: '#059669', flexShrink: 0 }}
+                />
+                <span>
+                  <strong>Final Digital Sign-Off:</strong> By submitting this registration, I reaffirm my binding agreement to the Fellowship Constitution (Articles 1–19), including monthly dues (GH₵ 100.00), enrollment fee (GH₵ 200.00), six-month probation, and welfare policies. *
+                </span>
+              </label>
             </div>
           )}
 
@@ -710,7 +894,7 @@ export default function MemberRegistrationModal({ isOpen, onClose, onSuccess }) 
           )}
 
           {/* Stepper Navigation Buttons (Steps 1 to 5) */}
-          {currentStep <= 5 && (
+          {currentStep >= 1 && currentStep <= 5 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.75rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.1rem' }}>
               {currentStep > 1 ? (
                 <button 

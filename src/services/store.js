@@ -2902,6 +2902,8 @@ export const savePendingApplication = (appData) => {
     reg_fee_paid: 200,
     payment_reference: appData.payment_reference || `REG-${Date.now()}`,
     payment_method: appData.payment_method || 'Mobile Money',
+    constitution_accepted: !!appData.constitution_accepted,
+    constitution_accepted_at: appData.constitution_accepted_at || new Date().toISOString(),
     status: 'PENDING_APPROVAL'
   };
 

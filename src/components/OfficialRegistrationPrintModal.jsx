@@ -150,6 +150,19 @@ export default function OfficialRegistrationPrintModal({ isOpen, onClose, member
           </tbody>
         </table>
 
+        {/* Official Constitution Agreement Declaration */}
+        <div style={{ marginTop: '1.25rem', padding: '0.75rem 1rem', border: '1.5px solid #059669', borderRadius: '8px', background: '#f0fdf4', fontSize: '0.78rem', color: '#065f46', lineHeight: 1.5 }}>
+          <strong style={{ display: 'block', marginBottom: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+            ✓ Fellowship Constitution & Membership Agreement
+          </strong>
+          I hereby affirm that I have read, understood, and agreed to abide by the official Constitution (Articles 1–19) of the <strong>Onuadɔ Na Ɛyɛ Men's Fellowship</strong>, including monthly dues, probation, welfare policies, and governing rules.
+          {data.constitution_accepted_at && (
+            <span style={{ display: 'block', marginTop: '0.2rem', fontWeight: 700, fontSize: '0.72rem' }}>
+              Digitally Accepted On: {new Date(data.constitution_accepted_at).toLocaleString('en-GB')}
+            </span>
+          )}
+        </div>
+
         {/* Official Endorsement Signatures & Fee Receipt */}
         <div style={{ marginTop: '2rem', borderTop: '2px dashed #94a3b8', paddingTop: '1.25rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '1rem' }}>

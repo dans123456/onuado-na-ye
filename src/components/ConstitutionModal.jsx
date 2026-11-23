@@ -10,139 +10,241 @@ export const CONSTITUTION_ARTICLES = [
   },
   {
     art: 'Art. 2',
-    title: 'NAME OF THE FELLOWSHIP',
+    title: 'NAME',
     category: 'General',
-    content: `The name shall be called: ONUADO NA EYE MENS' FELLOWSHIP (thereafter referred to as FELLOWSHIP).`
+    content: `The name shall be called: "ONUADO NA EYE MEN'S FELLOWSHIP", thereafter referred to as "FELLOWSHIP."`
   },
   {
     art: 'Art. 3',
     title: 'AIMS AND OBJECTIVES',
     category: 'General',
-    content: `The fellowship aims and objectives shall be:
-• Unite all interested Christians who have the welfare of the destitute at hand.
-• Seek for members' welfare and mutual aid.
-• Ensure that all conflicts among members are resolved in Christian harmony.
-• Promote trade income and voluntary funds to feed and support the destitute.`
+    content: `The fellowship aims and objectives shall:
+• Unite any interested Christians who have the welfare of the destitute at hand.
+• Seek for members' welfare.
+• Ensure that all conflicts among members are resolved.
+• Promote trade income to feed the destitute.`
   },
   {
     art: 'Art. 4',
-    title: 'MEMBERSHIP ADMISSION',
+    title: 'MEMBERSHIP',
     category: 'Membership',
-    content: `The President of the Fellowship has the constitutional right to accept or reject any new member into the Fellowship through recommendation from the Executive members.`
+    content: `The President of the Fellowship has the constitutional right to accept or reject any new member into the Fellowship through the recommendation from the Executive members.`
   },
   {
     art: 'Art. 5',
-    title: 'ENROLLMENT FEE',
+    title: 'ENROLLMENT',
     category: 'Membership',
-    content: `• Enrolment into the Fellowship was free up to 31st December 2022.
-• From 1st January 2023, every new member shall pay an official enrollment fee of Two Hundred Ghana Cedis (GH₵ 200.00).`
+    content: `• Enrolment into the Fellowship shall be free up to 31st December 2022.
+• From 1st January 2023, a new member shall pay an enrollment fee of Two Hundred Cedis (GH₵ 200.00).`
   },
   {
     art: 'Art. 6',
-    title: 'PROBATION & REINSTATEMENT',
+    title: 'PROBATION',
     category: 'Membership',
-    content: `• Any new member shall be on probation for a period of six (6) calendar months. After probation, the Executives shall approve qualification as a full member.
-• Any resigned member who wishes to return shall be treated as a new member.
-• Any removed member who wishes to return shall pay a penalty of One Hundred Cedis (GH₵ 100.00), settle all outstanding debt, and be placed on three (3) months probation.`
+    content: `• Any new member shall be on probation for a period of six (6) calendar months.
+• After the probation period, the Executives shall approve of his qualification as a full member.
+• Any resigned member who wishes to come back shall be treated as a new member.
+• Any removed member who wishes to come back shall pay a penalty of One Hundred Cedis (GH₵ 100.00), pay all his debt, and in addition be placed on three (3) months' probation.`
   },
   {
     art: 'Art. 7',
-    title: 'MONTHLY DUES & LEVIES',
+    title: 'DUES AND OTHER CONTRIBUTIONS',
     category: 'Finance',
-    content: `• Members shall contribute a monthly due of Fifty Ghana Cedis (GH₵ 50.00).
-• Besides monthly dues, there shall be voluntary contributions or special levies when the need arises.`
+    content: `• Members shall contribute a monthly due of One Hundred Cedis (GH₵ 100.00).
+• Besides the monthly dues, there shall be a voluntary contribution or levy when the need arises.`
   },
   {
     art: 'Art. 8',
-    title: 'EXECUTIVE BOARD OFFICERS',
+    title: 'EXECUTIVE OFFICERS',
     category: 'Governance',
     content: `The following officers shall be elected into office as Executive Officers by members of the Fellowship:
-1. President (Leader & Policy Implementer)
-2. Vice President (Assists President & Acts in Absence)
-3. P.R.O. (Public Relations & Information Dissemination)
-4. Secretary (Secretariat Records & Official Correspondence)
-5. Financial Secretary / Treasurer (Monetary Ledger & Bank Accounts)
-6. Organizers & Executive Members (Welfare & Operations)`
+1. President
+2. Vice President
+3. Secretary
+4. Financial Secretary
+5. Organizer / Liaison Officer
+6. Two Co-opted Members`
   },
   {
     art: 'Art. 9',
-    title: 'ELECTION OF EXECUTIVE OFFICERS',
+    title: 'DUTIES OF THE EXECUTIVE OFFICERS',
     category: 'Governance',
-    content: `• Officers shall be elected by simple majority vote of active members present at an official General Meeting.
-• Tenure of office shall be four (4) years, subject to re-election.`
+    content: `Sect. 1 — PRESIDENT:
+• Shall be the leader over the Executive members and implement policies.
+• Shall preside over all meetings of the Fellowship.
+• Shall convene meetings when he deems it necessary or when requested to do so by at least five (5) members of the Fellowship.
+• Shall have powers to accept or reject a new member or remove a member from the Fellowship.
+• Shall by virtue of his office be an ex-officio member of every committee of the Fellowship.
+
+Sect. 2 — VICE PRESIDENT:
+• Shall assist the President in performing his duties.
+• In the absence of the President, the Vice President shall act as President.
+
+Sect. 3 — SECRETARY:
+• Shall be responsible for the filing of all documents relating to the Fellowship.
+• Shall schedule and coordinate all welfare meetings and communicate same to Members.
+• Shall take minutes at all Fellowship meetings and ensure Executive Members receive copies within fourteen (14) days after the meeting day.
+• Shall attend to all incoming and outgoing correspondence on behalf of the Fellowship.
+• Shall be one of the signatories to the Fellowship bank account.
+• Shall ensure that members' welfare cards are promptly updated.
+• Shall perform all other duties assigned to him by the President and shall have knowledge of administration.
+
+Sect. 4 — FINANCIAL SECRETARY:
+• Shall have knowledge in Financial Accounting.
+• Shall receive and deposit all monies into the Fellowship Bank Account within 48 hours upon receipt.
+• Shall not be one of the signatories to the Fellowship bank account.
+• Shall present yearly Financial Statements to members at the Annual General Meetings.
+• Shall keep and update all financial documents of the Fellowship in good order for easy access.
+• Shall also act as Secretary in the absence of the substantive Secretary.
+
+Sect. 5 — ORGANIZER / LIAISON OFFICER:
+• Shall perform duties relating to welfare assigned to him by the President.
+• Shall represent the Fellowship at any social function on behalf of the Fellowship.
+• Shall, upon approval from Executive Members, be responsible for purchasing gifts for a member on an occasion if the need arises.
+• Shall monitor the attendance of members to Fellowship meetings.
+• Shall communicate with the public and deliver press or media releases in a public forum on behalf of the Fellowship.
+• Shall act as Master of Ceremony (MC) at all meetings and gatherings.
+
+Sect. 6 — CO-OPTED MEMBER:
+• Shall be members of the Executives.
+• Shall have Executive power to take decisions during Executive meetings.`
   },
   {
     art: 'Art. 10',
-    title: 'DUTIES OF THE PRESIDENT',
+    title: 'ELECTIONS',
     category: 'Governance',
-    content: `The President shall preside over all general and executive meetings, uphold the constitution, direct affairs of the fellowship, and represent the fellowship in external matters.`
+    content: `Sect. 1 — ELECTORAL COLLEGE:
+• Members shall appoint a five-member ad-hoc Committee to conduct elections by a majority vote of members.
+• The Electoral College shall have powers for vetting, conducting, and monitoring elections.
+• The Chairman of the Electoral College shall declare the results of each Executive Position.
+
+Sect. 2 — ELIGIBILITIES FOR ELECTION AS EXECUTIVE OFFICER:
+• Shall apply by filling a form to the President of the Electoral College.
+• Shall be supported by three qualified members at a General Meeting.
+• Shall be approved by the Financial Secretary that his financial obligations are up to date.
+• Shall make sure that he is fully qualified for the post.
+
+Sect. 3 — BY-ELECTIONS:
+• Whenever an Executive Member dies, resigns, or is removed from office, the President or Acting President shall convene an emergency meeting, in consultation with Executive Members, to conduct a by-election within twenty-eight (28) days to fill that vacant post.`
   },
   {
     art: 'Art. 11',
-    title: 'DUTIES OF THE SECRETARY',
+    title: 'TERM OF OFFICE FOR EXECUTIVE OFFICERS',
     category: 'Governance',
-    content: `The Secretary shall keep true records of all proceedings, issue notice of meetings, handle correspondence, and maintain an updated register of members.`
+    content: `• Executive Officers shall hold office for a period of four (4) years.
+• Upon satisfactory, efficient, and diligent performance, an Executive Officer shall be eligible for re-election for a second term only.`
   },
   {
     art: 'Art. 12',
-    title: 'DUTIES OF THE FINANCIAL SECRETARY & TREASURER',
-    category: 'Finance',
-    content: `• Collect all dues, levies, and contributions, and issue receipts.
-• Pay all moneys into the official Fidelity Bank Ghana account of the Fellowship within 48 hours.
-• Present audited financial statements at general meetings.`
+    title: 'REMOVAL OF EXECUTIVE OFFICERS',
+    category: 'Governance',
+    content: `• An Executive Officer may be removed from office before his term expires upon a "Vote of No Confidence" supported by two-thirds (2/3) votes of members present at a General Meeting.
+• Any member seeking the removal of an Executive Officer shall submit a written or oral memorandum to the General Secretary stating his reasons within fourteen (14) days prior to the General Meeting, and shall appear before the Executive Meeting to substantiate his grounds.
+• Grounds for removal/demotion also include: absenting oneself from church for three (3) months without reasonable grounds (upon enquiry with colleague Elders and Branch Pastor); death; travelling outside Ghana for six (6) months; or suspension by the National Council.`
   },
   {
     art: 'Art. 13',
-    title: 'FELLOWSHIP BANK ACCOUNT & SIGNATORIES',
-    category: 'Finance',
-    content: `• Bank Name: Fidelity Bank Ghana
-• Account Name: ONUADO NA EYE MENS' FELLOWSHIP
-• Account Number: 2090182444410
-• Signatories: Group A (President & Secretary) and Group B (Treasurer). Cheques/transfers require one signature from Group A and one from Group B.`
+    title: 'MEETINGS',
+    category: 'General',
+    content: `There shall be three (3) categories of meetings adhered to by members: Executive Meeting, General Monthly Meeting, and Annual Meeting. Due to members not being in one place, meetings may be held on any suitable platform.
+
+Sect. 1 — EXECUTIVE MEETINGS:
+• The President shall convene an Executive meeting as and when the need arises. 50% of Executive Members present shall form a quorum.
+
+Sect. 2 — GENERAL MEETINGS:
+• There shall be General Meetings for all members at least once a year. It is mandatory for every member of the Fellowship to attend.
+
+Sect. 3 — EMERGENCY MEETINGS:
+• The President shall convene an emergency meeting online, in consultation with Executive Members, as and when necessary.`
   },
   {
     art: 'Art. 14',
-    title: 'MEETINGS & QUORUM',
+    title: 'GOVERNING POLICY',
     category: 'General',
-    content: `• Meetings are held online (via Google Meet / Zoom) and physically as scheduled on 1st Sunday of every month @ 7:30 PM.
-• Quorum for general meetings shall be one-third (1/3) of active members.`
+    content: `• All suggestions, contributions, and observations should be channeled through the Secretary to the Executives.
+• All letters from members requesting assistance shall be channeled through the Secretary to the Executives.
+• Members are expected to be committed to any welfare matters of the Fellowship.
+• To avoid dispute, outgoing Executives shall hand over officially to incoming Executives.`
   },
   {
     art: 'Art. 15',
-    title: 'DISCIPLINE & ABSENTEEISM',
-    category: 'General',
-    content: `• Members shall observe Christian discipline, respect, and decorum.
-• Unexcused absence from three consecutive meetings attracts a query or fine determined by Executives.`
+    title: 'FINANCIAL POLICIES & BANK SIGNATORIES',
+    category: 'Finance',
+    content: `Sect. 1 — POLICIES:
+• Shall raise funds through welfare dues, levies, or voluntary contributions.
+• Shall operate a Bank Account (Current or Savings, or both) and a MoMo Account of their choice.
+• If a member is due for any benefits under Administrative Policies, there shall be a voluntary contribution or levy to support.
+• Members shall lose their benefits if they do not contribute to their monthly welfare dues, levies, and other voluntary contributions.
+• Shall invest in Treasury Bills when the need arises.
+• Members shall not be entitled to loans whatsoever.
+• The Fellowship shall decide on an Imprest the Financial Secretary shall hold annually.
+• No money belonging to the Fellowship shall be kept in a member's house, office, or personal account.
+• Monthly dues, levies, or voluntary contributions made by any member whatsoever are NOT refundable.
+
+Sect. 2 — BANK SIGNATORIES:
+• Any transaction with the bank or money drawn shall be made known to all Executive Members.
+• Two signatory groups: GROUP A (President or Vice President) and GROUP B (Secretary or an Executive Member appointed by the Executive and approved by members).
+• The Fellowship reserves the right to recommend or withdraw signatories. Any signatory who resigns or abrogates his membership automatically ceases to be a signatory.`
   },
   {
     art: 'Art. 16',
-    title: 'WELFARE BENEFITS SCHEDULE',
+    title: 'ADMINISTRATIVE POLICY (WELFARE BENEFITS)',
     category: 'Welfare Benefits',
-    content: `Official Welfare Benefits for Full Members (after 6 months probation):
-• Bereavement of Member: GH₵ 5,000.00
-• Bereavement of Spouse: GH₵ 3,000.00
-• Bereavement of Biological Parent: GH₵ 2,000.00
-• Hospitalization (3+ days): GH₵ 1,000.00
-• Naming Ceremony / New Child: GH₵ 1,000.00
-• Member Wedding: 80% contribution support from Welfare Fund.`
+    content: `Sect. 1 — BEREAVEMENT:
+Notify the President through the Secretary in writing or orally. Close relatives covered are Wife, Father, Mother, or up to two (2) Biological Children:
+• Wife: Five Thousand Cedis (GH₵ 5,000.00)
+• Father or Mother: Three Thousand Cedis (GH₵ 3,000.00)
+• Biological Children: Two Thousand Cedis (GH₵ 2,000.00) each
+
+Sect. 2 — HOSPITALIZATION:
+In case of severe illness, hospitalization, or accident, notify the President through the Secretary. Members will visit, and for serious cases an emergency voluntary contribution may be raised.
+• Cash donation: One Thousand Cedis (GH₵ 1,000.00)
+
+Sect. 3 — DESTITUTION OR LOSS OF PROPERTY:
+Where a member faces destitution, indisposition, or social mishap, the President shall call an emergency Executive meeting to raise special voluntary contributions.
+• Cash donation: Three Thousand Cedis (GH₵ 3,000.00)
+
+Sect. 4 — CHILDBIRTH / OUTDOORING CEREMONY:
+Notify the Secretary in writing or orally for the naming day. This benefit shall be once for a member.
+• Cash donation: One Thousand Cedis (GH₵ 1,000.00)
+
+Sect. 5 — WEDDINGS:
+Notify the Secretary one (1) month prior to the wedding ceremony. Transportation for two representatives is provided by the Fellowship.
+• Cash donation: Eighty percent (80%) of voluntary contributions made.`
   },
   {
     art: 'Art. 17',
-    title: 'DESTITUTE AID & CHARITY FUND',
+    title: 'QUALIFICATION FOR BENEFITS',
     category: 'Welfare Benefits',
-    content: `A dedicated portion of voluntary donations and levies shall be allocated to supporting orphanages, widow aid, destitution relief, and community outreach in Ghana.`
+    content: `• Any registered member who pays all his monthly dues and other contributions shall be entitled to full benefits.
+• Any registered member who defaults in paying his monthly dues or any other contributions for six (6) calendar months and above without formal permission to the President or Executives shall cease to be a member and will not be entitled to any benefits whatsoever.
+• Any registered member who defaults in paying his monthly dues for three (3) to six (6) months without informing the Executives about his financial situation shall lose 50% of his benefits due him as penalty, and all arrears owed by him shall be deducted from the remaining benefits.`
   },
   {
     art: 'Art. 18',
-    title: 'AMENDMENTS TO CONSTITUTION',
+    title: 'AMENDMENTS TO THE CONSTITUTION',
     category: 'Governance',
-    content: `This Constitution may be amended at a General Meeting by a two-thirds (2/3) majority vote of members present, provided two weeks' notice of amendment has been served.`
+    content: `Sect. 1 — MISCELLANEOUS:
+• Amounts stated in this Constitution may be amended or reviewed as necessary to keep pace with inflation and the liquidity of the Fellowship, subject to General Meeting approval.
+
+Sect. 2 — PROVISIONS FOR AMENDMENTS:
+• There shall be provisions for amendments to sections of the Constitution as and when it becomes necessary.
+
+Sect. 3 — PROCEDURES TO AMEND:
+• Any motion to amend part or whole of the Constitution shall be made at a General Meeting and supported by two-thirds (2/3) votes of members present.
+• Written notice must be given to the President within thirty (30) days prior to the General Meeting.
+• Where debate is inconclusive, deliberations shall be postponed to a new date fixed by the President.`
   },
   {
     art: 'Art. 19',
-    title: 'DISSOLUTION OF FELLOWSHIP',
-    category: 'General',
-    content: `In the event of dissolution, all remaining assets after liabilities are settled shall be converted to Shares Holding payouts or donated to registered charitable bodies.`
+    title: 'BYE-LAWS, REGULATIONS & DECLARATION',
+    category: 'Governance',
+    content: `The Executive Members of the Fellowship shall have the mandate to make Bye-Laws and Regulations for the running of the Fellowship as and when necessary to adhere to all procedures stipulated in this Constitution.
+
+DECLARATION:
+THIS CONSTITUTION IS HEREBY APPROVED BY MEMBERS OF ONUADƆ NA ƐYƐ MEN'S FELLOWSHIP AT A GENERAL MEETING, HELD ONLINE, ON THE 30TH DAY OF SEPTEMBER 2022.
+
+Signed: MOSES ODURO (President)`
   }
 ];
 
