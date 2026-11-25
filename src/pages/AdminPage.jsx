@@ -1222,7 +1222,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                   <span className="badge" style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(37, 99, 235, 0.12)', color: '#2563eb' }}>Shares Count</span>
                 </div>
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
-                  {totalSharesPool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {Math.round(totalSharesPool).toLocaleString('en-US')}
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Cumulative Member Qualifying Shares</div>
               </div>
@@ -1236,7 +1236,7 @@ export default function AdminPage({ currentUser, setCurrentUser, members, setMem
                 <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '0.3rem', fontFamily: 'var(--font-heading)' }}>
                   GH₵ {dividendRate.toFixed(2)}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Dividend Rate Per Qualifying Share (GH₵ {dividendPool.toFixed(2)} ÷ {totalSharesPool.toFixed(2)})</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Dividend Rate Per Qualifying Share (GH₵ {dividendPool.toFixed(2)} ÷ {Math.round(totalSharesPool).toLocaleString('en-US')})</div>
               </div>
 
               {/* CARD 4: TRIAL BALANCE */}

@@ -412,7 +412,7 @@ export default function DashboardPage({ currentUser, setCurrentUser, members, se
         <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #2563eb' }}>
           <div style={{ fontSize: '0.75rem', color: '#2563eb', textTransform: 'uppercase', fontWeight: 800 }}>Total Shares</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#2563eb', marginTop: '0.2rem' }}>
-            {totalSharesPool.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {Math.round(totalSharesPool).toLocaleString('en-US')}
           </div>
           <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
             Fellowship Master Shares Pool
