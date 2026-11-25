@@ -52,11 +52,11 @@ export const NON_SHAREHOLDING_NAMES = [
   "samuel yaw nkansah"
 ];
 
-// Baseline Excel constants
-export const FELLOWSHIP_TOTAL_DIVIDEND = 80153.10;
-export const FELLOWSHIP_TOTAL_SHARES = 45452.70;
-export const FELLOWSHIP_DIVIDEND_RATE = 1.763439825646139;
-export const CASH_ON_HAND_SHARES_POOL = 80153.10;
+// Baseline Excel constants (Synced from ONUADO NA EYE ACCOUNT.xlsx)
+export const FELLOWSHIP_TOTAL_DIVIDEND = 80605.62;
+export const FELLOWSHIP_TOTAL_SHARES = 45652.70;
+export const FELLOWSHIP_DIVIDEND_RATE = 1.7656265963315953;
+export const CASH_ON_HAND_SHARES_POOL = 80605.62;
 
 /**
  * Checks if a member qualifies for dividend shareholding

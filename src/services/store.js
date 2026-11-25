@@ -226,11 +226,11 @@ const INITIAL_MEMBERS = [
     "mother_name": "Marry Ackom",
     "mother_contact": "055 510 2666",
     "reg_fees": 200,
-    "base_dues_paid": 3400,
+    "base_dues_paid": 3600,
     "base_shares_value": 4235.26066339818,
-    "dues_paid": 3400,
+    "dues_paid": 3600,
     "levy_paid": 1000,
-    "total_payments": 4600,
+    "total_payments": 4800,
     "dues_fee_required": 3900,
     "shares_dividends": 2114.1776290113085,
     "shares_value": 4235.26066339818,
@@ -616,11 +616,11 @@ const INITIAL_MEMBERS = [
     "mother_name": "Elizabeth Antwi",
     "mother_contact": "054 328 3970",
     "reg_fees": 200,
-    "base_dues_paid": 3200,
+    "base_dues_paid": 3400,
     "base_shares_value": 3906.197664207724,
-    "dues_paid": 3200,
+    "dues_paid": 3400,
     "levy_paid": 800,
-    "total_payments": 4400,
+    "total_payments": 4600,
     "dues_fee_required": 3900,
     "shares_dividends": 1949.9143907563025,
     "shares_value": 3906.197664207724,
@@ -1459,7 +1459,7 @@ export const recalculateMemberFinancials = (member) => {
   return member;
 };
 
-const DATA_VERSION = '2026-11-19-v26-onf-member-ids-order';
+const DATA_VERSION = '2026-11-25-v27-shares-45652-70-dividend-80605-62';
 
 export const getMembers = () => {
   try {
@@ -2181,12 +2181,12 @@ export const saveAnnouncement = (text) => {
 // Verified directly from Excel Sheet "TRAIL BALANCE" (100% Balanced at GH₵ 111,446.72)
 // ==========================================
 export const INITIAL_TRIAL_BALANCE = [
-  // Income Items (Total: GH₵ 111,446.72)
+  // Income Items (Total: GH₵ 111,846.72)
   { id: 'tb-inc-reg', particulars: 'REGISTRATION', amount: 4800.00, type: 'income', category: 'Registration Fees' },
   { id: 'tb-inc-dues-2023', particulars: 'TOTAL MONTHLY DUES FOR 2023', amount: 10800.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-dues-2024', particulars: 'TOTAL MONTHLY DUES FOR 2024', amount: 16900.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-dues-2025', particulars: 'TOTAL MONTHLY DUES FOR 2025', amount: 22350.00, type: 'income', category: 'Monthly Dues' },
-  { id: 'tb-inc-dues-2026', particulars: 'TOTAL MONTHLY DUES FOR 2026', amount: 18000.00, type: 'income', category: 'Monthly Dues' },
+  { id: 'tb-inc-dues-2026', particulars: 'TOTAL MONTHLY DUES FOR 2026', amount: 18400.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-dues-2027', particulars: 'TOTAL MONTHLY DUES FOR 2027', amount: 0.00, type: 'income', category: 'Monthly Dues' },
   { id: 'tb-inc-levy-1', particulars: 'FIRST LEVY', amount: 3400.00, type: 'income', category: 'Special Levy' },
   { id: 'tb-inc-levy-2', particulars: 'SECOND LEVY', amount: 1700.00, type: 'income', category: 'Special Levy' },
@@ -2201,19 +2201,19 @@ export const INITIAL_TRIAL_BALANCE = [
   { id: 'tb-inc-int-ashaiman', particulars: 'INTREST ASHAIMAN BANK', amount: 166.24, type: 'income', category: 'Bank Interest' },
   { id: 'tb-inc-int-momo', particulars: 'INTREST MTM MOMO ACCOUNT', amount: 239.41, type: 'income', category: 'Bank Interest' },
 
-  // Expenditure & Asset Items (Total: GH₵ 111,446.72)
+  // Expenditure & Asset Items (Total: GH₵ 111,846.72)
   { id: 'tb-exp-bank-shares', particulars: 'BANK TEMA SHARES', amount: 100.00, type: 'expenditure', category: 'Shares Investment' },
-  { id: 'tb-exp-destitution', particulars: 'DESTITUTION', amount: 3060.30, type: 'expenditure', category: 'Welfare Benefit' },
-  { id: 'tb-exp-docs', particulars: 'DOCUMENTATIONS', amount: 1318.32, type: 'expenditure', category: 'Administrative' },
+  { id: 'tb-exp-destitution', particulars: 'DESTITUTION', amount: 3075.30, type: 'expenditure', category: 'Welfare Benefit' },
+  { id: 'tb-exp-docs', particulars: 'DOCUMENTATIONS', amount: 1150.80, type: 'expenditure', category: 'Administrative' },
   { id: 'tb-exp-naming', particulars: 'DONATIONS CHILD NAMING', amount: 2000.00, type: 'expenditure', category: 'Welfare Benefit' },
   { id: 'tb-exp-funeral', particulars: 'DONATIONS FUNERAL', amount: 13720.00, type: 'expenditure', category: 'Welfare Benefit' },
   { id: 'tb-exp-gen-exp', particulars: 'GENERAL EXPENSES', amount: 810.00, type: 'expenditure', category: 'Expenditure' },
   { id: 'tb-exp-printing', particulars: 'PRINTING & STATIONERY', amount: 785.00, type: 'expenditure', category: 'Expenditure' },
   { id: 'tb-exp-reg-gen', particulars: 'REGISREAL GENERAL', amount: 1300.00, type: 'expenditure', category: 'Legal & Compliance' },
-  { id: 'tb-exp-transport', particulars: 'TRANPORTATIONS', amount: 8200.00, type: 'expenditure', category: 'Expenditure' },
-  { id: 'tb-asset-fidelity', particulars: 'CASH IN FIDELITY BANK BALANCE', amount: 10698.88, type: 'expenditure', category: 'Bank Asset' },
+  { id: 'tb-exp-transport', particulars: 'TRANPORTATIONS', amount: 8300.00, type: 'expenditure', category: 'Expenditure' },
+  { id: 'tb-asset-fidelity', particulars: 'CASH IN FIDELITY BANK BALANCE', amount: 12198.88, type: 'expenditure', category: 'Bank Asset' },
   { id: 'tb-asset-bank-tema', particulars: 'CASH IN BANK TEMA BALANCE', amount: 266.24, type: 'expenditure', category: 'Bank Asset' },
-  { id: 'tb-asset-momo', particulars: 'CASH IN MOMO ACCOUNT', amount: 1187.98, type: 'expenditure', category: 'MoMo Wallet' },
+  { id: 'tb-asset-momo', particulars: 'CASH IN MOMO ACCOUNT', amount: 140.50, type: 'expenditure', category: 'MoMo Wallet' },
   { id: 'tb-asset-vehicle', particulars: 'CASH MENT FOR VEHICLE', amount: 68000.00, type: 'expenditure', category: 'Asset Transfer' }
 ];
 
@@ -2230,9 +2230,9 @@ export const getFellowshipDividendPool = (customTBItems = null) => {
           p === 'CASH MENT FOR VEHICLE';
       })
       .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-    return liquidAssets > 0 ? liquidAssets : 80153.10;
+    return liquidAssets > 0 ? liquidAssets : 80605.62;
   } catch (e) {
-    return 80153.10;
+    return 80605.62;
   }
 };
 
